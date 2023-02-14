@@ -6,8 +6,12 @@
 
 # Introduction
 
-In this project we aim to analyze relationships in a network by calculating the amount of inluence between any two agents.
-An agent could be a simply a single user or a set of users in a community.
+In this project we aim to analyze content relationships in a network by calculating the amount of influence between any two agents.
+For our purposes, an agent could be simply a single user or a set of users in a community.
+
+More broadly, the goal of the project is to advance the understanding of social influence as a key feature of social media and a core mechanism underlying some of the main challenges emerging from the growing use of social media, including polarization, misinformation and disinformation, and the mental health crisis.
+Specifically, we will test the hypothesis -- debated by sociological theorists but not empirically tested -- that social influence can be understood as a generalized (social) system of interchange, analogous to money or power.
+Specifically, the project studies influence as a general system of interchange where attention and content are traded.
 
 # High-Level Organization
 
