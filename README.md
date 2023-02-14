@@ -1,4 +1,55 @@
-# social-media-influence-analysis
+# Table of Contents
+
+- [Introduction](#introduction)
+- [High-Level Organization](#high-level-organization)
+- [Implementation](#implementation)
+
+# Introduction
+
+In this project we aim to analyze relationships in a network by calculating the amount of inluence between any two agents.
+An agent could be a simply a single user or a set of users in a community.
+
+# High-Level Organization
+
+In our code, we take a Object-Oriented Approach that is primarily reliant on the following classes:
+
+## Tweet
+
+A tweet object holds data about a tweet with respect to the user who tweeted, timestamp, etc.
+
+It also holds the vector embedding representation of the tweet's content which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
+Note that this tweet class allows for changes in the embedding algorithm in order to test the efficacy of multiple embedding approaches.
+
+## Community
+
+A community object holds information about a specific community.
+
+TODO: what else will "Community hold"
+
+## Content Market
+
+A content market is initialized with respect to a community and is used to manage the tweets within such community.
+It also provides functions that calculate:
+
+- **Demand** for a given content embedding, set of users and time range.
+- **Supply** for a given content embedding, set of users and time range.
+- **Causation** between any two values of demand or supply given a content embedding.
+
+Refer to [this document](https://www.overleaf.com/6251411237wbdjqsjvrrjj) for a more detail mathematical definition of each function.
+
+# Implementation
+
+## Latent Space Embedding
+
+We rely on previous literate for latent space embedding of our model, namely [tweet2vec](https://arxiv.org/abs/1605.03481).
+For starters, this approach assumes that posts with the same hashtags should have embeddings which are close to each other.
+Hence, the authors train a Bi-directional Gated Recurrent Unit (Bi-GRU) neural network with the training objective of predicting hashtags for a post from its latent representation in order to verify latent representation correctness.
+
+The dataset used for training the model consists of over 2 million global tweets in English between the dates of June 1, 2013 to June 5, 2013 with at least one hashtag.
+This could potentially impose a bias in the data where the model only performs differently on posts without hashtags.
+As such, we allow our program to easily integrated other embeding techniques for comparison.
+
+TODO: details of database accesses, ingestion and any non-trivial implementation details
 
 # Workflow
 
