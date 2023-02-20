@@ -3,6 +3,7 @@
 - [Introduction](#introduction)
 - [High-Level Organization](#high-level-organization)
 - [Implementation](#implementation)
+- [Influence](#causality)
 
 # Introduction
 
@@ -64,6 +65,10 @@ As such, we allow our program to easily integrated other embeding techniques for
 ## Data Ingestion
 
 Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leveraged for data ingestion. Primarily, the logic to download tweets for a user or community, as well as to find communities based off an input user, will be used in the pipeline to generate all the needed inputs to the above components.
+
+# Causality
+
+To infer causality between supply and demand between core-periphery nodes, we use time series data to capture the information, and use granger causality to infer if there is any relationship between the time series. We use [this library](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function. 
 
 # Issues
 
