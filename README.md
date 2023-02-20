@@ -3,11 +3,10 @@
 - [Introduction](#introduction)
 - [High-Level Organization](#high-level-organization)
 - [Implementation](#implementation)
-- [Causality](#causality)
 
 # Introduction
 
-In this project we aim to analyze content relationships in a network by calculating the amount of influence between any two agents.
+In this project we aim to analyze content relationships in a network by calculating a value representing the amount of influence between any two agents.
 For our purposes, an agent could be simply a single user or a set of users in a community.
 
 More broadly, the goal of the project is to advance the understanding of social influence as a key feature of social media and a core mechanism underlying some of the main challenges emerging from the growing use of social media, including polarization, misinformation and disinformation, and the mental health crisis.
@@ -22,10 +21,10 @@ In our code, we take a Object-Oriented Approach that is primarily reliant on the
 
 A tweet object holds data about a tweet with respect to the user who tweeted, timestamp, etc.
 
-It also holds the vector embedding representation of the tweet's content which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
-Note that this tweet class allows for changes in the embedding algorithm in order to test the efficacy of multiple embedding approaches.
+It also holds a reference to the embedding representation of the tweet's content which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
 
-These tweets are stored in the `processed_influence_tweets` database.
+These tweets are stored in the `processed_influence_tweets` database. 
+Moreover, the content embeddings are stored in a separate database to allow for effortless changes in the embedding algorithm as well as testing the efficacy of different embedding approaches.
 
 ## Community
 
@@ -59,12 +58,17 @@ For starters, this approach assumes that posts with the same hashtags should hav
 Hence, the authors train a Bi-directional Gated Recurrent Unit (Bi-GRU) neural network with the training objective of predicting hashtags for a post from its latent representation in order to verify latent representation correctness.
 
 The dataset used for training the model consists of over 2 million global tweets in English between the dates of June 1, 2013 to June 5, 2013 with at least one hashtag.
-This could potentially impose a bias in the data where the model only performs differently on posts without hashtags.
-As such, we allow our program to easily integrated other embeding techniques for comparison.
+This could impose a bias in the data where the model performs differently on posts without hashtags.
+As such, we allow our program to easily integrated other embedding techniques for comparison.
+
+We thus consider trying two further approaches:
+
+1. Averaging the word embedding vectors of every word in a tweet
+2. Training a new tweet2vec encodder based strictly on our community's tweets
 
 ## Data Ingestion
 
-Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leveraged for data ingestion. Primarily, the logic to download tweets for a user or community, as well as to find communities based off an input user, will be used in the pipeline to generate all the needed inputs to the above components.
+Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leveraged for data ingestion. Primarily, the logic to load tweets for a user or community, as well as to find communities based off an input user, will be used in the pipeline to generate all the needed inputs to the above components.
 
 ## Causality
 
