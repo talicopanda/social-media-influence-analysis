@@ -30,7 +30,7 @@ These tweets are stored in the `processed_influence_tweets` database.
 
 A community object holds information about a specific community.
 
-It contains and is defined by a list of users. Functionality includes downloading all tweets within the community to the `raw_tweets` database, processing all tweets from the community from the `raw_tweets` database to the `processed_influence_tweets`.
+It contains and is defined by a list of users. Functionality includes processing all tweets from the community from the `raw_tweets` database to the `processed_influence_tweets`.
 
 ## Content Market
 
@@ -49,7 +49,7 @@ Values are computed on demand, output to the user, and stored in a `content_mark
 
 ## High-Level OOP Diagram
 
-![./Influence.drawio.png](./assets/Influence.drawio.png)
+![./Influence.drawio.png](./assets/influence_uml.png)
 
 ## Latent Space Embedding
 
@@ -63,7 +63,7 @@ As such, we allow our program to easily integrated other embeding techniques for
 
 ## Data Ingestion
 
-Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leveraged for data ingestion. Primarily, the logic to downloads tweets for a user or community, as well as to find communities based off an input user, will be used in the pipeline to generate all the needed inputs to the above components.
+Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leveraged for data ingestion. Primarily, the logic to download tweets for a user or community, as well as to find communities based off an input user, will be used in the pipeline to generate all the needed inputs to the above components.
 
 # Issues
 
