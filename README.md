@@ -24,15 +24,17 @@ A tweet object holds data about a tweet with respect to the user who tweeted, ti
 It also holds the vector embedding representation of the tweet's content which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
 Note that this tweet class allows for changes in the embedding algorithm in order to test the efficacy of multiple embedding approaches.
 
+These tweets are stored in the `processed_influence_tweets` database.
+
 ## Community
 
 A community object holds information about a specific community.
 
-TODO: what else will "Community hold"
+It contains and is defined by a list of users. Functionality includes downloading all tweets within the community to the `raw_tweets` database, processing all tweets from the community from the `raw_tweets` database to the `processed_influence_tweets`.
 
 ## Content Market
 
-A content market is initialized with respect to a community and is used to manage the tweets within such community.
+A content market is initialized with respect to a community and is used to manage and perform operations on the tweets within such community.
 It also provides functions that calculate:
 
 - **Demand** for a given content embedding, set of users and time range.
@@ -41,7 +43,13 @@ It also provides functions that calculate:
 
 Refer to [this document](https://www.overleaf.com/6251411237wbdjqsjvrrjj) for a more detail mathematical definition of each function.
 
+Values are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
+
 # Implementation
+
+## High-Level OOP Diagram
+
+![./Influence.drawio.png](./assets/Influence.drawio.png)
 
 ## Latent Space Embedding
 
@@ -53,42 +61,9 @@ The dataset used for training the model consists of over 2 million global tweets
 This could potentially impose a bias in the data where the model only performs differently on posts without hashtags.
 As such, we allow our program to easily integrated other embeding techniques for comparison.
 
-TODO: details of database accesses, ingestion and any non-trivial implementation details
+## Data Ingestion
 
-# Workflow
-
-1. Download and setup SNACES/core according to its documentation
-2. Run 'Process Tweets' with the -vectorize option enabled to add word embedding vectors to processed tweets
-3. Run ./SNACES.py, select Influence, then choose which functionality and give input as prompted.
-
-There will be 3 main categories of functionality:
-
-1. Graphing
-
-- Graph a given user's demand curve
-- Graph a given user's supply curve
-- Graph a given communities's supply curve
-- Graph a given communities's supply curve
-
-2. Correlation
-
-- Graph a two user's, one user and one community, or two communities', calculate correlation between either demand or supply curves
-
-3. Causation
-
-- Graph a two user's, one user and one community, or two communities', calculate causation between either demand or supply curves
-
-Note that for passing in communities or influencer's, the user can input only the required information to find a community / influencer, and they will be found programatically by leveraging SNACES functionality.
-
-# Plan:
-
-Fork SNACES repo
-
-- Change certain definitions, i.e processed tweet, to add processing on ingestion that matches our use cases as we want vectorized definitions on tweets
-- Add functionality to SNACES.py that guides / gathers user input
-- Call SNACES functionality (DetectCoreActivity, run_clustering) to compute required objects
-- Run corresponding functionality defined in this repository with computed inputs
-- Output to user or to database as directed by input
+Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leveraged for data ingestion. Primarily, the logic to downloads tweets for a user or community, as well as to find communities based off an input user, will be used in the pipeline to generate all the needed inputs to the above components.
 
 # Issues
 
