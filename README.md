@@ -68,7 +68,7 @@ Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leve
 
 ## Causality
 
-To infer causality (influence) between supply and demand between core-periphery nodes, we use time series data to capture the information, and use granger causality to infer if there is any relationship between the time series. We use [this library](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function. 
+To infer causality (influence) between supply and demand between core-periphery nodes, we use time series data to capture the information, and use granger causality to infer if there is any relationship between the time series. We use [this module](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function. 
 
 # Issues
 
