@@ -28,4 +28,4 @@ def granger_causality_test(data, time_series):
     influence_df.index = [var + '_y' for var in time_series]
     return influence_df
 
-print(granger_causality_test(ts_df, time_series = ts_df.columns))
+# print(granger_causality_test(ts_df, time_series = ts_df.columns))
