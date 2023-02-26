@@ -19,35 +19,69 @@ In our code, we take a Object-Oriented Approach that is primarily reliant on the
 
 ## Tweet
 
-A tweet object holds data about a tweet with respect to the user who tweeted, timestamp, etc.
+A tweet object holds data about a tweet with respect to the following information:
+
+- id
+- timestamp: timestamp of tweet
+- user: user who tweeted
+- num_retweets: number of retweets
+- likes: number of likes
+- retweets: retweets of this tweet as an array of tweet ids
 
 It also holds the vector embedding representation of the tweet's content which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
 Note that this tweet class allows for changes in the embedding algorithm in order to test the efficacy of multiple embedding approaches.
 
 These tweets are stored in the `processed_influence_tweets` database.
 
+## User
+
+Fields:
+
+- id
+- followers: users that follow this user
+- following: users that this user is following
+- tweets
+- retweets
+- retweets in community: the retweets of this user's tweets or retweets by users that follow this user and with a post time after the corresponding tweet/retweet of this user (check who retweeted my retweet/tweet based on the timestamp and if the user follows me).
+
 ## Community
 
 A community object holds information about a specific community.
 
-It contains and is defined by a list of users. Functionality includes processing all tweets from the community from the `raw_tweets` database to the `processed_influence_tweets`.
+- core nodes: the set of detected core nodes in a community
+- users: array of all users pbjects in a community
+
+It contains and is defined by a list of users.
+Functionality includes processing all tweets from the community from the `raw_tweets` database to the `processed_influence_tweets`.
 
 ## Content Market
 
 A content market is initialized with respect to a community and is used to manage and perform operations on the tweets within such community.
-It also provides functions that calculate:
+It holds information about:
 
-- **Demand** for a given content embedding, set of users and time range.
-- **Supply** for a given content embedding, set of users and time range.
-- **Causation** between any two values of demand or supply given a content embedding.
+- community: the community object for this content market
 
-Refer to [this document](https://www.overleaf.com/6251411237wbdjqsjvrrjj) for a more detail mathematical definition of each function.
+It provides functions that calculate:
+
+- **Demand** for a given content embedding, set of users and time range as defined as following:
+  ![./demand.jpg](./assets/demand.jpg)
+- **Supply** for a given content embedding, set of users and time range as defined as following:
+  ![./supply.jpg](./assets/supply.jpg)
+- **Causation** between any two values of demand or supply given a content embedding as defined as following:
+  ![./causality1.jpg](./assets/causality1.jpg)
+  ![./causality2.jpg](./assets/causality2.jpg)
+
+Refer to [this document](https://www.overleaf.com/6251411237wbdjqsjvrrjj) for more context on these definitions.
 
 Values are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
 
+## DAO
+
+For each of the above objects, we have a corresponding DAO object. This DAO objects acts as an interface with MongoDB, allowing us to seperate the database accesses with our high level object definitions, giving us resiliciency to data definition changes and seperating database accesses from the responsbility of our objects. These DAO objects have load and write functions.
+
 # Implementation
 
-## High-Level OOP Diagram
+## High-Level OOP Diagram TODODODODODO
 
 ![./Influence.drawio.png](./assets/influence_uml.png)
 
@@ -61,9 +95,10 @@ The dataset used for training the model consists of over 2 million global tweets
 This could potentially impose a bias in the data where the model only performs differently on posts without hashtags.
 As such, we allow our program to easily integrated other embeding techniques for comparison.
 
-## Data Ingestion
+### Demand / Supply Functions
 
-Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leveraged for data ingestion. Primarily, the logic to download tweets for a user or community, as well as to find communities based off an input user, will be used in the pipeline to generate all the needed inputs to the above components.
+The supply and demand functions are represented as a hashtable that maps a tuple of size n to its respective quantity of demand/supply, where n is the dimension of the latent space. An n-tuple corresponds to a 'bin' or space in $R^n$, which are equal in size and aligned on non-overlapping intervals (for example, bin 1 may be a hypercube of size 1 centered at the zero vector, bin 2 a hypercube of size 1 centered at the $\vec{1}$, and so on until all tweets are encompassed within a hypercube).
+We have a utility function which maps a given content vector to key / n-tuple that corresponds to the bin containing the vector. The support of the function is the keys in the hashtable, as only bins with non-zero demand or supply are keys.
 
 # Issues
 
