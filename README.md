@@ -35,13 +35,13 @@ Moreover, the content embeddings are stored in a separate database to allow for 
 
 ## User
 
-Fields:
+A User object holds data about a User with respect to the following information:
 
 - id
 - followers: users that follow this user
 - following: users that this user is following
-- tweets
-- retweets
+- tweets: the original tweets of this user
+- retweets: the retweets of this user
 - retweets in community: the retweets of this user's tweets or retweets by users that follow this user and with a post time after the corresponding tweet/retweet of this user (check who retweeted my retweet/tweet based on the timestamp and if the user follows me).
 
 ## Community
@@ -64,10 +64,15 @@ It holds information about:
 It provides functions that calculate:
 
 - **Demand** for a given content embedding, set of users and time range as defined as following:
+
   ![./demand.jpg](./assets/demand.jpg)
+
 - **Supply** for a given content embedding, set of users and time range as defined as following:
+
   ![./supply.jpg](./assets/supply.jpg)
+
 - **Causation** between any two values of demand or supply given a content embedding as defined as following:
+
   ![./causality1.jpg](./assets/causality1.jpg)
   ![./causality2.jpg](./assets/causality2.jpg)
 
