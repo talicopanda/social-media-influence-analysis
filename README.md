@@ -30,7 +30,7 @@ A tweet object holds data about a tweet with respect to the following informatio
 
 It also holds a reference to the embedding representation of the tweet's content which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
 
-These tweets are stored in the `processed_influence_tweets` database. 
+These tweets are stored in the `processed_influence_tweets` database.
 Moreover, the content embeddings are stored in a separate database to allow for effortless changes in the embedding algorithm as well as testing the efficacy of different embedding approaches.
 
 ## User
@@ -102,16 +102,12 @@ We thus consider trying two further approaches:
 
 ### Demand / Supply Functions
 
-<<<<<<< HEAD
 The supply and demand functions are represented as a hashtable that maps a tuple of size n to its respective quantity of demand/supply, where n is the dimension of the latent space. An n-tuple corresponds to a 'bin' or space in $R^n$, which are equal in size and aligned on non-overlapping intervals (for example, bin 1 may be a hypercube of size 1 centered at the zero vector, bin 2 a hypercube of size 1 centered at the $\vec{1}$, and so on until all tweets are encompassed within a hypercube).
 We have a utility function which maps a given content vector to key / n-tuple that corresponds to the bin containing the vector. The support of the function is the keys in the hashtable, as only bins with non-zero demand or supply are keys.
-=======
-Previous work done in [SNACES/core](https://github.com/SNACES/core) will be leveraged for data ingestion. Primarily, the logic to load tweets for a user or community, as well as to find communities based off an input user, will be used in the pipeline to generate all the needed inputs to the above components.
 
 ## Causality
 
-To infer causality (influence) between supply and demand between core-periphery nodes, we use time series data to capture the information, and use granger causality to infer if there is any relationship between the time series. We use [this module](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function. 
->>>>>>> fb4b1be190f719f6b31a937be458ab93bef79a63
+To infer causality (influence) between supply and demand between core-periphery nodes, we use time series data to capture the information, and use granger causality to infer if there is any relationship between the time series. We use [this module](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function.
 
 # Issues
 
