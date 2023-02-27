@@ -53,7 +53,7 @@ Refer to [Implementation](#implementation) for further details on how tweets, re
 A community object holds information about a specific community.
 
 - core nodes: the set of detected core nodes in a community
-- users: array of all users pbjects in a community
+- users: array of all users objects in a community
 
 It contains and is defined by a list of users.
 Functionality includes processing all tweets from the community from the `raw_tweets` database to the `processed_influence_tweets`.
@@ -110,24 +110,20 @@ We thus consider trying two further approaches:
 1. Averaging the word embedding vectors of every word in a tweet
 2. Training a new tweet2vec encodder based strictly on our community's tweets
 
-### Demand / Supply Functions
+## Demand / Supply Functions
 
 The supply and demand functions are represented as a hashtable that maps a tuple of size n to its respective quantity of demand/supply, where n is the dimension of the latent space.
 An n-tuple corresponds to a 'bin' or space in $R^n$, which are equal in size and aligned on non-overlapping intervals (for example, bin 1 may be a hypercube of size 1 centered at the zero vector, bin 2 a hypercube of size 1 centered at the $\vec{1}$, and so on until all tweets are encompassed within a hypercube).
 We have a utility function which maps a given content vector to key / n-tuple that corresponds to the bin containing the vector. The support of the function is the keys in the hashtable, as only bins with non-zero demand or supply are keys.
 
-### Storing Tweets
+## Storing Tweets
 
 In order to retrieve demand and supply information more efficiently, we store tweets in the User class (for the fields <tweets>, <retweets> and <retweets in community>) in an n-tuple dictonary explained above for each of the three fields.
 This allows any algorithm traversing tweet data to only consider the tweets that are within the boundaries of the content interval we defined for any given content while also allowing for iterating over the entire dictionary if needed.
 
 ## Causality
 
-### Overview
-
 To infer causality (influence) between nodes, we capture supply and demand data over time, and use granger causality to infer if there is any relationship between the time series. We use [this module](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function.
-
-### Implementation
 
 Recall that in our implementation of supply and demand functions, we have partitionined the $R^n$ space of content embeddings into non-overlapping hypercubes. Each non-empty hypercube represents a key in our hash table, its value representing the supply/demand information.
 
