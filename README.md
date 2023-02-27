@@ -26,7 +26,7 @@ A tweet object holds data about a tweet with respect to the following informatio
 - user: user who tweeted
 - num_retweets: number of retweets
 - likes: number of likes
-- retweets: retweets of this tweet as an array of tweet ids
+- retweets: retweets of this tweet
 
 It also holds a reference to the embedding representation of the tweet's content which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
 
@@ -43,6 +43,8 @@ A User object holds data about a User with respect to the following information:
 - tweets: the original tweets of this user
 - retweets: the retweets of this user
 - retweets in community: the retweets of this user's tweets or retweets by users that follow this user and with a post time after the corresponding tweet/retweet of this user (check who retweeted my retweet/tweet based on the timestamp and if the user follows me).
+
+Refer to [Implementation](#implementation) for further details on how tweets, retweets and reweets in community are stored.
 
 ## Community
 
@@ -63,20 +65,20 @@ It holds information about:
 
 It provides functions that calculate:
 
-- **Demand** for a given content embedding, set of users and time range as defined as following:
+- **Demand** for a given content embedding, set of users and time range.
 
-  ![./demand.jpg](./assets/demand.jpg)
+- **Supply** for a given content embedding, set of users and time range.
 
-- **Supply** for a given content embedding, set of users and time range as defined as following:
+- **Causation** between any two values of demand or supply given a content embedding.
 
-  ![./supply.jpg](./assets/supply.jpg)
+The functions above are more rigorously defined as following:
 
-- **Causation** between any two values of demand or supply given a content embedding as defined as following:
+![./demand.jpg](./assets/demand.jpg)
+![./supply.jpg](./assets/supply.jpg)
+![./causality1.jpg](./assets/causality1.jpg)
+![./causality2.jpg](./assets/causality2.jpg)
 
-  ![./causality1.jpg](./assets/causality1.jpg)
-  ![./causality2.jpg](./assets/causality2.jpg)
-
-Refer to [this document](https://www.overleaf.com/6251411237wbdjqsjvrrjj) for more context on these definitions.
+Refer to [this document](https://www.overleaf.com/6251411237wbdjqsjvrrjj) for more context on the definitions above, if needed.
 
 Values are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
 
@@ -107,13 +109,16 @@ We thus consider trying two further approaches:
 
 ### Demand / Supply Functions
 
-The supply and demand functions are represented as a hashtable that maps a tuple of size n to its respective quantity of demand/supply, where n is the dimension of the latent space. An n-tuple corresponds to a 'bin' or space in $R^n$, which are equal in size and aligned on non-overlapping intervals (for example, bin 1 may be a hypercube of size 1 centered at the zero vector, bin 2 a hypercube of size 1 centered at the $\vec{1}$, and so on until all tweets are encompassed within a hypercube).
+The supply and demand functions are represented as a hashtable that maps a tuple of size n to its respective quantity of demand/supply, where n is the dimension of the latent space. 
+An n-tuple corresponds to a 'bin' or space in $R^n$, which are equal in size and aligned on non-overlapping intervals (for example, bin 1 may be a hypercube of size 1 centered at the zero vector, bin 2 a hypercube of size 1 centered at the $\vec{1}$, and so on until all tweets are encompassed within a hypercube).
 We have a utility function which maps a given content vector to key / n-tuple that corresponds to the bin containing the vector. The support of the function is the keys in the hashtable, as only bins with non-zero demand or supply are keys.
+
+### Storing Tweets
+
+In order to retrieve demand and supply information more efficiently, we store tweets in the User class (for the fields <tweets>, <retweets> and <retweets in community>) in an n-tuple dictonary explained above for each of the three fields. 
+This allows any algorithm traversing tweet data to only consider the tweets that are within the boundaries of the content interval we defined for any given content while also allowing for iterating over the entire dictionary if needed.
 
 ## Causality
 
 To infer causality (influence) between supply and demand between core-periphery nodes, we use time series data to capture the information, and use granger causality to infer if there is any relationship between the time series. We use [this module](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function.
 
-# Issues
-
-Twitter API has readjusted pricing model -> new basic tier will cost $100/month
