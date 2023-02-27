@@ -30,9 +30,6 @@ A tweet object holds data about a tweet with respect to the following informatio
 
 It also holds a reference to the embedding representation of the tweet's content which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
 
-These tweets are stored in the `processed_influence_tweets` database.
-Moreover, the content embeddings are stored in a separate database to allow for effortless changes in the embedding algorithm as well as testing the efficacy of different embedding approaches.
-
 ## User
 
 A User object holds data about a User with respect to the following information:
@@ -56,7 +53,6 @@ A community object holds information about a specific community.
 - users: array of all users objects in a community
 
 It contains and is defined by a list of users.
-Functionality includes processing all tweets from the community from the `raw_tweets` database to the `processed_influence_tweets`.
 
 ## Content Market
 
@@ -83,15 +79,15 @@ The functions above are more rigorously defined as following:
 
 Refer to [this document](https://www.overleaf.com/6251411237wbdjqsjvrrjj) for more context on the definitions above, if needed.
 
-Values are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
+Values for casuality are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
 
 ## DAO
 
-For each of the above objects, we have a corresponding DAO object. This DAO objects acts as an interface with MongoDB, allowing us to seperate the database accesses with our high level object definitions, giving us resiliciency to data definition changes and seperating database accesses from the responsbility of our objects. These DAO objects have load and write functions.
+For each of the above objects, we have a corresponding DAO object. This DAO objects acts as an interface with MongoDB, allowing us to seperate the database accesses with our high level object definitions, giving us resiliciency to data definition changes and seperating database accesses from the responsbility of our objects. These DAO objects have load and write functions. Each of the above defined objects have a corresponding database table.
 
 # Implementation
 
-## High-Level OOP Diagram TODO
+## High-Level OOP Diagram
 
 ![./Influence.drawio.png](./assets/influence_uml.png)
 
