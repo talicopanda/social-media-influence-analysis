@@ -2,9 +2,9 @@
 
 - [Introduction](#introduction)
 - [Preface](#preface)
-- [High-Level Organization](#high-level-organization)
+- [High-Level Code Organization](#high-level-code-organization)
 - [Implementation](#implementation)
-- [Design Decisions](#design-decisions)
+- [Additional Design Decisions](#additional-design-decisions)
 
 # Introduction
 
@@ -20,9 +20,10 @@ Specifically, the project studies influence as a general system of interchange w
 In order to analyze influence between nodes we begin by using a game-theoric approach to model a social community based on the paper [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964).
 The results of the paper show that, if the model is correct and the assumptions are sound, in equilibrium:
 
-1. a community has a core agent (influencer) that follow all periphery agents (other users) in the community.
-   The core agent then servers as a "hub" for the community by collecting and aggregating content and broadcasting it to the broader community.
-2. periphary agents follow other periphery agents whose main interest closely matches their own interest.
+1. a community has a set of core agents (influencers) that follow all periphery agents (other users) in the community.
+   The core agents then server as a "hub" for the community by collecting and aggregating content and broadcasting it to others in the community.
+2. periphary agents all follow the core agents.
+2. periphary agents also follow other periphery agents whose main interest closely matches their own interest.
 
 Note: to simplify the analysis, the paper assumes that there exists a single core agent. This assumption is also motivated by the experimental results which show that core-periphery communities tend to have a small set of core agents, typically in the order of 1-6 core agents. Additionally, the results obtained for a single core agent can be extended to the case of multiple core-agents.
 
@@ -38,7 +39,7 @@ The following graph illustrates this idea:
 ![./content_market.png](./assets/content_market.png)
 
 Note that in a real social-media scenario, a user is usually both a consumer and a producer to some degree.
-For the sake of this project, we thus consider a user as both a distinct producer and a distinct consumer within the community. See [Design Decisions](#design-decisions) for a discussion on the above.
+For the sake of this project, we thus consider a user as both a distinct producer and a distinct consumer within the community. See [Additional Design Decisions](#additional-design-decisions) for a discussion on the above.
 The former is characterized only by the user's original tweets and also their retweets that are further retweeted within the community, and the latter is characterized only by the user's retweets.
 
 ## Influence
@@ -50,19 +51,21 @@ On the other hand, someone uncertain would appreciate as much information from o
 In our context, the uncertainty comes into play with content demand. Naturally, any user wants to have their content seen by as many other users as possible.
 More importantly, as a core node, your broadcasting power is directly impacted by the interest of the community.
 Hence, we infer that the content consumers as a whole have an influence over the core node based on their interests (the tweets they decide do retweet).
-In the same fashion, the core node serves as an aggregation of the community's demand and, in the same fashion, content producers are interested in posting content that will be broadcasted by the core node.
-Therefore there exists yet another influence relationship of the core node over the content producer.
+Moreover, the core node serves as an aggregation of the community's demand and, in the same fashion, content producers are interested in posting content that will be broadcasted by the core node.
+Therefore, there exists yet another influence relationship of the core node over the content producer.
 
 ## Demand & Supply
 
-To be explicit on what we refer to from now onwards, we define four entities:
+To be explicit on what we refer to as demand and supply from now onwards, we define four distinct entities:
 
 1. the demand from a user: the content that they retweet
 2. the supply of a user: the content that they tweet about
 3. the demand of a user: the aggregation of demand from other users on this user's supply (what is demanded of that user)
 4. the supply to a user: the aggreation of supplies of their followings (what is supplied to the user)
 
-However, when we say demand and supply, we refer to entities 1 and 2 above unless otherwise noted. Additionally, we have that demand and supplies can also be aggregated to more than one user.
+However, when we say demand and supply, we refer to entities 1 and 2 above unless otherwise noted. 
+
+Additionally, we have that demand and supplies can also be aggregated to more than one user.
 
 ## Hypothesis
 
@@ -100,17 +103,21 @@ The functions above are more rigorously defined as following:
 >
 > ### Content
 >
-> We first introduce the concept of a (discrete) latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. Then, for a string of content $s_c$, we loosely define content $c \in S$ as a point in space that represents the semantic meaning of $s_c$.
+> We first introduce the concept of a (discrete) latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. Then, for a string of content $s_c$, we loosely define content $c \in S$ as a point in space that represents the semantic meaning of $s_c$. Let a time interval be denoted by $T \subseteq \mathbb{R}$.
 >
-> We consider time as a set $T \subseteq \mathbb{R}$.
->
-> Let $\mathcal{T}_{u, T}[P(x)]$ and $\mathcal{R}_{u, T}[P(x)]$ denote the set of tweets and retweets from user $u$ in time period $T$ where predicate $P(x)$ holds true respectively.
+> Let
+>  
+> - $\mathcal{T}_{u, T}[P(x)]$  
+> - $\mathcal{R}_{u, T}[P(x)]$
+> 
+> denote the set of tweets and retweets from user $u$ in time period $T$ where predicate $P(x)$ holds true respectively.
 >
 > ### Demand
 >
 > **INDIVIDUAL DEMAND**
 >
 > For a user $u \in U$ and time period $T$, we define the demand function $D_{u, T}: S \to \mathbb{R}$ as:
+> 
 > $$D_{u, T}(c) = |\mathcal{R}_{u, T}[c' \in S: ||c' - c|| < R]|$$
 >
 > For a $R \in \mathbb{R}$
@@ -123,7 +130,7 @@ The functions above are more rigorously defined as following:
 >
 > For a group of users $G \subseteq U$ and time period $T$, the aggregate demand $D_{G} \in \mathbb{R}$ of $G$ is defined as:
 >
-> $$D_{G, T} (c) = \sum_{u \in U_c} D_{u,T}$$
+> $$D_{G, T} (c) = \sum_{u \in G} D_{u,T}(c)$$
 >
 > Additionally, the group's average demand is defined as:
 >
@@ -134,6 +141,7 @@ The functions above are more rigorously defined as following:
 > **INDIVIDUAL SUPPLY**
 >
 > For a user $u \in U$ and time period $T$, we define the supply function $S_{u, T}: S \to \mathbb{R}$ as:
+> 
 > $$S_{u, T}(c) = |\mathcal{T}_{u, T}[c' \in S:||c' - c|| < R]| + |\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]|$$
 >
 > For a $R \in \mathbb{R}^n$.
@@ -148,7 +156,7 @@ The functions above are more rigorously defined as following:
 >
 > For a group of users $G \subseteq U$ and time period $T$, the aggregate supply $S_{G} \in \mathbb{R}$ of $G$ is defined as:
 >
-> $$S_{G, T} (c) = \sum_{u \in U_c} S_{u,T}$$
+> $$S_{G, T} (c) = \sum_{u \in G} S_{u,T}(c)$$
 >
 > Additionally, the group's average supply is defined as:
 >
@@ -192,7 +200,7 @@ The functions above are more rigorously defined as following:
 >
 > We will then find the Granger-causality across the entire latent space of content by aggregating each individual fixed content causality.
 >
-> TODO (Clara): outlithe best aggregation methodold based on the stuff we discussed
+> TODO (Clara): outlithe best aggregation method based on our pros-cons discussion last time
 
 Values are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
 
@@ -279,7 +287,7 @@ We want to generalize the granger causality across all bins, which can be done t
 
 We will explore some of our approaches here: We can calculate the mean of the granger causality in all bins, giving us an average across all non-zero bins in the $R^n$ space. An alternate approach would be to calculate the p-norm, and normalizing the output so that it lies between 0 and 1. The norm is able to capture different patterns in the data - for example, a 2-norm (or the euclidean norm) will skew values closer to 0 further towards 0, and values closer to 1 will be skewed less. As p gets higher, the higher the skewing gets.
 
-TODO (Clara): what could be the best given our project?
+TODO (Clara): reason about the best given our project
 
 ## Users as Both Producers and Consumers
 
