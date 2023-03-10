@@ -1,15 +1,17 @@
 import numpy as np
-import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import string
 import sys
-import gensim
+import io
+from gensim import models
 
-# import the word2vec model to memory
-word2vec_model = gensim.models.KeyedVectors.load_word2vec_format(
-    '/Volumes/PICS/pyProject/GoogleNews-vectors-negative300.bin.gz',
-    binary=True)
+# same as tweet2vec for consistency
+MAX_LENGTH = 145
+
+# import the word2vec model to memory (check README for download link)
+word2vec_model = models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin.gz',
+                                                          binary=True)
 
 punctuation_traslator = str.maketrans('', '', string.punctuation)
 stop_words = set(stopwords.words('english'))
@@ -21,7 +23,7 @@ def text2vec(text):
     """
     text = text.lower()
     text = text.translate(punctuation_traslator)
-    text = nltk.word_tokenize(text)
+    text = word_tokenize(text)
     filtered_sentence = [w for w in text if not w in stop_words]
     i = 1
     vector_representation = np.zeros((1, 300))
@@ -40,3 +42,16 @@ def text2vec(text):
 if __name__ == '__main__':
     data_path = sys.argv[1]
     save_path = sys.argv[2]
+
+    Xt = []
+    with io.open(data_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            Xc = line.rstrip('\n')
+            Xt.append(Xc[:MAX_LENGTH])
+
+    out_emb = []
+    for t in Xt:
+        out_emb.append(text2vec(t))
+
+    with open('%s/embeddings.npy' % save_path, 'w') as f:
+        np.save(f, np.asarray(out_emb))

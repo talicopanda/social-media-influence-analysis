@@ -21,10 +21,13 @@ class ContentMarketEmbedding:
     tweets_to_embedding: dict[int, np.array]
 
     def __init__(self, type: EmbeddingType):
+
         if type == EmbeddingType.TWEET2VEC:
-            self.tweets_to_embedding = {}  # load
+            # TODO: load numpy array with fix_imports=True for difference pyhton versions
+            self.tweets_to_embedding = {}
         elif type == EmbeddingType.MEDIUM:
-            self.tweets_to_embedding = {}  # load
+            # TODO: load numpy array with fix_imports=True for difference pyhton versions
+            self.tweets_to_embedding = {}
         elif type == EmbeddingType.WORD2VEC:
             self.tweets_to_embedding = {}  # load
         else:

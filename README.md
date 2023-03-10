@@ -1,10 +1,20 @@
 # Table of Contents
 
+- [Running the Code](#running-the-code)
 - [Introduction](#introduction)
 - [Preface](#preface)
 - [High-Level Code Organization](#high-level-code-organization)
 - [Implementation](#implementation)
 - [Additional Design Decisions](#additional-design-decisions)
+
+# Running the Code
+
+The main contents of the project are under the `/src` folder and instructions to set up and run the program are found on the `README.md` file in `/src`.
+Start there and follow the instructions on that file.
+
+At some point in the set up process, you might need to generate tweet embeddings using `tweet2vec` (taken from [here](https://github.com/bdhingra/tweet2vec/)).
+Due to python versioning conflicts, `tweet2vec` has its own set of set up instructions on the `INSTRUCTIONS.md` file under the `tweet2vec` folder.
+However, the set up under `/src/README.md` should give enough context and instruction to guide you through the other set up as well.
 
 # Introduction
 
@@ -23,7 +33,7 @@ The results of the paper show that, if the model is correct and the assumptions 
 1. a community has a set of core agents (influencers) that follow all periphery agents (other users) in the community.
    The core agents then server as a "hub" for the community by collecting and aggregating content and broadcasting it to others in the community.
 2. periphary agents all follow the core agents.
-2. periphary agents also follow other periphery agents whose main interest closely matches their own interest.
+3. periphary agents also follow other periphery agents whose main interest closely matches their own interest.
 
 Note: to simplify the analysis, the paper assumes that there exists a single core agent. This assumption is also motivated by the experimental results which show that core-periphery communities tend to have a small set of core agents, typically in the order of 1-6 core agents. Additionally, the results obtained for a single core agent can be extended to the case of multiple core-agents.
 
@@ -63,7 +73,7 @@ To be explicit on what we refer to as demand and supply from now onwards, we def
 3. the demand of a user: the aggregation of demand from other users on this user's supply (what is demanded of that user)
 4. the supply to a user: the aggreation of supplies of their followings (what is supplied to the user)
 
-However, when we say demand and supply, we refer to entities 1 and 2 above unless otherwise noted. 
+However, when we say demand and supply, we refer to entities 1 and 2 above unless otherwise noted.
 
 Additionally, we have that demand and supplies can also be aggregated to more than one user.
 
@@ -106,10 +116,10 @@ The functions above are more rigorously defined as following:
 > We first introduce the concept of a (discrete) latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. Then, for a string of content $s_c$, we loosely define content $c \in S$ as a point in space that represents the semantic meaning of $s_c$. Let a time interval be denoted by $T \subseteq \mathbb{R}$.
 >
 > Let
->  
-> - $\mathcal{T}_{u, T}[P(x)]$  
+>
+> - $\mathcal{T}_{u, T}[P(x)]$
 > - $\mathcal{R}_{u, T}[P(x)]$
-> 
+>
 > denote the set of tweets and retweets from user $u$ in time period $T$ where predicate $P(x)$ holds true respectively.
 >
 > ### Demand
@@ -117,7 +127,7 @@ The functions above are more rigorously defined as following:
 > **INDIVIDUAL DEMAND**
 >
 > For a user $u \in U$ and time period $T$, we define the demand function $D_{u, T}: S \to \mathbb{R}$ as:
-> 
+>
 > $$D_{u, T}(c) = |\mathcal{R}_{u, T}[c' \in S: ||c' - c|| < R]|$$
 >
 > For a $R \in \mathbb{R}$
@@ -141,7 +151,7 @@ The functions above are more rigorously defined as following:
 > **INDIVIDUAL SUPPLY**
 >
 > For a user $u \in U$ and time period $T$, we define the supply function $S_{u, T}: S \to \mathbb{R}$ as:
-> 
+>
 > $$S_{u, T}(c) = |\mathcal{T}_{u, T}[c' \in S:||c' - c|| < R]| + |\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]|$$
 >
 > For a $R \in \mathbb{R}^n$.
@@ -200,7 +210,7 @@ The functions above are more rigorously defined as following:
 >
 > We will then find the Granger-causality across the entire latent space of content by aggregating each individual fixed content causality.
 >
-> We will use the mean to aggregate the granger causality across the entire latent space of content. 
+> We will use the mean to aggregate the granger causality across the entire latent space of content.
 
 Values are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
 
@@ -277,13 +287,13 @@ Over time, we can construct time series of supply and demand in each bin, and ca
 
 ### Creating Time Series
 
-First, we will outline an approach to constructing the time series for the supply of a particular user. 
+First, we will outline an approach to constructing the time series for the supply of a particular user.
 
-First, I will outline a way to find the support of the function. For a user $U$, recall that we can access the content vector embeddings for their tweets. Since there is a finite number of tweets for each user, $U$ has a tweet embedding with maximum norm $r$. We can create an open neighbourhood of radius $r$ centered at the origin, such that it involves tweets with norms smaller than or equal to $r$. Since $r$ is the maximum norm, it is guaranteed that all tweets of $U$ are contained inside the open ball. Since we have divided the space into non-overlapping hypercubes, we know that the open ball is segmented into a finite number of hypercubes. We have thus narrowed down the space into a finite number of hypercubes, narrowing down the support of the function. We can now iterate through the hypercubes, checking which of them are non-empty to find the support. 
+First, I will outline a way to find the support of the function. For a user $U$, recall that we can access the content vector embeddings for their tweets. Since there is a finite number of tweets for each user, $U$ has a tweet embedding with maximum norm $r$. We can create an open neighbourhood of radius $r$ centered at the origin, such that it involves tweets with norms smaller than or equal to $r$. Since $r$ is the maximum norm, it is guaranteed that all tweets of $U$ are contained inside the open ball. Since we have divided the space into non-overlapping hypercubes, we know that the open ball is segmented into a finite number of hypercubes. We have thus narrowed down the space into a finite number of hypercubes, narrowing down the support of the function. We can now iterate through the hypercubes, checking which of them are non-empty to find the support.
 
-For each hypercube, we can aggregate the number of tweets located in it at time interval t in a $(t, n)$ tuple, where t refers to the time interval and n refers to the supply, or the number of tweets in a hypercube for user $U$.After $M$ time intervals, we can see how the supply of user $U$ (n) changes over time.  
+For each hypercube, we can aggregate the number of tweets located in it at time interval t in a $(t, n)$ tuple, where t refers to the time interval and n refers to the supply, or the number of tweets in a hypercube for user $U$.After $M$ time intervals, we can see how the supply of user $U$ (n) changes over time.
 
-Time series for demand can be constructed using a similar method. 
+Time series for demand can be constructed using a similar method.
 
 ## Data Ingestion
 
@@ -297,7 +307,7 @@ We want to generalize the granger causality across all bins, which can be done t
 
 We will explore some of our approaches here: We can calculate the mean of the granger causality in all bins, giving us an average across all non-zero bins in the $R^n$ space. An alternate approach would be to calculate the p-norm, and normalizing the output so that it lies between 0 and 1. The norm is able to capture different patterns in the data - for example, a 2-norm (or the euclidean norm) will skew values closer to 0 further towards 0, and values closer to 1 will be skewed less. The higher p gets, the higher the skewing gets.
 
-We will use the mean to find the aggregate in our approach, as it is a more cost-effective and gives a decent estimate. 
+We will use the mean to find the aggregate in our approach, as it is a more cost-effective and gives a decent estimate.
 
 ## Users as Both Producers and Consumers
 
