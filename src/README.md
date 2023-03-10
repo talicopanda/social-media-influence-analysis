@@ -24,7 +24,7 @@ For Word2Vec Average, use this folder's virtual environment as outlined in [Setu
 
 `python word2vec.py ./<path_to_file>/tweets.txt ../embedding_word2vec`
 
-Note you might have to donwload nltk by spawning a python interpreter (run `python` on the terminal) and run the following two commands:
+Note: you might have to donwload "punkt" by spawning a python interpreter (run `python` on the terminal) and running the following two commands:
 
 1. `import nltk`
 2. `nltk.download("punkt")`
