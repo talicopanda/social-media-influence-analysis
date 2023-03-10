@@ -2,3 +2,4 @@ embedding_*
 src/venv/*
 tweet2vec/venv/*
 *GoogleNews-vectors-negative300.bin.gz*
+*.pyc
