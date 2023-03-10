@@ -1,22 +1,28 @@
 from typing import List, Tuple
-from tweet import Tweet, TweetContent, TweetType
-from community import Community
+from ContentMarketConsumer import ContentMarketConsumer
+from ContentMarketProducer import ContentMarketProducer
+from ContentMarketCoreNode import ContentMarketCoreNode
+from ContentMarketEmbedding import ContentMarketEmbedding
 import datetime
 
 
-class TweetMarket:
+class ContentMarket:
     """
-    A class that represents the tweet market and calculates information about
-    users/tweets demands, correlations, etc.
+    A class that represents the a content market and calculates information about
+    users/tweets demands, supplies and causations
     """
 
-    tweets: List[Tweet]  # list of all
-    community: Community
+    consumers: List[ContentMarketConsumer]
+    producers: List[ContentMarketProducer]
+    core_node: ContentMarketCoreNode
+    embedding: ContentMarketEmbedding
 
     def __init__(self):
-        pass
+        self.consumers = []  # load
+        self.producers = []  # load
+        self.core_node = None  # load
 
-    def demand(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
+    def calulate_demand(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
         demand = 0
         for user_id in user_ids:
             user_tweets = get_tweets(user_id, time_range)  # db query
@@ -26,9 +32,9 @@ class TweetMarket:
         return demand
 
     def avg_demand(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
-        return self.demand(content, content_radius, user_ids, time_range) / len(user_ids)
+        return self.calculate_demand(content, content_radius, user_ids, time_range) / len(user_ids)
 
-    def supply(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
+    def calculate_supply(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
         supply = 0
         for user_id in user_ids:
             user_tweets = get_tweets(user_id, time_range)  # db query
@@ -40,10 +46,5 @@ class TweetMarket:
     def avg_supply(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
         return self.supply(content, content_radius, user_ids, time_range) / len(user_ids)
 
-    # TODO: check if correlation calculation is even needed
-    def correlation(self):
-        pass
-
-    # TODO: granger casuality
-    def causation(self):
+    def calculate_causation(self):
         pass

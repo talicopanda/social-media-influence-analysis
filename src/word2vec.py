@@ -1,20 +1,9 @@
-"""
-TODO: Discussion
-
-There are three approaches to try once we have data to test and compare
-1) We use Google's word2vec embedding by averaging the words individual embeddings
-2) Rely on tweet2vec's baseline encoder
-3) Use tweet2vec to train an encoder based on our community's data
-
-(1) is presented below, (2) and (3) rely on code from https://github.com/bdhingra/tweet2vec/
-"""
-
 import numpy as np
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import string
-
+import sys
 import gensim
 
 # import the word2vec model to memory
@@ -46,3 +35,8 @@ def text2vec(text):
             i = i
     vector_representation = np.divide(vector_representation, i)
     return vector_representation
+
+
+if __name__ == '__main__':
+    data_path = sys.argv[1]
+    save_path = sys.argv[2]
