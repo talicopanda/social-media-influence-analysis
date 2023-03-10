@@ -7,7 +7,7 @@ import io
 from gensim import models
 
 # same as tweet2vec for consistency
-MAX_LENGTH = 145
+MAX_LENGTH = 285
 
 # import the word2vec model to memory (check README for download link)
 word2vec_model = models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin.gz',
@@ -31,7 +31,7 @@ def text2vec(text):
     for word in filtered_sentence:
         try:
             vector_representation = vector_representation + \
-                word2vec_model.wv[word]
+                word2vec_model[word]
             i = i + 1
         except KeyError:
             i = i
@@ -53,5 +53,5 @@ if __name__ == '__main__':
     for t in Xt:
         out_emb.append(text2vec(t))
 
-    with open('%s/embeddings.npy' % save_path, 'w') as f:
+    with open('%s/embeddings.npy' % save_path, 'wb') as f:
         np.save(f, np.asarray(out_emb))

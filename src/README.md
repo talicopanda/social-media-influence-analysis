@@ -27,6 +27,6 @@ For Word2Vec Average, use this folder's virtual environment as outlined in [Setu
 Note you might have to donwload nltk by spawning a python interpreter (run `python` on the terminal) and run the following two commands:
 
 1. `import nltk`
-2. `nltk.download()`
+2. `nltk.download("punkt")`
 
 At this point you may quit the interpreter by running `exit()`.

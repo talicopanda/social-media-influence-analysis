@@ -5,7 +5,7 @@ NUM_EPOCHS = 30
 # Batch size
 N_BATCH = 64
 # Max sequence length
-MAX_LENGTH = 145
+MAX_LENGTH = 280
 # Dimensionality of character lookup
 CHAR_DIM = 150
 # Initialization scale
