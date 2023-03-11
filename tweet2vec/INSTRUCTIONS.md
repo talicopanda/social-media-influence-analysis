@@ -1,25 +1,36 @@
 # Setup and Requirements
 
-Depending on your operating system, follow the instructions below to run
+Depending on your operating system, follow the instructions below to run the program.
 
 ## MacOS/Linux
 
-Follow this tutorial to create a python 2.7 virtual environment
-https://realpython.com/intro-to-pyenv/#virtual-environments-and-pyenv
+### Requirements
 
-TODO: outline the process taken
+Download and install [Python 2.7](https://www.python.org/downloads/release/python-2718/) if you don't already have it. Confirm that `python -V` outputs `Python 2.7.*`.
+
+### Setup
+
+Open a terminal window and ensure that you are in the top directory of the outermost `/tweet2vec` folder. Then:
+
+1. Run `pip2 install virtualenv`
+2. Run `which python2` and denote the output to be `<python_path>`
+3. Run `virtualenv <python_path> venv` using `<python_path>` from above 
+4. Run `source venv/bin/activate`
+5. Install all dependencies with `pip install -r requirements.txt`
+
+To deactivate the virtual environment, run `deactivate`.
 
 ## Windows
 
 ### Requirements
 
-Download and install Python 2.7 if you don't already have it. Check the path to the directory where python 2.7 is installed in your system (usually of the form `<path>\Python27\`).
+Download and install [Python 2.7](https://www.python.org/downloads/release/python-2718/) if you don't already have it. Check the path to the directory where python 2.7 is installed in your system (usually of the form `<path>\Python27\`).
 
 Also donwnload and install [MinGW C++](https://github.com/niXman/mingw-builds-binaries/releases) from one of the 64-bit release versions outlined in that github. Here is a [video](https://www.youtube.com/watch?v=dRxPUblx2SY&ab_channel=AnielMaharajh) that may help.
 
 ### Setup
 
-Open PowerShell window on and ensure that you are in the top directory of `/tweet2vec` folder. Then:
+Open PowerShell window and ensure that you are in the top directory of the outermost `/tweet2vec` folder. Then:
 
 1. Run `<path>\Python27\Scripts\pip.exe install virtualenv`
 2. Run `<path>\Python27\Scripts\virtualenv.exe venv`

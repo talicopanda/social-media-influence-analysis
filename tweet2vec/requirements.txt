@@ -1,5 +1,5 @@
 Lasagne==0.1
-numpy==1.16.0
+numpy==1.15.0
 scipy==1.2.3
 six==1.16.0
-Theano==0.7.0
+Theano==0.8.1
