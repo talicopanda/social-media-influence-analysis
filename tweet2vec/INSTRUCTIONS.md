@@ -14,7 +14,7 @@ Open a terminal window and ensure that you are in the top directory of the outer
 
 1. Run `pip2 install virtualenv`
 2. Run `which python2` and denote the output to be `<python_path>`
-3. Run `virtualenv <python_path> venv` using `<python_path>` from above 
+3. Run `virtualenv -p <python_path> venv` using `<python_path>` from above
 4. Run `source venv/bin/activate`
 5. Install all dependencies with `pip install -r requirements.txt`
 
