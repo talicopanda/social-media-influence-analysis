@@ -2,9 +2,9 @@
 
 Ensure you have a version of Python3 installed by confirming that `python -V` outputs `Python 3.*.*`.
 
-Open a terminal window and ensure that you are in the top directory of `/tweet2vec` folder. Then:
+Open a terminal window and ensure that you are in the top directory of `/src` folder. Then:
 
-1. Run `python -m venv`
+1. Run `python -m venv venv`
 2. Run `venv/Scripts/activate`
 3. Install all dependencies with `pip install -r requirements.txt`
 
