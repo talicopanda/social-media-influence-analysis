@@ -156,7 +156,7 @@ The functions above are more rigorously defined as following:
 >
 > For a $R \in \mathbb{R}^n$.
 >
-> Here, $\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]$ denotes "retweets in community" which is the number of retweets of $u$'s tweet by users that follow $u$ and with a post time after the corresponding tweet of $u$.
+> Here, $\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]$ denotes "retweets in community" which is the number of retweets of $u$'s retweet by users that follow $u$ and with a post time after the corresponding tweet of $u$ (this essentially means that the retweet, that was initially an indicator of demand, becomes an indicator of supply).
 >
 > **INFLUENCER SUPPLY**
 >
@@ -235,7 +235,7 @@ A Content Market User object holds data about a User in the context of the Conte
 - following: users that this user is following
 - tweets: the original tweets of this user
 - retweets: the retweets of this user
-- retweets in community: the retweets of this user's tweets or retweets by users that follow this user and with a post time after the corresponding tweet/retweet of this user (check who retweeted my retweet/tweet based on the timestamp and if the user follows me).
+- retweets in community: the retweets of this user's retweets by users that follow this user and with a post time after the corresponding tweet/retweet of this user (check who retweeted my retweet/tweet based on the timestamp and if the user follows me).
 
 Additionally, it holds functionality to compute the demand and supply (as described in [Implementation](#implementation)).
 

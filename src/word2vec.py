@@ -5,6 +5,7 @@ import string
 import sys
 import io
 from gensim import models
+import json
 
 # same as tweet2vec for consistency
 MAX_LENGTH = 285
@@ -44,7 +45,7 @@ if __name__ == '__main__':
     save_path = sys.argv[2]
 
     Xt = []
-    with io.open(data_path, 'r', encoding='utf-8') as f:
+    with io.open(data_path + "text.txt", 'r', encoding='utf-8') as f:
         for line in f:
             Xc = line.rstrip('\n')
             Xt.append(Xc[:MAX_LENGTH])
@@ -53,5 +54,11 @@ if __name__ == '__main__':
     for t in Xt:
         out_emb.append(text2vec(t))
 
-    with open('%s/embeddings.npy' % save_path, 'wb') as f:
-        np.save(f, np.asarray(out_emb))
+    id_to_tweets = {}
+    with io.open(data_path + "_ids.txt", 'r', encoding='utf-8') as f:
+        i = 0
+        for line in f:
+            id_to_tweets[line.rstrip()] = out_emb[i]
+            i += 1
+    with open('%s/embeddings.json' % save_path, 'w') as f:
+        json.dump(id_to_tweets, f)
