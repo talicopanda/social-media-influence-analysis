@@ -58,7 +58,7 @@ if __name__ == '__main__':
     with io.open(data_path + "_ids.txt", 'r', encoding='utf-8') as f:
         i = 0
         for line in f:
-            id_to_tweets[line.rstrip()] = out_emb[i]
+            id_to_tweets[int(line.rstrip())] = out_emb[i]
             i += 1
     with open('%s/embeddings.json' % save_path, 'w') as f:
         json.dump(id_to_tweets, f)
