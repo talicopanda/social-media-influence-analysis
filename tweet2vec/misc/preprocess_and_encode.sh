@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# specify data file name here
-datafile="./encoder_example.txt"
+echo "Preprocssing Data..."
 
-python preprocessor.py $datafile clean_tweet
+# specify data file name here
+datafile="./shortTweets.json"
+temp_name="clean_tweet"
+
+python preprocess.py $datafile $temp_name
 
 # specify result path here
 resultpath="./results"
@@ -13,9 +16,9 @@ mkdir -p $resultpath
 # ===== Tweet2Vec =====
 
 modelpath="../tweet2vec/best_model/"
-python ../tweet2vec/encode_char.py $datafile $modelpath $resultpath
+python ../tweet2vec/encode_char.py $temp_name $modelpath $resultpath
 
 # ===== Baseline =====
 
 # modelpath="../baseline/best_model/"
-# python ../baseline/encode_word.py $datafile $modelpath $resultpath
+# python ../baseline/encode_word.py $temp_name $modelpath $resultpath

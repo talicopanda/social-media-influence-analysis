@@ -60,5 +60,5 @@ if __name__ == '__main__':
         for line in f:
             id_to_tweets[int(line.rstrip())] = out_emb[i]
             i += 1
-    with open('%s/embeddings.json' % save_path, 'w') as f:
+    with open('%s/word2vec_embeddings.json' % save_path, 'w') as f:
         json.dump(id_to_tweets, f)

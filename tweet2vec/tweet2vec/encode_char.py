@@ -104,7 +104,7 @@ def main(args):
         for line in f:
             id_to_tweets[int(line.rstrip())] = out_emb[i].tolist()
             i += 1
-    with open('%s/embeddings.json' % save_path, 'w') as f:
+    with open('%s/tweet2vec_embeddings.json' % save_path, 'w') as f:
         json.dump(id_to_tweets, f)
 
 
