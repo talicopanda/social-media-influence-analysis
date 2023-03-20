@@ -22,3 +22,7 @@ python ../tweet2vec/encode_char.py $temp_name $modelpath $resultpath
 
 # modelpath="../baseline/best_model/"
 # python ../baseline/encode_word.py $temp_name $modelpath $resultpath
+
+# ===== Word2Vec =====
+
+# python word2vec.py $temp_name $resultpath

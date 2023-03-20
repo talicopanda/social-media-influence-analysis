@@ -45,7 +45,7 @@ if __name__ == '__main__':
     save_path = sys.argv[2]
 
     Xt = []
-    with io.open(data_path + "text.txt", 'r', encoding='utf-8') as f:
+    with io.open(data_path + "_text.txt", 'r', encoding='utf-8') as f:
         for line in f:
             Xc = line.rstrip('\n')
             Xt.append(Xc[:MAX_LENGTH])
