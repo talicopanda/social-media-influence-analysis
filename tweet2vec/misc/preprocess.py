@@ -49,8 +49,8 @@ def preprocess(s, lowercase=True):
     return ' '.join([t for t in tokens if t]).replace('rt @user : ', '')
 
 
-with io.open(infile, 'r', encoding='utf-8') as json_data, io.open("tweets_" + outfile, 'w') as tweets_out, io.open("ids_" + outfile, 'w') as ids_out:
+with io.open(infile, 'r') as json_data, io.open(outfile + "_text.txt", 'w') as text_out, io.open(outfile + "_ids.txt", 'w') as ids_out:
     tweets = json.load(json_data)
     for tweet in tweets:
-        ids_out.write(tweet["id"] + '\n')
-        tweets_out.write(preprocess(tweet["text"]) + '\n')
+        ids_out.write(str(tweet["id"]) + u'\n')
+        text_out.write(preprocess(tweet["text"]) + u'\n')

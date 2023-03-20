@@ -12,6 +12,18 @@ To deactivate the virtual environment, run `deactivate`.
 
 # Generating Embedded Data
 
+## Preprocessing Data
+
+The Twitter API returns a json file with unnecessary extra fields that might affect performance for larger files. In addition, a tweet may have unwanted hashtags, HTML tags, usernames and URLs. Therefore, we levarega some of `tweet2vec`'s data preprocessor with a few changes to perform some data cleaning. Run:
+
+`python /tweet2vec/misc/preprocessor.py <path_to_data>/tweets.json clean_tweet`
+
+And this will generate two text files `clean_tweet_ids.txt` and `clean_tweet_text.txt` that are the clean and ordered text from the tweets and their corresponding ids.
+
+`clean_tweet_text.txt` can be loaded directly into the models to obtain latent embeddings
+
+## Getting Embedding
+
 In this project we use latent embedding of strings to semnatically represent each tweet as explained in more details on the project's `README.md` file. As such, we provide three different methods of content embedding:
 
 1. Tweet2Vec

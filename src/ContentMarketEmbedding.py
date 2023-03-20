@@ -19,6 +19,7 @@ class ContentMarketEmbedding:
     """
 
     latent_space_dim: int
+    embedding_type: EmbeddingType
     tweet_embeddings: dict[int, np.array]  # maps id to embedding vector
 
     def __init__(self, type: EmbeddingType, tweet_embeddings: dict[int, np.array]):
@@ -28,17 +29,7 @@ class ContentMarketEmbedding:
 
         self.tweet_embeddings = tweet_embeddings
         self.latent_space_dim = self._embedding_dim(tweet_embeddings)
-
-        if type == EmbeddingType.TWEET2VEC:
-            # TODO: load numpy array with fix_imports=True for difference pyhton versions
-            self.tweet_embeddings = {}
-        elif type == EmbeddingType.MEDIUM:
-            # TODO: load numpy array with fix_imports=True for difference pyhton versions
-            self.tweet_embeddings = {}
-        elif type == EmbeddingType.WORD2VEC:
-            self.tweet_embeddings = {}  # load
-        else:
-            self.tweet_embeddings = {}
+        self.embedding_type = type
 
     """
     Ensures that all tweet embeddings are consitently with the same dimension
