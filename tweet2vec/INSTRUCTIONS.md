@@ -41,16 +41,20 @@ Open PowerShell window and ensure that you are in the top directory of the outer
 
 To deactivate the virtual environment, run `deactivate`.
 
+# Preprocessing Data
+
+The Twitter API returns a json file with unnecessary extra fields that might affect performance for larger files. In addition, a tweet may have unwanted hashtags, HTML tags, usernames and URLs. Therefore, we levarega some of `tweet2vec`'s data preprocessor with a few changes to perform some data cleaning.
+
+`python /tweet2vec/misc/preprocessor.py <path_to_data>/tweets.json clean_tweet`
+
+And this will generate two text files `clean_tweet_ids.txt` and `clean_tweet_text.txt` that are the clean and ordered text from the tweets and their corresponding ids.
+
+`clean_tweet_text.txt` can be loaded directly into the models to obtain latent embeddings.
+
+For ease of user, we create a script `./preprocess_and_encode.sh` that takes in a raw json file of tweets from the Twitter API, preprocess the data according to our standards and embedds the data according to our models.
+
 # Embedding Data
 
-## Tweet2Vec Algorithm
+Ensure your tweet data json file (the tweet data from Twitter's API) is the `misc` folder, and ensure you are in `misc` by running `cd misc`. Then, run the following command to generate your embeddings:
 
-Create a directory to store your results (e.g. `mkdir ../embedding_tweet2vec`). Now you can encode your data by running:
-
-`python ./tweet2vec/encode_char.py ./<path_to_file>/tweets.txt ./tweet2vec/best_model/ ../embedding_tweet2vec`
-
-## Medium Data Baseline
-
-Create a directory to store your results (e.g. `mkdir ../embedding_medium`). Now you can encode your data by running:
-
-`python ./baseline/encode_word.py ./<path_to_file>/tweets.txt ./baseline/best_model/ ../embedding_medium`
+`./preprocess_and_encode.sh`
