@@ -16,9 +16,21 @@ def ContentMarketMongoDAO(ContentMarketDAO):
     def load_content_tweets(self) -> List[ContentTweet]:
         # tweets_collection = self.db_client[self.content_tweets_collection_name]
         # tweets_collection.find()
+        
+    @abstractmethod
+    def load_content_tweets(self) -> List[ContentTweet]:
+        pass
+
+    @abstractmethod
+    def write_content_tweets(self, content_tweets: List[ContentTweet]):
+        pass
 
     @abstractmethod
     def load_content_market_users(self) -> List[ContentMarketUser]:
+        pass
+
+    @abstractmethod
+    def write_content_market_users(self, users: List[ContentMarketUser]):
         pass
 
     @abstractmethod
@@ -26,8 +38,18 @@ def ContentMarketMongoDAO(ContentMarketDAO):
         pass
 
     @abstractmethod
+    def write_core_nodes(self, core_nodes: ContentMarketCoreNode) -> List[ContentMarketCoreNode]:
+        pass
+
+    @abstractmethod
     def load_content_market(self) -> ContentMarket:
         pass
+
+    @abstractmethod
+    def write_content_market(self, ContentMarket):
+        pass
+
+
 
         
 

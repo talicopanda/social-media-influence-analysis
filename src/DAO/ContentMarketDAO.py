@@ -17,7 +17,15 @@ class ContentMarketDAO(ABC):
         pass
 
     @abstractmethod
+    def write_content_tweets(self, content_tweets: List[ContentTweet]):
+        pass
+
+    @abstractmethod
     def load_content_market_users(self) -> List[ContentMarketUser]:
+        pass
+
+    @abstractmethod
+    def write_content_market_users(self, users: List[ContentMarketUser]):
         pass
 
     @abstractmethod
@@ -25,6 +33,14 @@ class ContentMarketDAO(ABC):
         pass
 
     @abstractmethod
+    def write_core_nodes(self, core_nodes: ContentMarketCoreNode) -> List[ContentMarketCoreNode]:
+        pass
+
+    @abstractmethod
     def load_content_market(self) -> ContentMarket:
+        pass
+
+    @abstractmethod
+    def write_content_market(self, ContentMarket):
         pass
 

@@ -2,10 +2,10 @@
 
 Ensure you have a version of Python3 installed by confirming that `python -V` outputs `Python 3.*.*`.
 
-Open a terminal window and ensure that you are in the top directory of `/tweet2vec` folder. Then:
+Open a terminal window and ensure that you are in the top directory of `/src` folder. Then:
 
-1. Run `python -m venv`
-2. Run `venv/Scripts/activate`
+1. Run `python -m venv env`
+2. Run `venv/Scripts/activate` (Windows) or `source venv/bin/activate` (MacOS)
 3. Install all dependencies with `pip install -r requirements.txt`
 
 To deactivate the virtual environment, run `deactivate`.
