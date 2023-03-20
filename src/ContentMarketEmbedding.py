@@ -13,27 +13,37 @@ class ContentMarketEmbedding:
     """
     A class that manages a content embedding in a Content Market.
 
-    A content embedding is a point in a 200-dimensional space that 
+    A content embedding is a point in a N-dimensional space that 
     represents the semantic value of the content string based on 
     tweet2vec's (https://arxiv.org/abs/1605.03481) implementation.
     """
 
-    tweets_to_embedding: dict[int, np.array]
+    latent_space_dim: int
+    embedding_type: EmbeddingType
+    tweet_embeddings: dict[int, np.array]  # maps id to embedding vector
 
-    def __init__(self, type: EmbeddingType):
+    def __init__(self, type: EmbeddingType, tweet_embeddings: dict[int, np.array]):
+        if not tweet_embeddings.keys():
+            raise Exception(
+                "ContentMarketEmbedding: no tweet embedding in dictionary")
 
-        if type == EmbeddingType.TWEET2VEC:
-            # TODO: load numpy array with fix_imports=True for difference pyhton versions
-            self.tweets_to_embedding = {}
-        elif type == EmbeddingType.MEDIUM:
-            # TODO: load numpy array with fix_imports=True for difference pyhton versions
-            self.tweets_to_embedding = {}
-        elif type == EmbeddingType.WORD2VEC:
-            self.tweets_to_embedding = {}  # load
-        else:
-            self.tweets_to_embedding = {}
+        self.tweet_embeddings = tweet_embeddings
+        self.latent_space_dim = self._embedding_dim(tweet_embeddings)
+        self.embedding_type = type
 
-    def get(id: int) -> np.array:
-        if id in tweets_to_embedding:
-            return tweets_to_embedding[id]
+    """
+    Ensures that all tweet embeddings are consitently with the same dimension
+    and returns such dimension
+    """
+    def _embedding_dim(tweet_embeddings: dict[int, np.array]) -> int:
+        n = tweet_embeddings[tweet_embeddings.keys()[0]].size
+        for val in tweet_embeddings.values():
+            if n != val.size:
+                raise Exception(
+                    f'ContentMarketEmbedding: content embedding data is inconsistent. Expecting vector of dimension {n}, given {val.size}')
+        return n
+
+    def get(self, id: int) -> np.array:
+        if id in self.tweet_embeddings:
+            return self.tweet_embeddings[id]
         return None

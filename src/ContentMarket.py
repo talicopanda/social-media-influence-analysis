@@ -15,12 +15,19 @@ class ContentMarket:
     consumers: List[ContentMarketConsumer]
     producers: List[ContentMarketProducer]
     core_node: ContentMarketCoreNode
-    embedding: ContentMarketEmbedding
+    computed_causations: List[float]
 
-    def __init__(self):
-        self.consumers = []  # load
-        self.producers = []  # load
-        self.core_node = None  # load
+    def __init__(self, users, core_node):
+        self.consumers, self.producers = self.split_users(users)
+        self.core_node = core_node
+        self.computed_causations = []
+
+    """
+    Decide when we see data
+    """
+
+    def split_users(self, users):
+        return [], []
 
     def calulate_demand(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
         demand = 0
@@ -31,9 +38,6 @@ class ContentMarket:
                     demand += 1
         return demand
 
-    def avg_demand(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
-        return self.calculate_demand(content, content_radius, user_ids, time_range) / len(user_ids)
-
     def calculate_supply(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
         supply = 0
         for user_id in user_ids:
@@ -42,9 +46,6 @@ class ContentMarket:
                 if tweet.type == TweetContent.RETWEET and norm(tweet.content - content) < content_radius:
                     supply += 1
         return supply
-
-    def avg_supply(self, content: TweetContent, content_radius: int, user_ids: List[str], time_range: Tuple(datetime)):
-        return self.supply(content, content_radius, user_ids, time_range) / len(user_ids)
 
     def calculate_causation(self):
         pass
