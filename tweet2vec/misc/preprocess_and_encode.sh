@@ -15,8 +15,8 @@ mkdir -p $resultpath
 
 # ===== Tweet2Vec =====
 
-modelpath="../tweet2vec/best_model/"
-python ../tweet2vec/encode_char.py $temp_name $modelpath $resultpath
+# modelpath="../tweet2vec/best_model/"
+# python ../tweet2vec/encode_char.py $temp_name $modelpath $resultpath
 
 # ===== Baseline =====
 
@@ -25,4 +25,4 @@ python ../tweet2vec/encode_char.py $temp_name $modelpath $resultpath
 
 # ===== Word2Vec =====
 
-# python word2vec.py $temp_name $resultpath
+python ../word2vec/word2vec.py $temp_name $resultpath

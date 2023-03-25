@@ -1,3 +1,5 @@
+import pymongo
+
 def ContentMarketMongoDAO(ContentMarketDAO):
     content_tweets_collection_name: str
     content_market_users_collection_name: str
@@ -10,43 +12,25 @@ def ContentMarketMongoDAO(ContentMarketDAO):
         self.content_market_users_collection_name = config.content_market_users_collection_name
         self.core_nodes_collection_name = config.core_nodes_collection_name
 
-        client = MongoClient(config.connection_url)
+        client = pymongo.MongoClient(config.connection_url)
         self.db = client[config.db_name]
 
-    def load_content_tweets(self) -> List[ContentTweet]:
-        # tweets_collection = self.db_client[self.content_tweets_collection_name]
-        # tweets_collection.find()
-        
-    @abstractmethod
-    def load_content_tweets(self) -> List[ContentTweet]:
+    def load_tweet_content(self) -> List[ContentTweet]:
         pass
 
-    @abstractmethod
     def write_content_tweets(self, content_tweets: List[ContentTweet]):
         pass
 
-    @abstractmethod
     def load_content_market_users(self) -> List[ContentMarketUser]:
         pass
 
-    @abstractmethod
-    def write_content_market_users(self, users: List[ContentMarketUser]):
-        pass
-
-    @abstractmethod
     def load_core_nodes(self) -> List[ContentMarketCoreNode]:
         pass
 
-    @abstractmethod
     def write_core_nodes(self, core_nodes: ContentMarketCoreNode) -> List[ContentMarketCoreNode]:
         pass
 
-    @abstractmethod
     def load_content_market(self) -> ContentMarket:
-        pass
-
-    @abstractmethod
-    def write_content_market(self, ContentMarket):
         pass
 
 
