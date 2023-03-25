@@ -59,7 +59,7 @@ def main(args):
         labeldict = pkl.load(f)
     n_char = len(chardict.keys()) + 1
     n_classes = min(len(labeldict.keys()) + 1, MAX_CLASSES)
-    # inverse_labeldict = invert(labeldict)
+    inverse_labeldict = invert(labeldict)
 
     print("Building network...")
     # Tweet variables
@@ -67,42 +67,44 @@ def main(args):
     t_mask = T.fmatrix()
 
     # network for prediction
-    # predictions, embeddings = classify(tweet, t_mask, params, n_classes, n_char)
-    _, embeddings = classify(tweet, t_mask, params, n_classes, n_char)
+    predictions, embeddings = classify(
+        tweet, t_mask, params, n_classes, n_char)
 
     # Theano function
     print("Compiling theano functions...")
-    # predict = theano.function([tweet,t_mask],predictions)
+    predict = theano.function([tweet, t_mask], predictions)
     encode = theano.function([tweet, t_mask], embeddings)
 
     # Test
     print("Encoding...")
-    # out_pred = []
+    out_pred = []
     out_emb = []
     numbatches = len(Xt)/N_BATCH + 1
     for i in range(numbatches):
         xr = Xt[N_BATCH*i:N_BATCH*(i+1)]
         x, x_m = batch.prepare_data(xr, chardict, n_chars=n_char)
-        # p = predict(x,x_m)
+        p = predict(x, x_m)
         e = encode(x, x_m)
-        # ranks = np.argsort(p)[:,::-1]
+        ranks = np.argsort(p)[:, ::-1]
 
         for idx, item in enumerate(xr):
-            # out_pred.append(' '.join([inverse_labeldict[r] if r in inverse_labeldict else 'UNK' for r in ranks[idx,:5]]))
+            out_pred.append(' '.join(
+                [inverse_labeldict[r] if r in inverse_labeldict else 'UNK' for r in ranks[idx, :5]]))
             out_emb.append(e[idx, :])
 
     # Save
     print("Saving...")
-    # with io.open('%s/predicted_tags.txt'%save_path,'w') as f:
-    #    for item in out_pred:
-    #        f.write(item + '\n')
+    # with io.open('%s/predicted_tags.txt' % save_path, 'w') as f:
+    #     for item in out_pred:
+    #         f.write(item + '\n')
     # with open('%s/embeddings.npy'%save_path,'w') as f:
     #    np.save(f,np.asarray(out_emb))
     id_to_tweets = {}
     with io.open(data_path + "_ids.txt", 'r', encoding='utf-8') as f:
         i = 0
         for line in f:
-            id_to_tweets[int(line.rstrip())] = out_emb[i].tolist()
+            id_to_tweets[int(line.rstrip())] = [
+                out_pred[i], out_emb[i].tolist()]
             i += 1
     with open('%s/tweet2vec_embeddings.json' % save_path, 'w') as f:
         json.dump(id_to_tweets, f)
