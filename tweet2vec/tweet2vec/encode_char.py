@@ -7,6 +7,7 @@ import batch_char as batch
 import cPickle as pkl
 import io
 import json
+import pymongo
 
 from t2v import tweet2vec, init_params, load_params
 from settings_char import N_BATCH, MAX_LENGTH, MAX_CLASSES
@@ -34,6 +35,7 @@ def main(args):
     data_path = args[0]
     model_path = args[1]
     save_path = args[2]
+
     if len(args) > 3:
         m_num = int(args[3])
 
@@ -99,16 +101,24 @@ def main(args):
     #         f.write(item + '\n')
     # with open('%s/embeddings.npy'%save_path,'w') as f:
     #    np.save(f,np.asarray(out_emb))
+    id_to_predication_and_tweets = {}
     id_to_tweets = {}
     with io.open(data_path + "_ids.txt", 'r', encoding='utf-8') as f:
         i = 0
         for line in f:
-            id_to_tweets[int(line.rstrip())] = [
+            id = int(line.rstrip())
+            id_to_predication_and_tweets[id] = [
                 out_pred[i], out_emb[i].tolist()]
+            id_to_tweets[id] = out_emb[i].tolist()
             i += 1
+    
     with open('%s/tweet2vec_embeddings.json' % save_path, 'w') as f:
-        json.dump(id_to_tweets, f)
-
+        json.dump(id_to_predication_and_tweets, f)        
+    
+    print("Writing to DB...")
+    tweet_collection = pymongo.MongoClient("mongodb://localhost:27017/")["socialInfluenceTesting"]["contentTweets"]
+    for tweet_id in id_to_tweets:
+        tweet_collection.insert_one({"id": tweet_id, "embedding": id_to_tweets[tweet_id]})
 
 if __name__ == '__main__':
     main(sys.argv[1:])

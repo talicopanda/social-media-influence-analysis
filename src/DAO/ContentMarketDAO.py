@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
 from ContentMarketUser import ContentMarketUser
-from ContentMarket import ContentMarket
 from ContentMarketCoreNode import ContentMarketCoreNode
 from ContentTweet import ContentTweet
 from typing import List, Tuple
-from ContentMarketMongoDAO import ContentMarketMongoDAO
 
 class ContentMarketDAO(ABC):        
     @abstractmethod
@@ -37,7 +35,9 @@ class ContentMarketDAO(ABC):
         pass
 
     @abstractmethod
-    def write_content_market(self, ContentMarket):
+    def load_content_market(self, content_market_id):
         pass
-
-ContentMarketDAO.register(ContentMarketMongoDAO)
+    
+    @abstractmethod
+    def write_content_market(self, content_market):
+        pass

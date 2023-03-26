@@ -2,3 +2,4 @@ embedding_*
 *venv*
 *GoogleNews-vectors-negative300.bin.gz
 *.pyc
+*.DS_STORE

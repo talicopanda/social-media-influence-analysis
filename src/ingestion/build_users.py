@@ -15,7 +15,6 @@ def main():
             # TODO: try turning this into an upsert
             create_user_if_not_exist(db, record['user_id'])
 
-
             db.update_one({'user_id': record['user_id']}, { '$push': { 'retweets': record['id'] }} )
             if record['retweet_id'] is not None: # we have retweet
                 create_user_if_not_exist(db, record['retweet_user_id'])

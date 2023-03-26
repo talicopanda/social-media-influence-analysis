@@ -2,7 +2,6 @@ from typing import DefaultDict, Tuple
 from collections import defaultdict
 from util import calcualate_embedding_bin
 from ContentMarketUser import ContentMarketUser
-from DAO.ContentMarketDAO import ContentMarketDAO
 
 
 
@@ -10,24 +9,23 @@ class ContentMarketCoreNode(ContentMarketUser):
     demand: DefaultDict # TODO: doctype here
     supply: DefaultDict
 
-    def __init__(self, user_id):
-        self.demand = defaultdict([])
-        super(user_id)
+    def __init__(self, user_id, dao, tweets, retweets, retweets_in_community):
+        self.demand = defaultdict(list)
+        self.supply = defaultdict(list)
+        self.calculate_demand(dao, retweets)
+        self.calculate_supply(dao, tweets, retweets_in_community)
+        super().__init__(user_id)
     
-    def calculate_demand(self, dao: ContentMarketDAO):
-        retweets = dao.get_user_retweets(self.user_id)
-    
-        for retweet in retweets:
-            embedding = dao.get_tweet_embedding(retweet.id)
-            self.demand[calcualate_embedding_bin(embedding)].append(embedding)
+    def calculate_demand(self, dao, retweets):
+        for tweet_id in retweets:
+            embedding = dao.load_tweet_embedding(tweet_id)
+            self.supply[calcualate_embedding_bin(embedding)] = embedding
 
-    def calculate_supply(self, dao: ContentMarketDAO):
-        tweet_ids = dao.load_user_tweet_ids(self.user_id)
-        retweets_in_community = dao.load_user_retweet_in_community_ids(self.user_id)
 
-        for tweet in tweets:
-            embedding = dao.get_tweet_embedding(tweet.id)
+    def calculate_supply(self, dao, tweets, retweets_in_community):
+        for tweet_id in tweets:
+            embedding = dao.load_tweet_embedding(tweet_id)
             self.supply[calcualate_embedding_bin(embedding)] = embedding
         for retweet_in_community in retweets_in_community:
-            embedding = dao.get_tweet_embedding(retweet_in_community.id)
+            embedding = dao.load_tweet_embedding(retweet_in_community)
             self.supply[calcualate_embedding_bin(embedding)] = embedding

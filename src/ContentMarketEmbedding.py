@@ -1,4 +1,4 @@
-from typing import dict
+from typing import Dict
 import numpy as np
 from enum import Enum
 
@@ -20,7 +20,7 @@ class ContentMarketEmbedding:
 
     latent_space_dim: int
     embedding_type: EmbeddingType
-    tweet_embeddings: dict[int, np.array]  # maps id to embedding vector
+    tweet_embeddings: Dict[int, np.array]  # maps id to embedding vector
 
     def __init__(self, type: EmbeddingType, tweet_embeddings: dict[int, np.array]):
         if not tweet_embeddings.keys():

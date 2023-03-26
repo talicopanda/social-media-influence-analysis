@@ -2,7 +2,6 @@ from typing import List, Tuple
 from ContentMarketConsumer import ContentMarketConsumer
 from ContentMarketProducer import ContentMarketProducer
 from ContentMarketCoreNode import ContentMarketCoreNode
-from ContentMarketEmbedding import ContentMarketEmbedding
 import datetime
 
 
