@@ -2,3 +2,5 @@
 *env*
 *.pyc
 *.DS_STORE
+*.json
+*pickle
