@@ -6,7 +6,6 @@ from enum import Enum
 class EmbeddingType(Enum):
     TWEET2VEC = 1
     MEDIUM = 2
-    WORD2VEC = 3
 
 
 class ContentMarketEmbedding:
@@ -22,7 +21,7 @@ class ContentMarketEmbedding:
     embedding_type: EmbeddingType
     tweet_embeddings: Dict[int, np.array]  # maps id to embedding vector
 
-    def __init__(self, type: EmbeddingType, tweet_embeddings: dict[int, np.array]):
+    def __init__(self, type: EmbeddingType, tweet_embeddings: Dict[int, np.array]):
         if not tweet_embeddings.keys():
             raise Exception(
                 "ContentMarketEmbedding: no tweet embedding in dictionary")
@@ -35,7 +34,7 @@ class ContentMarketEmbedding:
     Ensures that all tweet embeddings are consitently with the same dimension
     and returns such dimension
     """
-    def _embedding_dim(tweet_embeddings: dict[int, np.array]) -> int:
+    def _embedding_dim(tweet_embeddings: Dict[int, np.array]) -> int:
         n = tweet_embeddings[tweet_embeddings.keys()[0]].size
         for val in tweet_embeddings.values():
             if n != val.size:
