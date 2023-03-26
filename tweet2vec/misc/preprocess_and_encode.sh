@@ -3,13 +3,13 @@
 echo "Preprocessing Data..."
 
 # specify data file name here
-datafile="./UserTweets.json"
-temp_name="clean_tweet"
+datafile="../../data/UserTweets.json"
+temp_location="../../experiments/clean_tweet"
 
-python preprocess.py $datafile $temp_name
+python preprocess.py $datafile $temp_location
 
 # specify result path here
-resultpath="./results"
+resultpath="../../results"
 
 mkdir -p $resultpath
 
@@ -20,5 +20,5 @@ python ../tweet2vec/encode_char.py $temp_name $modelpath $resultpath
 
 # ===== Baseline =====
 
-# modelpath="../baseline/best_model/"
-# python ../baseline/encode_word.py $temp_name $modelpath $resultpath
+modelpath="../baseline/best_model/"
+python ../baseline/encode_word.py $temp_name $modelpath $resultpath

@@ -52,5 +52,16 @@ def preprocess(s, lowercase=True):
 with io.open(infile, 'r') as json_data, io.open(outfile + "_text.txt", 'w') as text_out, io.open(outfile + "_ids.txt", 'w') as ids_out:
     tweets = json.load(json_data)
     for tweet in tweets:
+        prep = preprocess(tweet["text"])
+
+        # filter replies
+        if "@user" == prep[:5]:
+            continue
+
+        # tweets that are only urls or user mentions
+        # isspace() returns True if all the characters in a string are whitespaces, otherwise False.
+        if prep.replace('!url', '').isspace() or prep.replace('@user', '').isspace():
+            continue
+
+        text_out.write(+ u'\n')
         ids_out.write(str(tweet["id"]) + u'\n')
-        text_out.write(preprocess(tweet["text"]) + u'\n')
