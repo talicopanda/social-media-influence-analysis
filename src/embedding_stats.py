@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 from numpy import linalg
 import sys
 
-DATA_PATH = "../tweet2vec/misc/results/"
+DATA_PATH = "../results/"
 
 
 """ 
@@ -18,6 +18,8 @@ However, this is a tradeoff because as K increases, inertia decreases.
 See the graph outputted and find the k where the decrease in inertia begins to slow.
 In other words, where the graph starts to platoe.
 """
+
+
 def plot_kmeans_inertia(embeddings: Dict[int, List]):
     inertias = []
 

@@ -9,6 +9,10 @@ import datetime
 
 
 class SupportEntry:
+    """
+    A class that stores info about a entry in a support function
+    """
+
     def __init__(self, center, tweet_ids, furthest_tweet, furthest_tweet_dist, closest_tweet, closest_tweet_dist):
         self.center = center
         self.tweet_ids = tweet_ids
@@ -108,34 +112,31 @@ class ContentMarket:
         pass
 
 
-"""
-We implement a modified version of the k-means algorithm, called the k-means with equal radius (KMER).
-The KMER algorithm modifies the traditional k-means algorithm by enforcing the radius constraint during the clustering process.
-
-The KMER algorithm is as follows:
-
-1. For a number of clusters k, initialize the cluster centers randomly.
-2. Calculate the distance between each vector and each cluster center.
-3. For each cluster, calculate the average distance from the cluster center to all the vectors assigned to the cluster.
-4. Find the maximum average distance among all the clusters, and set this distance as the desired radius for all the clusters.
-5. For each cluster, remove all vectors that are farther than the desired radius from the cluster center.
-6. Recalculate the cluster centers as the means of the remaining vectors assigned to each cluster.
-7. Repeat steps 2 to 6 until convergence (i.e., until the cluster centers do not change significantly).
-
-The function returns a tuple containing the final assignments and cluster centers.
-The assignments are an array of size n indicating the cluster index (0 to k-1) to which each vector is assigned.
-The centers are a matrix of shape (k, d) containing the coordinates of the cluster centers.
-"""
-
-
 def kmer(X: np.array, k: int, radius_tol=1e-3, max_iters=100) -> np.array:
-    n, d = X.shape
+    """
+    We implement a modified version of the k-means algorithm, called the k-means with equal radius (KMER).
+    The KMER algorithm modifies the traditional k-means algorithm by enforcing the radius constraint during the clustering process.
+
+    The KMER algorithm is as follows:
+
+    1. For a number of clusters k, initialize the cluster centers randomly.
+    2. Calculate the distance between each vector and each cluster center.
+    3. For each cluster, calculate the average distance from the cluster center to all the vectors assigned to the cluster.
+    4. Find the maximum average distance among all the clusters, and set this distance as the desired radius for all the clusters.
+    5. For each cluster, remove all vectors that are farther than the desired radius from the cluster center.
+    6. Recalculate the cluster centers as the means of the remaining vectors assigned to each cluster.
+    7. Repeat steps 2 to 6 until convergence (i.e., until the cluster centers do not change significantly).
+
+    The function returns a tuple containing the final assignments and cluster centers.
+    The assignments are an array of size n indicating the cluster index (0 to k-1) to which each vector is assigned.
+    The centers are a matrix of shape (k, d) containing the coordinates of the cluster centers.
+    """
 
     # Step 1: Initialize cluster centers randomly
 
     # np.random.choice generates an array of k unique integers between 0 and n-1,
     # which are used as indices to select the random vectors from X
-    centers = X[np.random.choice(n, k, replace=False), :]
+    centers = X[np.random.choice(X.shape[0], k, replace=False), :]
 
     for iter in range(max_iters):
 

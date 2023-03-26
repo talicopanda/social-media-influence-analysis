@@ -1,11 +1,12 @@
+import pprint
+import json
+from user_partitioning.UserPartitioningStrategyFactory import UserPartitioningStrategyFactory
+from .ContentMarket.ContentMarketBuilder import ContentMarketBuilder
+from DAO.ContentMarketFactory import ContentMarketFactory
 import sys
 sys.path.append("DAO")
 sys.path.append("user_partitioning")
-from DAO.ContentMarketFactory import ContentMarketFactory
-from ContentMarketBuilder import ContentMarketBuilder
-from user_partitioning.UserPartitioningStrategyFactory import UserPartitioningStrategyFactory
-import json
-import pprint
+
 
 def main():
     # TODO: add user-friendly output
@@ -18,13 +19,15 @@ def main():
     pprint.pprint(config)
 
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
-    partitioning_strategy = UserPartitioningStrategyFactory.get_user_type_strategy(config['partitioning_strategy'])
-    
-    builder = ContentMarketBuilder(dao, partitioning_strategy, config['bin_size'], config['embedding_type'])
+    partitioning_strategy = UserPartitioningStrategyFactory.get_user_type_strategy(
+        config['partitioning_strategy'])
+
+    builder = ContentMarketBuilder(
+        dao, partitioning_strategy, config['bin_size'], config['embedding_type'])
     producers, consumers = builder.compute_producer_consumer_split()
     print("Consumers: ", consumers)
     print("Producers: ", producers)
-    
+
     print("num failed to load", dao.failed_to_load)
 
     for consumer in consumers:
@@ -34,9 +37,8 @@ def main():
     for producer in producers:
         if len(producer.supply) > 0:
             print(len(producer.supply))
-    
-    print(producers[0].supply)
 
+    print(producers[0].supply)
 
     # TODO: build content market object with consumers and producers
 

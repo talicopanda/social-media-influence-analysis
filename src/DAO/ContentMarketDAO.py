@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from ContentMarketUser import ContentMarketUser
-from ContentMarketCoreNode import ContentMarketCoreNode
-from ContentTweet import ContentTweet
+from ..ContentMarket.ContentMarketUser import ContentMarketUser
+from ..ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
+from ..ContentMarket.ContentTweet import ContentTweet
 from typing import List, Tuple
 
-class ContentMarketDAO(ABC):        
+
+class ContentMarketDAO(ABC):
     @abstractmethod
     def load_tweet_embedding(self, tweet_id: int) -> List[ContentTweet]:
         pass
@@ -37,7 +38,7 @@ class ContentMarketDAO(ABC):
     @abstractmethod
     def load_content_market(self, content_market_id):
         pass
-    
+
     @abstractmethod
     def write_content_market(self, content_market):
         pass
