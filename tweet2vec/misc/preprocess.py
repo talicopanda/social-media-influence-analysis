@@ -60,7 +60,7 @@ with io.open(infile, 'r') as json_data, io.open(outfile + "_text.txt", 'w') as t
 
         # tweets that are only urls or user mentions
         # isspace() returns True if all the characters in a string are whitespaces, otherwise False.
-        if prep.replace('!url', '').isspace() or prep.replace('@user', '').isspace():
+        if prep.replace('!url', '').replace('@user', '').isspace():
             continue
 
         text_out.write(+ u'\n')
