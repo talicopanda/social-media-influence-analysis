@@ -101,24 +101,27 @@ def main(args):
     #         f.write(item + '\n')
     # with open('%s/embeddings.npy'%save_path,'w') as f:
     #    np.save(f,np.asarray(out_emb))
-    id_to_predication_and_tweets = {}
-    id_to_tweets = {}
+    id_to_embeddings = {}
+    id_to_hashtags = {}
     with io.open(data_path + "_ids.txt", 'r', encoding='utf-8') as f:
         i = 0
         for line in f:
             id = int(line.rstrip())
-            id_to_predication_and_tweets[id] = [
-                out_pred[i], out_emb[i].tolist()]
-            id_to_tweets[id] = out_emb[i].tolist()
+            id_to_embeddings[id] = out_emb[i].tolist()
+            id_to_hashtags[id] = out_pred[i]
             i += 1
     
     with open('%s/tweet2vec_embeddings.json' % save_path, 'w') as f:
-        json.dump(id_to_predication_and_tweets, f)        
+        json.dump(id_to_embeddings, f)      
     
     print("Writing to DB...")
     tweet_collection = pymongo.MongoClient("mongodb://localhost:27017/")["socialInfluenceTesting"]["contentTweets"]
-    for tweet_id in id_to_tweets:
-        tweet_collection.insert_one({"id": tweet_id, "embedding": id_to_tweets[tweet_id]})
+    for tweet_id in id_to_embeddings:
+        tweet_collection.insert_one({"id": tweet_id, "embedding": id_to_embeddings[tweet_id]})
+    
+    with open('%s/tweet2vec_hashtags.json' % save_path, 'w') as f:
+        json.dump(id_to_hashtags, f)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
