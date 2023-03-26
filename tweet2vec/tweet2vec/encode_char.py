@@ -7,7 +7,6 @@ import batch_char as batch
 import cPickle as pkl
 import io
 import json
-import pymongo
 
 from t2v import tweet2vec, init_params, load_params
 from settings_char import N_BATCH, MAX_LENGTH, MAX_CLASSES
@@ -112,7 +111,7 @@ def main(args):
         for line in f:
             id = int(line.rstrip())
             id_to_embeddings[id] = out_emb[i].tolist()
-            id_to_hashtags[id] = out_pred[i]
+            id_to_hashtags[id] = out_pred[i].split(" ")
             id_to_text[id] = Xt[i]
             i += 1
 
@@ -122,13 +121,6 @@ def main(args):
         json.dump(id_to_hashtags, f)
     with open('%s/tweet2vec_text.json' % save_path, 'w') as f:
         json.dump(id_to_text, f)
-
-    print("Writing to DB...")
-    tweet_collection = pymongo.MongoClient(
-        "mongodb://localhost:27017/")["socialInfluenceTesting"]["contentTweets"]
-    for tweet_id in id_to_embeddings:
-        tweet_collection.insert_one(
-            {"id": tweet_id, "embedding": id_to_embeddings[tweet_id]})
 
 
 if __name__ == '__main__':

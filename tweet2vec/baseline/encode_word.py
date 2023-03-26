@@ -112,7 +112,7 @@ def main(args):
         for line in f:
             id = int(line.rstrip())
             id_to_embeddings[id] = out_emb[i].tolist()
-            id_to_hashtags[id] = out_pred[i]
+            id_to_hashtags[id] = out_pred[i].split(" ")
             id_to_text[id] = Xt[i]
             i += 1
 
