@@ -55,7 +55,7 @@ with io.open(infile, 'r') as json_data, io.open(outfile + "_text.txt", 'w') as t
     for tweet in tweets:
         prep = preprocess(tweet["text"])
 
-        # filter replies
+        # separate replies
         if "@user" == prep[:5]:
             replies[tweet["id"]] = tweet
             del tweet["id"]
