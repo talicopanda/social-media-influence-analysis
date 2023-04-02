@@ -24,9 +24,11 @@ To deactivate the virtual environment, run `deactivate`.
 
 ### Requirements
 
+Note: we did have difficulties running the preloaded tweet2vec models on Windows due to different dependency versions with the original owners of the repo. If you are using this to preprocess data or train your own embedding model, Windows should be fine. However, to use the preloaded models we found that running on an unix based machine (Linux/Mac) seemed the best approach.
+
 Download and install [Python 2.7](https://www.python.org/downloads/release/python-2718/) if you don't already have it. Check the path to the directory where python 2.7 is installed in your system (usually of the form `<path>\Python27\`).
 
-Also donwnload and install [MinGW C++](https://github.com/niXman/mingw-builds-binaries/releases) from one of the 64-bit release versions outlined in that github. Here is a [video](https://www.youtube.com/watch?v=dRxPUblx2SY&ab_channel=AnielMaharajh) that may help.
+For embedding data, donwnload and install [MinGW C++](https://github.com/niXman/mingw-builds-binaries/releases) from one of the 64-bit release versions outlined in that github. Here is a [video](https://www.youtube.com/watch?v=dRxPUblx2SY&ab_channel=AnielMaharajh) that may help.
 
 ### Setup
 

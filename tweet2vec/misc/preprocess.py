@@ -2,10 +2,9 @@ import re
 import sys
 import io
 import json
+import pymongo
 
-# input and output files
-infile = sys.argv[1]
-outfile = sys.argv[2]
+db_config = sys.argv[1]
 
 regex_str = [
     r'<[^>]+>',  # HTML tags
@@ -49,26 +48,42 @@ def preprocess(s, lowercase=True):
     return ' '.join([t for t in tokens if t]).replace('rt @user : ', '')
 
 
-with io.open(infile, 'r') as json_data, io.open(outfile + "_text.txt", 'w') as text_out, io.open(outfile + "_ids.txt", 'w') as ids_out:
-    tweets = json.load(json_data)
-    replies = {}
-    for tweet in tweets:
-        prep = preprocess(tweet["text"])
+with io.open(db_config, 'r') as config_file:
+    config = json.load(config_file)
 
-        # separate replies
-        if "@user" == prep[:5]:
-            replies[tweet["id"]] = tweet
-            del tweet["id"]
-            continue
+    community_db_name = config["database"]["community_db_name"]
+    content_market_db_name = config["database"]["content_market_db_name"]
+    
+    tweets_collection_name = config["database"]["original_tweets_collection"]
+
+    clean_tweets_collection_name = config["database"]["clean_original_tweets_collection"]
+    clean_replies_collection_name = config["database"]["clean_replies_collection"]
+
+    client = pymongo.MongoClient()
+
+    db_community = client[community_db_name]
+    db_content_market = client[content_market_db_name]
+
+    tweets = db_community[tweets_collection_name].find()
+
+    clean_tweets = []
+    clean_replies = []
+    for tweet in tweets:
+        new_text = preprocess(tweet["text"])
 
         # Discard tweets that are only urls or user mentions
         # isspace() returns True if all the characters in a string are whitespaces, otherwise False.
-        if prep.replace('!url', '').replace('@user', '').isspace():
+        if new_text.replace('!url', '').replace('@user', '').isspace():
             continue
 
-        text_out.write(prep + u'\n')
-        ids_out.write(str(tweet["id"]) + u'\n')
+        new_tweet = tweet.copy()
+        new_tweet["text"] = new_text
 
-    with io.open(outfile + "_original_tweets.json", 'w') as original_out, io.open(outfile + "_replies.json", 'w') as reply_out:
-        json.dump(tweets, original_out)
-        json.dump(replies, reply_out)
+        # separate replies
+        if "@user" == new_text[:5]:
+            clean_replies.append(new_tweet)
+        else:
+            clean_tweets.append(new_tweet)
+
+    db_content_market[clean_tweets_collection_name].insert_many(clean_tweets)
+    db_content_market[clean_replies_collection_name].insert_many(clean_replies)

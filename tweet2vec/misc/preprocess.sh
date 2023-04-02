@@ -3,7 +3,6 @@
 echo "Preprocessing Data..."
 
 # specify data file name here
-datafile="../../data/OriginalTweets.json"
-temp_location="../../experiments/clean"
+config_file="../../config.json"
 
-python preprocess.py $datafile $temp_location
+python preprocess.py $config_file
