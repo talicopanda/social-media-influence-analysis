@@ -64,7 +64,8 @@ class ContentMarketBuilder:
         for quote_out_of_community in self.dao.load_quotes_of_out_community():
             del quote_out_of_community["_id"]
             tweet = ContentTweet(**quote_out_of_community)
-            users[quote_out_of_community["user_id"]].quotes_of_out_community.append(tweet)
+            if quote_out_of_community["user_id"] in users:
+                users[quote_out_of_community["user_id"]].quotes_of_out_community.append(tweet)
         
         for retweet_in_community in self.dao.load_retweets_of_in_community():
             del retweet_in_community["_id"]
@@ -74,7 +75,8 @@ class ContentMarketBuilder:
         for retweets_of_out_community in self.dao.load_retweets_of_out_community():
             del retweets_of_out_community["_id"]
             tweet = ContentTweet(**retweets_of_out_community)
-            users[retweets_of_out_community["user_id"]].retweets_of_out_community.append(tweet)
+            if quote_out_of_community["user_id"] in users:
+                users[retweets_of_out_community["user_id"]].retweets_of_out_community.append(tweet)
 
 
     # partition the users in the community to producers, consumer, and core nodes.
@@ -113,7 +115,7 @@ class ContentMarketBuilder:
         return (producers, consumers)
 
     def compute_bins(self) -> ContentMarketClustering:
-        embeddings = self.dao.load_embeddings()
+        embeddings = self.dao.load_tweet_embeddings()
 
         data = np.asarray(list(embeddings.values()), dtype=np.float32)
 

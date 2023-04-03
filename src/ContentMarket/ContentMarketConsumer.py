@@ -12,6 +12,6 @@ class ContentMarketConsumer(ContentMarketUser):
         super().__init__(**kwargs)
     
     def calculate_demand(self, clustering: ContentMarketClustering):
-        self.demand = self.build_support(self.retweets_of_in_commuinity, clustering)
-        retweets_out = self.build_support(self.retweets_of_out_commuinity, clustering)
+        self.demand = self.build_support(self.retweets_of_in_community, clustering)
+        retweets_out = self.build_support(self.retweets_of_out_community , clustering)
         self.merge_support(self.demand, retweets_out)

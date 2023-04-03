@@ -17,7 +17,8 @@
     "clean_quotes_of_out_community_collection": "clean_quotes_of_out_community",
     "clean_retweets_of_in_community_collection": "clean_retweets_of_in_community",
     "clean_retweets_of_out_community_collection": "clean_retweets_of_out_community",
-    "tweet_embeddings": "tweet_embeddings"
+    "content_market_collection": "content_markets",
+    "tweet_embeddings_collection": "tweet_embeddings"
   },
   "num_bins": 20,
   "partitioning_strategy": "users",

@@ -12,12 +12,14 @@ class ContentMarket:
     users/tweets demands, supplies and causations
     """
 
+    name: str
     consumers: List[ContentMarketConsumer]
     producers: List[ContentMarketProducer]
     core_nodes: List[ContentMarketCoreNode]
     computed_causations: List[float]
 
-    def __init__(self, consumers, producers, core_nodes):
+    def __init__(self, name, consumers, producers, core_nodes):
+        self.name = name
         self.consumers = consumers
         self.producers = producers
         self.core_nodes = core_nodes

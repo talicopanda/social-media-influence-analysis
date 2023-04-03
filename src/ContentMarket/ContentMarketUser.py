@@ -48,13 +48,13 @@ class ContentMarketUser:
         self.retweets_of_in_community = []
         self.retweets_of_out_community = []
 
-    def build_support(tweets: ContentMarketTweet, clustering: ContentMarketClustering) -> DefaultDict[tuple, List[ContentMarketTweet]]:
+    def build_support(self, tweets: ContentMarketTweet, clustering: ContentMarketClustering) -> DefaultDict[tuple, List[ContentMarketTweet]]:
         support = defaultdict(list)
         for tweet in tweets:
             cluster_id = clustering.get_cluster_id(tweet.id)
             support[cluster_id].append(tweet.id)
         return support
 
-    def merge_support(support1: DefaultDict[tuple, List[ContentMarketTweet]], support2: DefaultDict[tuple, List[ContentMarketTweet]]):
+    def merge_support(self, support1: DefaultDict[tuple, List[ContentMarketTweet]], support2: DefaultDict[tuple, List[ContentMarketTweet]]):
         for key in support2:
             support1[key].extend(support2[key])
