@@ -94,11 +94,7 @@ def main(args):
             out_pred = []
             out_emb = []
             numbatches = len(Xt)/N_BATCH + 1
-<<<<<<< HEAD
-            print("Processing " + str(numbatches) + " batches")
-=======
             print("Processing " + str(numbatches) + " batches...")
->>>>>>> 131d4e3e389becf8486a8b6294ef434a833ab798
             sys.stdout.write("Batch: ")
             for i in range(numbatches):
                 sys.stdout.write(str(i + 1) + " ")
@@ -127,11 +123,7 @@ def main(args):
 
             tweet_embeddings_collection = config["database"]["tweet_embeddings"]
             for i in range(len(ids)):
-<<<<<<< HEAD
-                db_content_market[tweet_embeddings_collection].insert_one({"id": ids[i], "embedding": out_emb[i], "hashtags": out_pred[i].split(" ")})
-=======
                 db_content_market[tweet_embeddings_collection].insert_one({"id": ids[i], "embedding": list(out_emb[i]), "hashtags": out_pred[i].split(" ")})
->>>>>>> 131d4e3e389becf8486a8b6294ef434a833ab798
 
 
 if __name__ == '__main__':
