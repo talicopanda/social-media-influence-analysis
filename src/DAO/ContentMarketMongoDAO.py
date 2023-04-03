@@ -1,7 +1,6 @@
 from DAO.ContentMarketDAO import ContentMarketDAO
 from ContentMarket.ContentMarketUser import ContentMarketUser
 from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
-from ContentMarket.ContentTweet import ContentTweet
 from typing import List
 import pymongo
 
@@ -59,7 +58,7 @@ class ContentMarketMongoDAO(ContentMarketDAO):
         self.db = client[self.community_db_name]
         self.failed_to_load = 0
 
-    def load_tweet_embedding(self, tweet_id: int) -> List[ContentTweet]:
+    def load_tweet_embedding(self, tweet_id: int):
         embedding = self.db[self.content_tweets_collection_name].find_one({
                                                                           'id': tweet_id})
         if embedding:
@@ -68,6 +67,17 @@ class ContentMarketMongoDAO(ContentMarketDAO):
 
     def load_community_users(self):
         users = self.db[self.community_info_collection].find()
+        return users
+    
+    def load_tweet_embeddings(self):
+        projection = self.db[self.content_tweets_collection_name].find({}, { "id": 1, "embedding": 1, "_id": 0 })
+        embeddings = {}
+        for p in projection:
+            embeddings[p["id"]] = p["embedding"]
+        return embeddings
+
+    def load_users(self) -> List[ContentMarketUser]:
+        users = self.db[self.content_market_users_collection_name].find()
         return users
 
     def load_user_tweet_ids(self, user_id: str) -> List[str]:

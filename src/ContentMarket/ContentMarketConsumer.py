@@ -1,16 +1,17 @@
-from typing import DefaultDict
+from typing import DefaultDict, List
 from collections import defaultdict
 
 from ContentMarket.ContentMarketUser import ContentMarketUser
-from ContentMarket.ContentMarketEmbedding import ContentMarketEmbedding
+from ContentMarket.ContentMarketClustering import ContentMarketClustering
 
 class ContentMarketConsumer(ContentMarketUser):
-    demand: DefaultDict # TODO: doctype here
+    demand: DefaultDict[int, List[int]]
 
     def __init__(self, **kwargs):
         self.demand = defaultdict(list)
-        # self.calculate_demand(dao, retweets)
         super().__init__(**kwargs)
     
-    def calculate_demand(self, dao, retweets):
-        pass
+    def calculate_demand(self, clustering: ContentMarketClustering):
+        self.demand = self.build_support(self.retweets_of_in_commuinity, clustering)
+        retweets_out = self.build_support(self.retweets_of_out_commuinity, clustering)
+        self.merge_support(self.demand, retweets_out)

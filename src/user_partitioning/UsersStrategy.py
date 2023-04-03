@@ -1,7 +1,11 @@
 from user_partitioning.UserPartitioningStrategy import UserPartitioningStrategy
 
-# classifies everyone has a producer and a consumer
-class UsersStrategy(UserPartitioningStrategy):
+
+class UsersStrategy(UserPartioningStrategy):
+    """
+    Classifies everyone as a producer and a consumer
+    """
+
     def is_consumer(self, user) -> bool:
         return True
 

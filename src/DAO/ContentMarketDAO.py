@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
 from ContentMarket.ContentMarketUser import ContentMarketUser
 from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
-from ContentMarket.ContentTweet import ContentTweet
 from typing import List, Tuple
 
 
 class ContentMarketDAO(ABC):
     @abstractmethod
-    def load_tweet_embedding(self, tweet_id: int) -> List[ContentTweet]:
+    def load_tweet_embedding(self, tweet_id: int):
+        pass
+
+    @abstractmethod
+    def load_tweet_embeddinga(self):
         pass
 
     @abstractmethod

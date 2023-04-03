@@ -1,3 +1,4 @@
+from typing import List, Tuple, Dict
 import sys
 sys.path.append("./user_partitioning")
 from typing import List, Tuple
@@ -8,6 +9,10 @@ from user_partitioning.UserPartitioningStrategy import UserPartitioningStrategy
 from ContentMarket.ContentMarketEmbedding import EmbeddingType
 from ContentMarket.ContentMarket import ContentMarket
 from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
+from ContentMarket.ContentMarketClustering import ContentMarketClustering
+from util import kmer
+import numpy as np
+from numpy import linalg
 
 class ContentMarketBuilder:
     bin_size: int   
@@ -15,9 +20,9 @@ class ContentMarketBuilder:
     embedding_type: EmbeddingType
     # TODO: time_frame
 
-    def __init__(self, dao, partitioning_strategy, bin_size, embedding_type):
+    def __init__(self, dao, partitioning_strategy, num_bins, embedding_type):
         self.dao = dao
-        self.bin_size = bin_size
+        self.num_bins = num_bins
         self.user_partitioning_strategy = partitioning_strategy
         self.embedding_type = embedding_type
 
@@ -67,3 +72,71 @@ class ContentMarketBuilder:
                     consumers.append(new_consumer)
 
         return (producers, consumers, core_nodes)
+    
+    def compute_producer_consumer_split(self) -> Tuple[List[ContentMarketProducer], List[ContentMarketConsumer]]:
+        producers = []
+        consumers = []
+        for user in self.dao.load_users():
+            if self.user_partitioning_strategy.is_producer(user):
+                new_prod = ContentMarketProducer(
+                    user['user_id'], self.dao, user['tweets'], user['retweets_in_community'])
+                producers.append(new_prod)
+            if self.user_partitioning_strategy.is_consumer(user):
+                new_consumer = ContentMarketConsumer(
+                    user['user_id'], self.dao, user['retweets'])
+                consumers.append(new_consumer)
+
+        return (producers, consumers)
+
+    def compute_bins(self) -> ContentMarketClustering:
+        embeddings = self.dao.load_embeddings()
+
+        data = np.asarray(list(embeddings.values()), dtype=np.float32)
+
+        clusters, centers, radius = kmer(data, self.num_bins)
+
+        ids = list(embeddings.keys())
+
+        assert(len(data) == len(ids) == len(clusters))
+
+        tweet_to_cluster = {}
+        for i in range(len(ids)):
+            cluster_id = clusters[i]
+            tweet_to_cluster[ids[i]] = cluster_id
+
+        cluster_centers = {}
+        for i in range(len(centers)):
+            cluster_centers[i] = centers[i]
+
+        return ContentMarketClustering(clusters, centers, radius)
+
+
+# support = {}
+#        for i in range(len(ids)):
+#             cluster_id = clusters[i]
+
+#             if cluster_id in support:
+#                 entry = support[cluster_id]
+#                 entry.tweet_ids.append(ids[i])
+
+#                 dist_to_center = linalg.norm(data[i] - centers[cluster_id])
+#                 if dist_to_center > entry.furthest_tweet_dist:
+#                     # update furthest tweet
+#                     entry.furthest_tweet = ids[i]
+#                     entry.furthest_tweet_dist = dist_to_center
+
+#                 if dist_to_center < entry.closest_tweet_dist:
+#                     # update closest tweet
+#                     entry.closest_tweet = ids[i]
+#                     entry.closest_tweet_dist = dist_to_center
+#             else:
+#                 support[cluster_id] = ContentMarketSupportEntry(
+#                     centers[cluster_id],
+#                     [ids[i]],
+#                     ids[i],
+#                     linalg.norm(data[i] - centers[cluster_id]),
+#                     ids[i],
+#                     linalg.norm(data[i] - centers[cluster_id]))
+
+#         print(
+#             f"Unassigned vectors: {len(support[-1].tweet_ids)}")
