@@ -1,7 +1,7 @@
 from user_partitioning.UserPartitioningStrategy import UserPartitioningStrategy
 
 
-class UsersStrategy(UserPartioningStrategy):
+class UsersStrategy(UserPartitioningStrategy):
     """
     Classifies everyone as a producer and a consumer
     """

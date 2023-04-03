@@ -1,4 +1,7 @@
-from typing import List
+from typing import List, DefaultDict
+from collections import defaultdict
+from ContentMarket.ContentMarketTweet import ContentMarketTweet
+from ContentMarket.ContentMarketClustering import ContentMarketClustering
 
 class ContentMarketUser:
     """

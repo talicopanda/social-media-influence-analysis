@@ -71,10 +71,10 @@ class ContentMarketBuilder:
             tweet = ContentTweet(**retweet_in_community)
             users[retweet_in_community["user_id"]].retweets_of_in_community.append(tweet)
         
-        for original_tweet in self.dao.load_retweets_of_out_community():
-            del original_tweet["_id"]
-            tweet = ContentTweet(**original_tweet)
-            users[original_tweet["user_id"]].retweets_of_out_community.append(tweet)
+        for retweets_of_out_community in self.dao.load_retweets_of_out_community():
+            del retweets_of_out_community["_id"]
+            tweet = ContentTweet(**retweets_of_out_community)
+            users[retweets_of_out_community["user_id"]].retweets_of_out_community.append(tweet)
 
 
     # partition the users in the community to producers, consumer, and core nodes.

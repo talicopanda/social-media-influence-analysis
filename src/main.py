@@ -9,9 +9,8 @@ sys.path.append("DAO")
 sys.path.append("user_partitioning")
 
 
-def main():
+def main(args):
     # TODO: add user-friendly output
-    args = sys.argv[1:]
     config_file_path = args[0]
     config_file = open(config_file_path)
     config = json.load(config_file)
@@ -38,13 +37,16 @@ def main():
     # compute supply for producers given clustering
     for producer in producers:
         producer.compute_supply(clustering)
+        print(len(producer.supply))
     
     # computer demand for consumers given clustering
     for consumer in consumers:
         consumer.compute_demand(clustering)
+        print(len(consumer.demand))
 
-    return ContentMarket(consumers, producers, core_nodes, clustering)
+    # ContentMarket(consumers, producers, core_nodes, clustering)
 
 
 if __name__ == '__main__':
-    main()
+    args = sys.argv[1:]
+    main(args)

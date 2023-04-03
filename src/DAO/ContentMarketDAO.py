@@ -10,7 +10,7 @@ class ContentMarketDAO(ABC):
         pass
 
     @abstractmethod
-    def load_tweet_embeddinga(self):
+    def load_tweet_embeddings(self):
         pass
 
     @abstractmethod

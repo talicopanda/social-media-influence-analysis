@@ -1,9 +1,9 @@
 from typing import List, Tuple, Dict
-from ContentMarketConsumer import ContentMarketConsumer
-from ContentMarketProducer import ContentMarketProducer
-from ContentMarketCoreNode import ContentMarketCoreNode
-from ContentMarketClustering import ContentMarketClustering
-from ContentMarketUser import ContentMarketUser
+from ContentMarket.ContentMarketConsumer import ContentMarketConsumer
+from ContentMarket.ContentMarketProducer import ContentMarketProducer
+from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
+from ContentMarket.ContentMarketClustering import ContentMarketClustering
+from ContentMarket.ContentMarketUser import ContentMarketUser
 
 
 class ContentMarket:

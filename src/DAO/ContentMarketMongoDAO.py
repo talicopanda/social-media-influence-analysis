@@ -84,8 +84,6 @@ class ContentMarketMongoDAO(ContentMarketDAO):
 
     def load_original_tweets(self) -> List[str]:
         tweets = self.content_market_db[self.clean_original_tweets_collection].find()
-        for tweet in tweets:
-            print(tweet)
         return tweets
 
     def load_quotes_of_in_community(self) -> List[str]:
