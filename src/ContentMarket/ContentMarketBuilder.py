@@ -1,6 +1,6 @@
 import sys
 sys.path.append("./user_partitioning")
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from ContentMarket.ContentMarketProducer import ContentMarketProducer
 from ContentMarket.ContentMarketConsumer import ContentMarketConsumer
 from ContentMarket.ContentMarketUser import ContentMarketUser
@@ -8,6 +8,7 @@ from user_partitioning.UserPartitioningStrategy import UserPartitioningStrategy
 from ContentMarket.ContentMarketEmbedding import EmbeddingType
 from ContentMarket.ContentMarket import ContentMarket
 from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
+from ContentMarket.ContentTweet import ContentTweet
 
 class ContentMarketBuilder:
     bin_size: int   
@@ -23,7 +24,7 @@ class ContentMarketBuilder:
 
     # load and populate each user
     def build_users(self) -> List[ContentMarketUser]:
-        users = []
+        users = {}
         for user in self.dao.load_community_users():
             # TODO: remove once naming is adjusted is given data
             user_dict = {
@@ -43,9 +44,34 @@ class ContentMarketBuilder:
                 "is_new_user": user["is new user"]
             }
             new_user = ContentMarketUser(**user_dict)
-            users.append(new_user)
+            users[new_user.user_id] = new_user
         return users
 
+    def load_tweets(self, users: Dict[str, ContentMarketUser]):
+        for original_tweet in self.dao.load_original_tweets():
+            del original_tweet["_id"]
+            tweet = ContentTweet(**original_tweet)
+            users[original_tweet["user_id"]].original_tweets.append(tweet)
+        
+        for quote_in_community in self.dao.load_quotes_of_in_community():
+            del quote_in_community["_id"]
+            tweet = ContentTweet(**quote_in_community)
+            users[quote_in_community["user_id"]].quotes_of_in_community.append(tweet)
+        
+        for quote_out_of_community in self.dao.load_quotes_of_out_community():
+            del quote_out_of_community["_id"]
+            tweet = ContentTweet(**quote_out_of_community)
+            users[quote_out_of_community["user_id"]].quotes_of_out_community.append(tweet)
+        
+        for retweet_in_community in self.dao.load_retweets_of_in_community():
+            del retweet_in_community["_id"]
+            tweet = ContentTweet(**retweet_in_community)
+            users[retweet_in_community["user_id"]].retweets_of_in_community.append(tweet)
+        
+        for original_tweet in self.dao.load_retweets_of_out_community():
+            del original_tweet["_id"]
+            tweet = ContentTweet(**original_tweet)
+            users[original_tweet["user_id"]].retweets_of_out_community.append(tweet)
 
 
     # partition the users in the community to producers, consumer, and core nodes.

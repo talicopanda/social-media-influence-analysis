@@ -19,8 +19,8 @@ class ContentMarketUser:
     original_tweets: List[ContentTweet]
     quotes_of_in_community: List[ContentTweet]
     quotes_of_out_community: List[ContentTweet]
-    retweets_of_in_commuinity: List[ContentTweet]
-    retweets_of_out_commuinity: List[ContentTweet]
+    retweets_of_in_community: List[ContentTweet]
+    retweets_of_out_community: List[ContentTweet]
     
     """
     A class that represents a twitter user in a content market

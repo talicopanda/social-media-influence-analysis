@@ -26,8 +26,10 @@ def main():
         dao, partitioning_strategy, config['num_bins'], config['embedding_type'])
     
     users = builder.build_users()
-    # print(vars(users[0]))
-    producers, consumers, core_nodes = builder.partition_users(users)
+
+    builder.load_tweets(users)
+
+    producers, consumers, core_nodes = builder.partition_users(users.values())
 
     # GET CLUSTERING
 
