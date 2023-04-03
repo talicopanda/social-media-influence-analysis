@@ -63,8 +63,8 @@ with io.open(db_config, 'r') as config_file:
 
     tweets = db_community[tweets_collection_name].find()
 
-    clean_tweets = []
-    clean_replies = []
+    clean_tweets_collection_name = config["database"]["clean_original_tweets_collection"]
+    clean_replies_collection_name = config["database"]["clean_replies_collection"]
     for tweet in tweets:
         new_text = preprocess(tweet["text"])
 
@@ -78,16 +78,9 @@ with io.open(db_config, 'r') as config_file:
 
         # separate replies
         if "@user" == new_text[:5]:
-            clean_replies.append(new_tweet)
+            db_content_market[clean_tweets_collection_name].insert_one(new_tweet)
         else:
-            clean_tweets.append(new_tweet)
-
-    clean_tweets_collection_name = config["database"]["clean_original_tweets_collection"]
-    clean_replies_collection_name = config["database"]["clean_replies_collection"]
-
-    db_content_market[clean_tweets_collection_name].insert_many(clean_tweets)
-    db_content_market[clean_replies_collection_name].insert_many(clean_replies)
-
+            db_content_market[clean_replies_collection_name].insert_one(new_tweet)
 
     collections = [(config["database"]["quotes_of_in_community_collection"], config["database"]["clean_quotes_of_in_community_collection"]), 
         (config["database"]["quotes_of_out_community_collection"], config["database"]["clean_quotes_of_out_community_collection"]), 
@@ -95,7 +88,6 @@ with io.open(db_config, 'r') as config_file:
         (config["database"]["retweets_of_out_community_collection"], config["database"]["clean_retweets_of_out_community_collection"])]
     
     for collec in collections:
-        output = []
         for tweet in db_community[collec[0]].find():
             new_text = preprocess(tweet["text"])
 
@@ -107,6 +99,4 @@ with io.open(db_config, 'r') as config_file:
             new_tweet = tweet.copy()
             new_tweet["text"] = new_text
 
-            output.append(new_tweet)
-
-        db_content_market[collec[1]].insert_many(output)
+            db_content_market[collec[1]].insert_one(new_tweet)

@@ -8,6 +8,7 @@ import cPickle as pkl
 import io
 import json
 import pymongo
+import sys
 
 from t2v import tweet2vec, init_params, load_params
 from settings_char import N_BATCH, MAX_LENGTH, MAX_CLASSES
@@ -93,7 +94,11 @@ def main(args):
             out_pred = []
             out_emb = []
             numbatches = len(Xt)/N_BATCH + 1
+            print("Processing " + str(numbatches) + " batches")
+            sys.stdout.write("Batch: ")
             for i in range(numbatches):
+                sys.stdout.write(str(i + 1) + " ")
+                sys.stdout.flush()
                 xr = Xt[N_BATCH*i:N_BATCH*(i+1)]
                 x, x_m = batch.prepare_data(xr, chardict, n_chars=n_char)
                 p = predict(x, x_m)
@@ -105,6 +110,8 @@ def main(args):
                         [inverse_labeldict[r] if r in inverse_labeldict else 'UNK' for r in ranks[idx, :5]]))
                     out_emb.append(e[idx, :])
 
+            print()
+
             # Save
             print("Saving...")
             # with io.open('%s/predicted_tags.txt' % save_path, 'w') as f:
@@ -115,11 +122,9 @@ def main(args):
 
             assert(len(out_emb) == len(out_pred) == len(Xt) == len(ids))
 
-            db_entries = []
+            tweet_embeddings_collection = config["database"]["tweet_embeddings"]
             for i in range(len(ids)):
-                db_entries.append({"id": ids[i], "embedding": out_emb[i], "hashtags": out_pred[i].split(" ")})
-
-            db_content_market[config["database"]["tweet_embeddings"]].insert_many(db_entries)
+                db_content_market[tweet_embeddings_collection].insert_one({"id": ids[i], "embedding": out_emb[i], "hashtags": out_pred[i].split(" ")})
 
 
 if __name__ == '__main__':
