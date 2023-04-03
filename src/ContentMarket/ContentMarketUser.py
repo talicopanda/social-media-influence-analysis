@@ -1,4 +1,5 @@
 from typing import List
+from ContentMarket.ContentTweet import ContentTweet
 
 class ContentMarketUser:
     user_id: int
@@ -15,6 +16,11 @@ class ContentMarketUser:
     global_follower_count: int
     global_following_count: int 
     is_new_user: bool
+    original_tweets: List[ContentTweet]
+    quotes_of_in_community: List[ContentTweet]
+    quotes_of_out_community: List[ContentTweet]
+    retweets_of_in_commuinity: List[ContentTweet]
+    retweets_of_out_commuinity: List[ContentTweet]
     
     """
     A class that represents a twitter user in a content market
@@ -35,3 +41,8 @@ class ContentMarketUser:
         self.global_follower_count = kwargs.get("global_follower_count")
         self.global_following_count = kwargs.get("global_following_count")
         self.is_new_user = kwargs.get("is_new_user")
+        self.original_tweets = []
+        self.quotes_of_in_community = []
+        self.quotes_of_out_community = []
+        self.retweets_of_in_community = []
+        self.retweets_of_out_community = []
