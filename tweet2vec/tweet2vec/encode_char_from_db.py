@@ -8,6 +8,7 @@ import cPickle as pkl
 import io
 import json
 import pymongo
+import sys
 
 from t2v import tweet2vec, init_params, load_params
 from settings_char import N_BATCH, MAX_LENGTH, MAX_CLASSES
@@ -44,19 +45,19 @@ def main(args):
 
         db_content_market = client[content_market_db_name]
 
-        collections = [config["database"]["clean_original_tweets_collection"],
-            config["database"]["clean_replies_collection"],
+        collections = [config["database"]["clean_replies_collection"],
+            config["database"]["clean_original_tweets_collection"],
             config["database"]["clean_quotes_of_in_community_collection"], 
             config["database"]["clean_quotes_of_out_community_collection"], 
             config["database"]["clean_retweets_of_in_community_collection"], 
             config["database"]["clean_retweets_of_out_community_collection"]]
         
         for collec in collections:
-            print("Preparing " + str(collec) + " Data...")
+            print("Preparing " + collec + " data...")
             # Test data
             ids = []
             Xt = []
-            for tweet in db_content_market[collec[0]].find():
+            for tweet in db_content_market[collec].find():
                 ids.append(tweet["id"])
                 Xc = tweet["text"]
                 Xt.append(Xc[:MAX_LENGTH])
@@ -93,13 +94,16 @@ def main(args):
             out_pred = []
             out_emb = []
             numbatches = len(Xt)/N_BATCH + 1
+            print("Processing " + str(numbatches) + " batches...")
+            sys.stdout.write("Batch: ")
             for i in range(numbatches):
+                sys.stdout.write(str(i + 1) + " ")
+                sys.stdout.flush()
                 xr = Xt[N_BATCH*i:N_BATCH*(i+1)]
                 x, x_m = batch.prepare_data(xr, chardict, n_chars=n_char)
                 p = predict(x, x_m)
                 e = encode(x, x_m)
                 ranks = np.argsort(p)[:, ::-1]
-
                 for idx, item in enumerate(xr):
                     out_pred.append(' '.join(
                         [inverse_labeldict[r] if r in inverse_labeldict else 'UNK' for r in ranks[idx, :5]]))
@@ -115,11 +119,9 @@ def main(args):
 
             assert(len(out_emb) == len(out_pred) == len(Xt) == len(ids))
 
-            db_entries = []
+            tweet_embeddings_collection = config["database"]["tweet_embeddings"]
             for i in range(len(ids)):
-                db_entries.append({"id": ids[i], "embedding": out_emb[i], "hashtags": out_pred[i].split(" ")})
-
-            db_content_market[config["database"]["tweet_embeddings"]].insert_many(db_entries)
+                db_content_market[tweet_embeddings_collection].insert_one({"id": ids[i], "embedding": list(out_emb[i]), "hashtags": out_pred[i].split(" ")})
 
 
 if __name__ == '__main__':

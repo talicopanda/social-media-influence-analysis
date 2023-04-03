@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-class UserPartioningStrategy(ABC):
+
+class UserPartitioningStrategy(ABC):
     @abstractmethod
     def is_consumer(self, user) -> bool:
         pass

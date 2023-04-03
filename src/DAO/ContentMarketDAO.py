@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from ..ContentMarket.ContentMarketUser import ContentMarketUser
-from ..ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
-from ..ContentMarket.ContentTweet import ContentTweet
+from ContentMarket.ContentMarketUser import ContentMarketUser
+from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
+from ContentMarket.ContentTweet import ContentTweet
 from typing import List, Tuple
 
 
@@ -11,7 +11,7 @@ class ContentMarketDAO(ABC):
         pass
 
     @abstractmethod
-    def load_users(self) -> List[ContentMarketUser]:
+    def load_community_users(self) -> List[ContentMarketUser]:
         pass
 
     @abstractmethod
@@ -28,11 +28,6 @@ class ContentMarketDAO(ABC):
 
     @abstractmethod
     def load_user_retweet_in_community_ids(self, user_id: str) -> List[str]:
-        pass
-
-    # TODO: get rid of this if we handle core node detection ourselves
-    @abstractmethod
-    def load_core_nodes(self) -> List[ContentMarketCoreNode]:
         pass
 
     @abstractmethod

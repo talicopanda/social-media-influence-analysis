@@ -1,7 +1,7 @@
 import pprint
 import json
 from user_partitioning.UserPartitioningStrategyFactory import UserPartitioningStrategyFactory
-from .ContentMarket.ContentMarketBuilder import ContentMarketBuilder
+from ContentMarket.ContentMarketBuilder import ContentMarketBuilder
 from DAO.ContentMarketFactory import ContentMarketFactory
 import sys
 sys.path.append("DAO")
@@ -23,24 +23,23 @@ def main():
         config['partitioning_strategy'])
 
     builder = ContentMarketBuilder(
-        dao, partitioning_strategy, config['bin_size'], config['embedding_type'])
-    producers, consumers = builder.compute_producer_consumer_split()
-    print("Consumers: ", consumers)
-    print("Producers: ", producers)
+        dao, partitioning_strategy, config['num_bins'], config['embedding_type'])
+    
+    users = builder.build_users()
+    # print(vars(users[0]))
+    producers, consumers, core_nodes = builder.partition_users(users)
 
-    print("num failed to load", dao.failed_to_load)
+    # GET CLUSTERING
 
-    for consumer in consumers:
-        if len(consumer.demand) > 0:
-            print(len(consumer.demand))
+    # FOR PRODUCER, USE CLUSTER TO BUILD SUPPLY (support)
 
-    for producer in producers:
-        if len(producer.supply) > 0:
-            print(len(producer.supply))
+    # build the demand for each consumer
 
-    print(producers[0].supply)
+    # build demand and supply for each consumer and producer
 
     # TODO: build content market object with consumers and producers
+    content_market = ContentMarket(consumers, producers, core_nodes, bins)
+
 
 
 if __name__ == '__main__':
