@@ -25,7 +25,8 @@ class ContentMarketMongoDAO(ContentMarketDAO):
     clean_retweets_of_out_community_collection: str
     tweet_embeddings: str
     failed_to_load: int
-    db: any
+    community_db: any
+    content_market_db: any
 
     
     def __init__(self, db_type, connection_url, community_db_name, community_info_collection, user_info_collection,
@@ -55,7 +56,8 @@ class ContentMarketMongoDAO(ContentMarketDAO):
         self.tweet_embeddings = tweet_embeddings
 
         client = pymongo.MongoClient(self.connection_url)
-        self.db = client[self.community_db_name]
+        self.community_db = client[self.community_db_name]
+        self.content_market_db = client[self.content_market_db_name]
         self.failed_to_load = 0
 
     def load_tweet_embedding(self, tweet_id: int):
@@ -66,7 +68,7 @@ class ContentMarketMongoDAO(ContentMarketDAO):
         self.failed_to_load += 1
 
     def load_community_users(self):
-        users = self.db[self.community_info_collection].find()
+        users = self.community_db[self.community_info_collection].find()
         return users
     
     def load_tweet_embeddings(self):
@@ -80,20 +82,23 @@ class ContentMarketMongoDAO(ContentMarketDAO):
         users = self.db[self.content_market_users_collection_name].find()
         return users
 
-    def load_user_tweet_ids(self, user_id: str) -> List[str]:
-        pass
+    def load_original_tweets(self) -> List[str]:
+        tweets = self.content_market_db[self.clean_original_tweets_collection].find()
+        for tweet in tweets:
+            print(tweet)
+        return tweets
 
-    def load_user_tweet_ids(self, user_id: str) -> List[str]:
-        pass
+    def load_quotes_of_in_community(self) -> List[str]:
+        return self.content_market_db[self.clean_quotes_of_in_community_collection].find()
 
-    def load_user_retweet_ids(self, user_id: str) -> List[str]:
-        pass
+    def load_quotes_of_out_community(self) -> List[str]:
+        return self.content_market_db[self.clean_quotes_of_out_community_collection].find()
 
-    def load_user_retweet_in_community_ids(self, user_id: str) -> List[str]:
-        pass
+    def load_retweets_of_in_community(self) -> List[str]:
+        return self.content_market_db[self.clean_retweets_of_in_community_collection].find()
 
-    def load_core_nodes(self) -> List[ContentMarketCoreNode]:
-        pass
+    def load_retweets_of_out_community(self) -> List[str]:
+        return self.content_market_db[self.clean_retweets_of_out_community_collection].find()
 
     def load_content_market(self, content_market_id):
         pass

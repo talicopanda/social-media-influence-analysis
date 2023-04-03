@@ -82,7 +82,6 @@ def main(args):
     out_emb = []
     numbatches = len(Xt)/N_BATCH + 1
     for i in range(numbatches):
-        print("Processing batch: ", i, "/", numbatches)
         xr = Xt[N_BATCH*i:N_BATCH*(i+1)]
         x, x_m = batch.prepare_data(xr, chardict, n_chars=n_char)
         p = predict(x, x_m)

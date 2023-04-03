@@ -1,7 +1,4 @@
-from typing import List, DefaultDict
-from collections import defaultdict
-from ContentMarket.ContentMarketClustering import ContentMarketClustering
-from ContentMarket.ContentMarketTweet import ContentMarketTweet
+from typing import List
 
 class ContentMarketUser:
     """
@@ -23,6 +20,10 @@ class ContentMarketUser:
     global_following_count: int 
     is_new_user: bool
     
+    """
+    A class that represents a twitter user in a content market
+    """
+
     def __init__(self, **kwargs):
         self.user_id = kwargs.get("user_id")
         self.rank = kwargs.get("rank")
@@ -38,6 +39,11 @@ class ContentMarketUser:
         self.global_follower_count = kwargs.get("global_follower_count")
         self.global_following_count = kwargs.get("global_following_count")
         self.is_new_user = kwargs.get("is_new_user")
+        self.original_tweets = []
+        self.quotes_of_in_community = []
+        self.quotes_of_out_community = []
+        self.retweets_of_in_community = []
+        self.retweets_of_out_community = []
 
     def build_support(tweets: ContentMarketTweet, clustering: ContentMarketClustering) -> DefaultDict[tuple, List[ContentMarketTweet]]:
         support = defaultdict(list)

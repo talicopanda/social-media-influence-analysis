@@ -18,19 +18,23 @@ class ContentMarketDAO(ABC):
         pass
 
     @abstractmethod
-    def load_user_tweet_ids(self, user_id: str) -> List[str]:
+    def load_original_tweets(self) -> List[str]:
         pass
 
     @abstractmethod
-    def load_user_tweet_ids(self, user_id: str) -> List[str]:
+    def load_quotes_of_in_community(self) -> List[str]:
         pass
 
     @abstractmethod
-    def load_user_retweet_ids(self, user_id: str) -> List[str]:
+    def load_quotes_of_out_community(self) -> List[str]:
         pass
 
     @abstractmethod
-    def load_user_retweet_in_community_ids(self, user_id: str) -> List[str]:
+    def load_retweets_of_in_community(self) -> List[str]:
+        pass
+
+    @abstractmethod
+    def load_retweets_of_out_community(self) -> List[str]:
         pass
 
     @abstractmethod
