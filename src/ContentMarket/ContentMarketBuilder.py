@@ -14,7 +14,7 @@ from util import kmer
 import numpy as np
 
 class ContentMarketBuilder:
-    bin_size: int   
+    bin_size: int
     user_partitioning_strategy: UserPartitioningStrategy
     embedding_type: EmbeddingType
     # TODO: time_frame
@@ -55,23 +55,23 @@ class ContentMarketBuilder:
             del original_tweet["_id"]
             tweet = ContentTweet(**original_tweet)
             users[original_tweet["user_id"]].original_tweets.append(tweet)
-        
+
         for quote_in_community in self.dao.load_quotes_of_in_community():
             del quote_in_community["_id"]
             tweet = ContentTweet(**quote_in_community)
             users[quote_in_community["user_id"]].quotes_of_in_community.append(tweet)
-        
+
         for quote_out_of_community in self.dao.load_quotes_of_out_community():
             del quote_out_of_community["_id"]
             tweet = ContentTweet(**quote_out_of_community)
             if quote_out_of_community["user_id"] in users:
                 users[quote_out_of_community["user_id"]].quotes_of_out_community.append(tweet)
-        
+
         for retweet_in_community in self.dao.load_retweets_of_in_community():
             del retweet_in_community["_id"]
             tweet = ContentTweet(**retweet_in_community)
             users[retweet_in_community["user_id"]].retweets_of_in_community.append(tweet)
-        
+
         for retweets_of_out_community in self.dao.load_retweets_of_out_community():
             del retweets_of_out_community["_id"]
             tweet = ContentTweet(**retweets_of_out_community)
@@ -98,7 +98,7 @@ class ContentMarketBuilder:
                     consumers.append(new_consumer)
 
         return (producers, consumers, core_nodes)
-    
+
     def compute_producer_consumer_split(self) -> Tuple[List[ContentMarketProducer], List[ContentMarketConsumer]]:
         producers = []
         consumers = []
@@ -128,13 +128,13 @@ class ContentMarketBuilder:
         tweet_to_cluster = {}
         for i in range(len(ids)):
             cluster_id = clusters[i]
-            tweet_to_cluster[ids[i]] = cluster_id
+            tweet_to_cluster[str(ids[i])] = cluster_id
 
         cluster_centers = {}
         for i in range(len(centers)):
-            cluster_centers[i] = centers[i]
+            cluster_centers[str(i)] = centers[i]
 
-        return ContentMarketClustering(clusters, centers, radius)
+        return ContentMarketClustering(tweet_to_cluster, cluster_centers, radius)
 
 
 # support = {}

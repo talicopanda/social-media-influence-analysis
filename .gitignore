@@ -3,5 +3,9 @@
 *.pyc
 *.DS_STORE
 *.json
-*pickle
+*.pkl
 *.png
+.idea
+embedding_tweet2vec
+experiments
+word2vec
