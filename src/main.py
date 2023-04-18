@@ -43,7 +43,7 @@ def main(args):
 
     clustering = builder.compute_bins()
 
-    pickle.dump(content_market, open("clusters.pkl", "wb"))
+    pickle.dump(clustering, open("clusters.pkl", "wb"))
 
     # clustering = pickle.load(open("content_market.pkl", "rb"))
 

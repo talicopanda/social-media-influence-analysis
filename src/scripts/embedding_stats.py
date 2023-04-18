@@ -1,52 +1,8 @@
-from util import kmer
-from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
-from typing import Dict, List
+from kmeans import kmer, plot_kmeans_inertia
 import numpy as np
 import json
-import sys
-
 
 DATA_PATH = "../results/"
-
-
-def plot_kmeans_inertia(embeddings: Dict[int, List]):
-    """ 
-    Elbow method to find a good value of k:
-
-    A good model is one with low inertia AND a low number of clusters (K). 
-    However, this is a tradeoff because as K increases, inertia decreases.
-
-    See the graph outputted and find the k where the decrease in inertia begins to slow.
-    In other words, where the graph starts to platoe.
-    """
-    inertias = []
-
-    min_k = 1
-    max_k = len(embeddings) // 20  # 5% of data size to observe a trend
-
-    print(
-        f"Choosing best k value for kmeans in the range. Checking from k = {min_k} to k = {max_k}...")
-
-    # https://stackoverflow.com/questions/835092/python-dictionary-are-keys-and-values-always-the-same-order
-    data = np.asarray(list(embeddings.values()), dtype=np.float32)
-    print("k = ", end=' ')
-    for i in range(min_k, max_k):
-        print(i, end=' ')
-        sys.stdout.flush()
-        kmeans = KMeans(n_clusters=i, n_init="auto")
-        kmeans.fit(data)
-        inertias.append(kmeans.inertia_)
-    print()
-
-    plt.plot(range(min_k, max_k), inertias, marker='o')
-    plt.title('Elbow method')
-    plt.xlabel('Number of clusters')
-    plt.ylabel('Inertia')
-    plt.show()
-    print("Plot also saved under /experiments/kmeans_plot.png for convenience")
-    plt.savefig("../experiments/kmeans_plot.png")
-
 
 with open(DATA_PATH + "tweet2vec_embeddings.json") as f:
     embeddings = json.load(f)

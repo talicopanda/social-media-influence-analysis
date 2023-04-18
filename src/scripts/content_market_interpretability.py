@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import linalg
-from util import kmer
+from kmeans import kmer
 import json
 from ContentMarket.ContentMarketSupportEntry import ContentMarketSupportEntry
 

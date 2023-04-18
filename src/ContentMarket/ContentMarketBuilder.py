@@ -10,7 +10,7 @@ from ContentMarket.ContentMarketEmbedding import EmbeddingType
 from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
 from ContentMarket.ContentMarketClustering import ContentMarketClustering
 from ContentMarket.ContentTweet import ContentTweet
-from util import kmer
+from kmeans import kmer
 import numpy as np
 
 class ContentMarketBuilder:
