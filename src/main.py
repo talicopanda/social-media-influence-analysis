@@ -26,7 +26,7 @@ def main(args):
 
     builder = ContentMarketBuilder(
         dao, partitioning_strategy, config['num_bins'], config['embedding_type'])
-    
+
     print("Building users...")
 
     users = builder.build_users()
@@ -41,11 +41,11 @@ def main(args):
 
     print("Computing bins...")
 
-    clustering = builder.compute_bins()
+    # clustering = builder.compute_bins()
+    #
+    # pickle.dump(clustering, open("clusters.pkl", "wb"))
 
-    pickle.dump(clustering, open("clusters.pkl", "wb"))
-
-    # clustering = pickle.load(open("content_market.pkl", "rb"))
+    clustering = pickle.load(open("clusters.pkl", "rb"))
 
     print("Computing supplies...")
 
@@ -55,7 +55,7 @@ def main(args):
         print(len(producer.supply))
 
     print("Computing demands...")
-    
+
     # computer demand for consumers given clustering
     for consumer in consumers:
         consumer.calculate_demand(clustering)
