@@ -139,8 +139,13 @@ class ContentMarketMongoDAO(ContentMarketDAO):
             cm_dict["core_nodes"][i] = vars(cm_dict["core_nodes"][i])
             serialize_user_fields("core_nodes")
 
+        cm_dict["clustering"] = vars(cm_dict["clustering"])
+
         output_db = pymongo.MongoClient(self.connection_url)[content_market.name]
         output_db["core_nodes"].insert_many(cm_dict["core_nodes"])
         output_db["consumers"].insert_many(cm_dict["consumers"])
         output_db["producers"].insert_many(cm_dict["producers"])
+        # print(type(cm_dict["clustering"]['tweet_to_cluster']))
+        output_db["clustering"].insert_one(cm_dict["clustering"]['tweet_to_cluster'])
+
 

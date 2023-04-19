@@ -38,9 +38,9 @@ def build_content_market(content_market_name, config):
 
     print("Computing bins...")
 
-    # clustering = builder.compute_bins()
-    #
-    # pickle.dump(clustering, open("clusters.pkl", "wb"))
+    clustering = builder.compute_bins()
+    
+    pickle.dump(clustering, open("clusters.pkl", "wb"))
 
     clustering = pickle.load(open("clusters.pkl", "rb"))
 
@@ -61,7 +61,7 @@ def build_content_market(content_market_name, config):
         core_node.calculate_supply(clustering)
 
     # ContentMarket(consumers, producers, core_nodes, clustering)
-    content_market = ContentMarket(content_market_name, consumers, producers, core_nodes)
+    content_market = ContentMarket(content_market_name, consumers, producers, core_nodes, clustering)
 
     dao.write_content_market(content_market)
 

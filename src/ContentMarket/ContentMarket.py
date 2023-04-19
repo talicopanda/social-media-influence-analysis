@@ -16,13 +16,15 @@ class ContentMarket:
     consumers: List[ContentMarketConsumer]
     producers: List[ContentMarketProducer]
     core_nodes: List[ContentMarketCoreNode]
+    clustering: ContentMarketClustering
     computed_causations: List[float]
 
-    def __init__(self, name, consumers, producers, core_nodes):
+    def __init__(self, name, consumers, producers, core_nodes, clustering):
         self.name = name
         self.consumers = consumers
         self.producers = producers
         self.core_nodes = core_nodes
+        self.clustering = clustering
         self.computed_causations = []
 
 

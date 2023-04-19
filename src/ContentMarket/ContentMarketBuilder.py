@@ -128,11 +128,11 @@ class ContentMarketBuilder:
         tweet_to_cluster = {}
         for i in range(len(ids)):
             cluster_id = clusters[i]
-            tweet_to_cluster[str(ids[i])] = cluster_id
+            tweet_to_cluster[str(ids[i])] = int(cluster_id)
 
         cluster_centers = {}
         for i in range(len(centers)):
-            cluster_centers[str(i)] = centers[i]
+            cluster_centers[str(i)] = centers[i].tolist()
 
         return ContentMarketClustering(tweet_to_cluster, cluster_centers, radius)
 
