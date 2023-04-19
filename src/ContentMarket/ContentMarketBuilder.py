@@ -64,19 +64,17 @@ class ContentMarketBuilder:
         for quote_out_of_community in self.dao.load_quotes_of_out_community():
             del quote_out_of_community["_id"]
             tweet = ContentTweet(**quote_out_of_community)
-            if quote_out_of_community["user_id"] in users:
-                users[quote_out_of_community["user_id"]].quotes_of_out_community.append(tweet)
+            users[quote_out_of_community["quote_user_id"]].quotes_of_out_community.append(tweet)
 
         for retweet_in_community in self.dao.load_retweets_of_in_community():
             del retweet_in_community["_id"]
             tweet = ContentTweet(**retweet_in_community)
             users[retweet_in_community["user_id"]].retweets_of_in_community.append(tweet)
 
-        for retweets_of_out_community in self.dao.load_retweets_of_out_community():
-            del retweets_of_out_community["_id"]
-            tweet = ContentTweet(**retweets_of_out_community)
-            if quote_out_of_community["user_id"] in users:
-                users[retweets_of_out_community["user_id"]].retweets_of_out_community.append(tweet)
+        for retweet_of_out_community in self.dao.load_retweets_of_out_community():
+            del retweet_of_out_community["_id"]
+            tweet = ContentTweet(**retweet_of_out_community)
+            users[retweet_of_out_community["quote_user_id"]].retweets_of_out_community.append(tweet)
 
 
     # partition the users in the community to producers, consumer, and core nodes.

@@ -6,9 +6,7 @@ from ContentMarket.ContentMarket import ContentMarket
 import sys
 import pickle
 import pymongo
-import random
 import numpy as np
-import bson
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
@@ -19,7 +17,15 @@ sys.path.append("user_partitioning")
 
 def build_content_market(content_market_name, config):
     # TODO: add user-friendly output
-
+    
+    if config['database']['db_type'] != "Mongo":
+        raise Exception("Unsupported database type")
+    
+    # check if a content market database with the given name already exists
+    database_names = pymongo.MongoClient(config['database']['connection_url']).list_database_names()
+    if content_market_name in database_names != -1:
+        raise Exception("a content market with this name already exists in the database. Either drop this database or choose a different name")
+    
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
     partitioning_strategy = UserPartitioningStrategyFactory.get_user_type_strategy(
         config['partitioning_strategy'])
@@ -115,12 +121,12 @@ def print_cluster_contents(content_market_name, config):
     tweet_to_cluster = db_clustering.find()[0]
     del tweet_to_cluster["_id"]
 
-    collections = ["clean_original_tweets_collection", 
-                    "clean_replies_collection",
-                    "clean_quotes_of_in_community_collection",
-                    "clean_quotes_of_out_community_collection",
-                    "clean_retweets_of_in_community_collection",
-                    "clean_retweets_of_out_community_collection"]
+    # collections = ["clean_original_tweets_collection", 
+    #                 "clean_replies_collection",
+    #                 "clean_quotes_of_in_community_collection",
+    #                 "clean_quotes_of_out_community_collection",
+    #                 "clean_retweets_of_in_community_collection",
+    #                 "clean_retweets_of_out_community_collection"]
 
     example_tweets = [[] for _ in range(num_clusters)]
 
@@ -153,7 +159,7 @@ def print_cluster_contents(content_market_name, config):
         print()
 
 
-def pca(content_market_name, config):
+def pca(content_market_name, config, community_type):
     db_community = pymongo.MongoClient()[config["database"]["content_market_db_name"]][config["database"]["tweet_embeddings_collection"]]
     db_content_market = pymongo.MongoClient()[content_market_name]
 
@@ -173,20 +179,20 @@ def pca(content_market_name, config):
     user_demand_tweet_ids = []
     user_supply_tweet_ids = []
     for user in db_content_market["core_nodes"].find():
-        for demand in user["demand"].values():
+        for demand in user["demand_" + community_type].values():
             for demand_id in demand:
                 core_node_demand_tweet_ids.append(tweetid_to_index[demand_id])
-        for supply in user["supply"].values():
+        for supply in user["supply_" + community_type].values():
             for supply_id in supply:
                 core_node_supply_tweet_ids.append(tweetid_to_index[supply_id])
 
     for user in db_content_market["consumers"].find():
-        for demand in user["demand"].values():
+        for demand in user["demand_" + community_type].values():
             for demand_id in demand:
                 user_demand_tweet_ids.append(tweetid_to_index[demand_id])
 
     for user in db_content_market["producers"].find():
-         for supply in user["supply"].values():
+         for supply in user["supply_" + community_type].values():
             for supply_id in supply:
                 user_supply_tweet_ids.append(tweetid_to_index[supply_id])
 
@@ -198,12 +204,12 @@ def pca(content_market_name, config):
 
     pca = PCA(n_components=2)
     pca.fit(np.transpose(np.asarray(X)))
-    plt.scatter(pca.components_[0][user_supply_tweet_ids], pca.components_[1][user_supply_tweet_ids], color="red", marker="o", alpha=0.05, label="user supply")
-    plt.scatter(pca.components_[0][user_demand_tweet_ids], pca.components_[1][user_demand_tweet_ids], color="blue", marker="o", alpha=0.05, label="user demand")
+    plt.scatter(pca.components_[0][user_supply_tweet_ids], pca.components_[1][user_supply_tweet_ids], color="red", marker="o", alpha=0.05, label="producer supply")
+    plt.scatter(pca.components_[0][user_demand_tweet_ids], pca.components_[1][user_demand_tweet_ids], color="blue", marker="o", alpha=0.05, label="consumer demand")
     plt.scatter(pca.components_[0][core_node_supply_tweet_ids], pca.components_[1][core_node_supply_tweet_ids], color="orange", marker="x", alpha=0.05, label="core_nodes supply")
     plt.scatter(pca.components_[0][core_node_demand_tweet_ids], pca.components_[1][core_node_demand_tweet_ids], color="green", marker="x", alpha=0.05, label="core_nodes demand")
     plt.legend()
-    plt.savefig(f'../results/PCA_scatter')
+    plt.savefig(f'../results/PCA_scatter_' + community_type)
     
     plt.clf()
 
@@ -218,14 +224,19 @@ if __name__ == '__main__':
     config = json.load(config_file)
     config_file.close()
 
-    #build_content_market(content_market_name, config)
+    build_content_market(content_market_name, config)
     
-    # save_plots(content_market_name, "core_nodes", config["num_bins"])
-    # save_plots(content_market_name, "producers", config["num_bins"])
-    # save_plots(content_market_name, "consumers", config["num_bins"])
+    save_plots(content_market_name, "core_nodes_in_community", config["num_bins"])
+    save_plots(content_market_name, "producers_in_community", config["num_bins"])
+    save_plots(content_market_name, "consumers_in_community", config["num_bins"])
+
+    save_plots(content_market_name, "core_nodes_out_community", config["num_bins"])
+    save_plots(content_market_name, "producers_out_community", config["num_bins"])
+    save_plots(content_market_name, "consumers_out_community", config["num_bins"])
 
     # print_cluster_contents(content_market_name, config)
 
-    pca(content_market_name, config)
+    pca(content_market_name, config, "in_community")
+    pca(content_market_name, config, "out_community")
     
     
