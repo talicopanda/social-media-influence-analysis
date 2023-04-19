@@ -75,7 +75,7 @@ def build_content_market(content_market_name, config):
     dao.write_content_market(content_market)
 
 
-def save_plots(content_market_name, collection_name, num_clusters):
+def save_plots(content_market_name, collection_name, community_type, num_clusters):
     db = pymongo.MongoClient()[content_market_name]
     aggregate_demand = {key: 0 for key in range(-1, num_clusters)}
     aggregate_supply = {key: 0 for key in range(-1, num_clusters)}
@@ -83,11 +83,11 @@ def save_plots(content_market_name, collection_name, num_clusters):
     align = "edge" if "core_nodes" in collection_name else "center"
     for user in db[collection_name].find():
         if "producers" not in collection_name:
-            for key, val in user["demand"].items():
+            for key, val in user["demand_" + community_type].items():
                 aggregate_demand[int(key)] += len(val)
 
         if "consumers" not in collection_name:
-            for key, val in user["supply"].items():
+            for key, val in user["supply_" + community_type].items():
                 aggregate_supply[int(key)] += len(val)
 
     del aggregate_demand[-1]
@@ -107,7 +107,7 @@ def save_plots(content_market_name, collection_name, num_clusters):
     else:
         plt.title("Demand and supply for " + collection_name)
         plt.legend()
-    plt.savefig(f'../results/{collection_name}')
+    plt.savefig(f'../results/{collection_name}_' + community_type)
     plt.clf()
 
 def print_cluster_contents(content_market_name, config):
@@ -226,13 +226,13 @@ if __name__ == '__main__':
 
     build_content_market(content_market_name, config)
     
-    save_plots(content_market_name, "core_nodes_in_community", config["num_bins"])
-    save_plots(content_market_name, "producers_in_community", config["num_bins"])
-    save_plots(content_market_name, "consumers_in_community", config["num_bins"])
+    save_plots(content_market_name, "core_nodes", "in_community", config["num_bins"])
+    save_plots(content_market_name, "producers", "in_community", config["num_bins"])
+    save_plots(content_market_name, "consumers", "in_community", config["num_bins"])
 
-    save_plots(content_market_name, "core_nodes_out_community", config["num_bins"])
-    save_plots(content_market_name, "producers_out_community", config["num_bins"])
-    save_plots(content_market_name, "consumers_out_community", config["num_bins"])
+    save_plots(content_market_name, "core_nodes", "out_community", config["num_bins"])
+    save_plots(content_market_name, "producers", "out_community", config["num_bins"])
+    save_plots(content_market_name, "consumers", "out_community", config["num_bins"])
 
     # print_cluster_contents(content_market_name, config)
 
