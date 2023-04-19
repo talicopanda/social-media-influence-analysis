@@ -38,9 +38,9 @@ def build_content_market(content_market_name, config):
 
     print("Computing bins...")
 
-    clustering = builder.compute_bins()
+    # clustering = builder.compute_bins()
     
-    pickle.dump(clustering, open("clusters.pkl", "wb"))
+    # pickle.dump(clustering, open("clusters.pkl", "wb"))
 
     clustering = pickle.load(open("clusters.pkl", "rb"))
 
