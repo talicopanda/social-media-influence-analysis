@@ -145,7 +145,6 @@ class ContentMarketMongoDAO(ContentMarketDAO):
         output_db["core_nodes"].insert_many(cm_dict["core_nodes"])
         output_db["consumers"].insert_many(cm_dict["consumers"])
         output_db["producers"].insert_many(cm_dict["producers"])
-        # print(type(cm_dict["clustering"]['tweet_to_cluster']))
-        output_db["clustering"].insert_one(cm_dict["clustering"]['tweet_to_cluster'])
+        output_db["clustering"].insert_one(cm_dict["clustering"])
 
 

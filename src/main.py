@@ -41,9 +41,9 @@ def main(args):
 
     print("Computing bins...")
 
-    clustering = builder.compute_bins()
+    # clustering = builder.compute_bins()
     
-    pickle.dump(clustering, open("clusters.pkl", "wb"))
+    # pickle.dump(clustering, open("clusters.pkl", "wb"))
 
     clustering = pickle.load(open("clusters.pkl", "rb"))
 
