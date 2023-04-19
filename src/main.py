@@ -1,4 +1,3 @@
-import pprint
 import json
 from user_partitioning.UserPartitioningStrategyFactory import UserPartitioningStrategyFactory
 from ContentMarket.ContentMarketBuilder import ContentMarketBuilder
@@ -6,6 +5,7 @@ from DAO.ContentMarketFactory import ContentMarketFactory
 from ContentMarket.ContentMarket import ContentMarket
 import sys
 import pickle
+import pymongo
 sys.path.append("DAO")
 sys.path.append("user_partitioning")
 
@@ -18,7 +18,14 @@ def main(args):
     config = json.load(config_file)
     config_file.close()
 
-    # pprint.pprint(config)
+    if config['database']['db_type'] != "Mongo":
+        raise Exception("Unsupported database type")
+    
+    # check if a content market database with the given name already exists
+    database_names = pymongo.MongoClient(config['database']['connection_url']).list_database_names()
+    if content_market_name in database_names != -1:
+        raise Exception("a content market with this name already exists in the database. Either drop this database or choose a different name")
+    
 
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
     partitioning_strategy = UserPartitioningStrategyFactory.get_user_type_strategy(
