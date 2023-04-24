@@ -12,11 +12,12 @@ To deactivate the virtual environment, run `deactivate`.
 
 # Generating Embedded Data
 
-In this project we use latent embedding of strings to semantically represent each tweet as explained in more details on the project's `README.md` file. As such, we provide three out-of-the-box methods of content embedding:
+In this project we use latent embedding of strings to semantically represent each tweet as explained in more details on the project's main `README.md` file in the top directory. As such, we provide two out-of-the-box methods of content embedding:
 
 1. Tweet2Vec
 2. Medium Dataset Baseline
 
-We also provide a copy of the `tweet2vec` library that allows you to train an embedding model from scratch for the given data, if necessary.
+To generate these out-of-the-box embeddings, please refer to `/tweet2vec/INTRUCTIONS.md` file for details.
 
-Please refer to `/tweet2vec/INTRUCTIONS.md` file for details on how to run the two embeddings provided aobve them.
+We also provide a copy of the `tweet2vec` library that allows you to train an embedding model from scratch for any given data.
+

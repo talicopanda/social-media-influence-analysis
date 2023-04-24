@@ -42,7 +42,7 @@ def save_plots(content_market_name, collection_name, community_type, num_cluster
     plt.clf()
 
 def print_cluster_contents(content_market_name, config, verbose=False):
-    output_file = open('clustering_interpretation.txt', 'w')
+    output_file = open('../results/clustering_interpretation.txt', 'w')
     original_stdout = sys.stdout
     sys.stdout = output_file # change the standard output to the file we created
 

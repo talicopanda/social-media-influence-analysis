@@ -9,3 +9,4 @@
 embedding_tweet2vec
 experiments
 word2vec
+/results/*

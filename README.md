@@ -6,74 +6,74 @@
 - [High-Level Code Organization](#high-level-code-organization)
 - [Implementation](#implementation)
 - [Additional Design Decisions](#additional-design-decisions)
+- [Code Walkthrough](#code-walkthrough)
 
 # Running the Code
 
-The main contents of the project are under the `/src` folder and instructions to set up and run the program are found on the `README.md` file in `/src`.
-Start there and follow the instructions on that file.
+The main contents of the project are under the `/src` folder, and instructions to set up and run the program are found on the `INSTRUCTIONS.md` file in `/src`.
+To run the code you may start there and follow the instructions on that `INSTRUCTIONS.md` file.
 
 At some point in the set up process, you might need to generate tweet embeddings using `tweet2vec` (taken from [here](https://github.com/bdhingra/tweet2vec/)).
-Due to python versioning conflicts, `tweet2vec` has its own set of set up instructions on the `INSTRUCTIONS.md` file under the `tweet2vec` folder.
-However, the set up under `/src/README.md` should give enough context and instruction to guide you through the other set up as well.
+Due to python versioning conflicts, `tweet2vec` has its own set of set up instructions on the `INSTRUCTIONS.md` file under the `/tweet2vec` folder.
+However, the set up under `/src/INSTRUCTIONS.md` should give enough context and instructions to guide you through the other set up as well.
 
 # Introduction
 
-In this project we aim to analyze content relationships in a network by calculating a value representing the amount of influence between any two agents.
-For our purposes, an agent could be simply a single user or a set of users in a community.
+In this project our end goal is to verify the theoretical ground proposed in [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964) by analyzing how agents in a community influence each other on the content consumed and/or produced.
 
-More broadly, the goal of the project is to advance the understanding of social influence as a key feature of social media and a core mechanism underlying some of the main challenges emerging from the growing use of social media, including polarization, misinformation and disinformation, and the mental health crisis.
-Specifically, we will test the hypothesis -- debated by sociological theorists but not empirically tested -- that social influence can be understood as a generalized (social) system of interchange, analogous to money or power.
-Specifically, the project studies influence as a general system of interchange where attention and content are traded.
+More broadly, the aim of the project is to advance the understanding of social influence as a key feature of social media and a core mechanism underlying some of the main challenges emerging from the growing use of social media, including polarization, misinformation and disinformation, and the mental health crisis.
+Specifically, we will test the hypothesis -- debated by sociological theorists but not empirically tested -- that social influence can be understood as a generalized (social) system of interchange, analogous to money or power. In other words, the project studies influence as a general system of interchange where attention and content are traded.
 
 # Preface
 
-In order to analyze influence between nodes we begin by using a game-theoric approach to model a social community based on the paper [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964).
+In order to analyze influence between nodes we begin by using a game-theoric approach to model a social community. The theory behind this approach is derived on the paper [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964).
 The results of the paper show that, if the model is correct and the assumptions are sound, in equilibrium:
 
-1. a community has a set of core agents (influencers) that follow all periphery agents (other users) in the community.
-   The core agents then server as a "hub" for the community by collecting and aggregating content and broadcasting it to others in the community.
+1. a community has a set of core agents (influencers) that follow all periphery agents (other users) in the community. The core agents then serve as a "hub" for the community by collecting and aggregating content and broadcasting it to others members of the community.
 2. periphary agents all follow the core agents.
 3. periphary agents also follow other periphery agents whose main interest closely matches their own interest.
 
-Note: to simplify the analysis, the paper assumes that there exists a single core agent. This assumption is also motivated by the experimental results which show that core-periphery communities tend to have a small set of core agents, typically in the order of 1-6 core agents. Additionally, the results obtained for a single core agent can be extended to the case of multiple core-agents.
+_Note: to simplify the analysis, the paper assumes that there exists a single core agent. This assumption is also motivated by the experimental results which show that core-periphery communities tend to have a small set of core agents, typically in the order of 1-6 core agents. Additionally, the results obtained for a single core agent can be extended to the case of multiple core-agents._
 
 We define a content market for a community of users abstractly as a market where content is exchanged for attention.
 A community is comprised of producers of content and consumers of content.
-Therefore, going from the results above, we can describe the trade flow:
+Therefore, going from the results found in the theory above, we can describe the trade flows as follows:
 
-- **flow of content**: starts from producer nodes, going through the core node and then reaching the consumer nodes.
-- **flow of attention**: starts from the consumer nodes, goes through the core node to reach the producer nodes.
+- **Flow of content**: content starts from producer nodes, goes through the core node and reaches the consumer nodes.
+- **Flow of attention**: attention starts from the consumer nodes, goes through the core node and reaches the producer nodes.
 
-The following graph illustrates this idea:
+The following graph illustrates this idea more visually:
 
 ![./content_market.png](./assets/content_market.png)
 
 Note that in a real social-media scenario, a user is usually both a consumer and a producer to some degree.
-For the sake of this project, we thus consider a user as both a distinct producer and a distinct consumer within the community. See [Additional Design Decisions](#additional-design-decisions) for a discussion on the above.
-The former is characterized only by the user's original tweets and also their retweets that are further retweeted within the community, and the latter is characterized only by the user's retweets.
+
+A producer is characterized by the user's original tweets, which reveals what content the producer brings to the community.
+
+A consumer is characterized by the user's retweets, which revelas what content the consumer is interested in consuming.
 
 ## Influence
 
 The definition of social influence is not trivial. Here however, we reason that influence is a measure directly correlated to **uncertainty**.
 This is intuitive as, for example, someone fully certain about a given subject would not be influenced by other's views upon that topic.
-On the other hand, someone uncertain would appreciate as much information from other's view in that matter for their own decisions in order to reduce unceirtanty.
+On the other hand, someone uncertain would value as much information for their own decisions in order to reduce their unceirtanty. Hence the influence relationship arrising with anyone knowledgeble in that uncertain topic.
 
 In our context, the uncertainty comes into play with content demand. Naturally, any user wants to have their content seen by as many other users as possible.
 More importantly, as a core node, your broadcasting power is directly impacted by the interest of the community.
-Hence, we infer that the content consumers as a whole have an influence over the core node based on their interests (the tweets they decide do retweet).
+Hence, we infer that the content consumers as a whole have an influence over the core node from their interest choices (the tweets they decide do retweet - i.e. pay attention to).
 Moreover, the core node serves as an aggregation of the community's demand and, in the same fashion, content producers are interested in posting content that will be broadcasted by the core node.
-Therefore, there exists yet another influence relationship of the core node over the content producer.
+Therefore, we reason that there exists yet another influence relationship of the core node over the content producer.
 
-## Demand & Supply
+## Demand & Supply Distinction
 
 To be explicit on what we refer to as demand and supply from now onwards, we define four distinct entities:
 
-1. the demand from a user: the content that they retweet
-2. the supply of a user: the content that they tweet about
-3. the demand of a user: the aggregation of demand from other users on this user's supply (what is demanded of that user)
-4. the supply to a user: the aggreation of supplies of their followings (what is supplied to the user)
+1. the demand **from** a user: the content that they retweet
+2. the supply **of** a user: the content that they tweet about
+3. the demand **of** a user: the aggregation of demand from other users on this user's supply (what is demanded of that user)
+4. the supply **to** a user: the aggreation of supplies of their followings (what is supplied to the user)
 
-However, when we say demand and supply, we refer to entities 1 and 2 above unless otherwise noted.
+However, when we say demand and supply, we refer to entities 1 and 2 above (i.e. the demand **from** a user and  the supply **of** a user) unless otherwise noted.
 
 Additionally, we have that demand and supplies can also be aggregated to more than one user.
 
@@ -85,6 +85,140 @@ Hence our iterated goal with this project is to verify the following hypotheses:
 2. demand from the core node **causes** supply of the suppliers
 
 Note, we also investigate the casuality between all permutations of demands and supplies between producers, consumers, and core nodes.
+
+# Project Context
+
+This project assumes that we already located a community of users (e.g the AI community on Twitter or the Chess community on Twitter) and that all the following relevant fields are populated in a Mongo database that we have access to:
+
+- **users**: set of users that belong to the community. In addition to metadata ('num_following', 'num_followers', etc), each user has a list of user ids for 'following_in_community' and 'followers_in_community' of only the members in the community so that we can "reconstruct" the community connections graph if needed.
+- **original_tweets**: set of "original tweets" made by members of this community, that are not a retweet nor reply
+- **quotes_of_in_community**: quotes from someone in this community of original tweets made by members of this community
+- **quotes_of_out_community**: quotes from someone in this community of a tweet made by someone outside this community
+- **retweets_of_in_community**: retweets from someone in this community of original tweets made by members of this community
+- **retweets_of_out_community**: retweets from someone in this community of a tweet made by someone outside this community
+
+More broadly, the project has the following structure:
+
+![](./assets/project_flow_diagram.png)
+
+## Previous Work
+
+From the raw twitter data scrapped with Twitter's API, the data goes through an initial processing analysis for community detection that is beyond the scope of this project. For the sake of context and full understanding, however, it is worth mentioning here.
+
+The community detection/expansion algorithm leverages [SNACES](#https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here]() (TODO: relative link to Yanke's report or Anthony's outdated report), but we summarize the key steps here.
+
+Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then analyzes the users followed by 
+
+TODO: outline community expansion steps
+
+# Contributions
+
+In order to ease the analysis of twitter data in the context of the our theory background and facilitate the study of the data we have, this project implements the architecture to process a content market. A content market is defined with respect to a specific community and is a concept to represent the abstract means in which the members of this community exchange content for attention. 
+
+This content market implementation aims at providing all the functionality needed to analyze the relationships that we are focusing on. For that, it precomputes multiple values of interest and stores them back into a Mongo database for future access.
+
+# Further Theory
+
+Going from the high-level mathematical model elaborated in [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964) to practical implementation and analysis of real world data requires further definitions and theory formulation of the various concepts used in this project.
+
+## Content
+
+We restrict "content" to be simply represented by a string. Then, for an abstract content piece $c$ (defined next), let $s_c$ denote its string representation. Let $n \in \mathbb{N}$.
+
+We first introduce the concept of a latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. Then, for a string of content $s_c$, we loosely define content $c \in S$ as a point in space that represents the semantic meaning of $s_c$. Let a time interval be denoted by $T \subseteq \mathbb{R}$.
+
+Let
+
+- $\mathcal{T}_{u, T}[P(x)]$
+- $\mathcal{R}_{u, T}[P(x)]$
+
+denote the set of tweets and retweets from user $u$ in time period $T$ where predicate $P(x)$ holds true respectively.
+
+**INDIVIDUAL DEMAND**
+
+For a user $u \in U$ and time period $T$, we define the demand function $D_{u, T}: S \to \mathbb{R}$ as:
+
+$$D_{u, T}(c) = |\mathcal{R}_{u, T}[c' \in S: ||c' - c|| < R]|$$
+
+For a $R \in \mathbb{R}$
+
+**INFLUENCER DEMAND**
+
+Note that for an influencer $i \in \mathcal{I} \subseteq U$, we define their demand to be the same as for any other user $u \in U$.
+
+**GROUP DEMAND**
+
+For a group of users $G \subseteq U$ and time period $T$, the aggregate demand $D_{G} \in \mathbb{R}$ of $G$ is defined as:
+
+$$D_{G, T} (c) = \sum_{u \in G} D_{u,T}(c)$$
+
+Additionally, the group's average demand is defined as:
+
+$$\tilde{D}_{G, T} (c) = \frac{D_{G,T}(c)}{|G|}$$
+
+**INDIVIDUAL SUPPLY**
+
+For a user $u \in U$ and time period $T$, we define the supply function $S_{u, T}: S \to \mathbb{R}$ as:
+
+$$S_{u, T}(c) = |\mathcal{T}_{u, T}[c' \in S:||c' - c|| < R]| + |\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]|$$
+
+For a $R \in \mathbb{R}^n$.
+
+Here, $\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]$ denotes "retweets in community" which is the number of retweets of $u$'s retweet by users that follow $u$ and with a post time after the corresponding tweet of $u$ (this essentially means that the retweet, that was initially an indicator of demand, becomes an indicator of supply).
+
+**INFLUENCER SUPPLY**
+
+Note that for an influencer $i \in \mathcal{I} \subseteq U$, we define their supply to be the same as for any other user.
+
+**GROUP SUPPLY**
+
+For a group of users $G \subseteq U$ and time period $T$, the aggregate supply $S_{G} \in \mathbb{R}$ of $G$ is defined as:
+
+$$S_{G, T} (c) = \sum_{u \in G} S_{u,T}(c)$$
+
+Additionally, the group's average supply is defined as:
+
+$$\tilde{S}_{G, T} (c) = \frac{S_{G,T}(c)}{|G|}$$
+
+## Granger Causality
+
+From researching in the literature we found that Granger causaility is one of the most widely used and simple to understand models of inferring causality. To put it briefly, a time series $X$ is said to Granger-cause $Y$ if it can be shown, usually through a series of $t$-tests and $F$-tests on lagged values of $X$ (and with lagged values of $Y$ also included), that those $X$ values provide statistically significant information about future values of $Y$.
+
+**Autoregressive Model**
+
+An autoregressive (AR) model is a representation of a type of random process; as such, we will be using it to fit a model of our caused time series $Y$.
+
+**Pure Autoregressive Model**
+
+More formally, we define a "pure" autoregressive model as a predictor $Y_t$ for a time $t$ where:
+
+$$Y_t = \sum_{i} y_i Y_{t-i} + \varepsilon_t$$
+
+for coefficients $x_i, y_i \in \mathbb{R}$ and white noise (error) $\varepsilon_t$.
+
+**Impure Autoregressive Model**
+
+Additionally, we define an "impure" autoregressive model as a predictor $Y_t'$ for a time $t$ where:
+
+$$Y_t' = \sum_{i} (y_i Y_{t-i} + x_i X_{t-i}) + \varepsilon_t$$
+
+for coefficients $x_i, y_i \in \mathbb{R}$ and white noise (error) $\varepsilon_t$ where $\exists i, \ x_i \neq 0$.
+
+**Granger Causality \& Autoregression**
+
+We therefore say that $X$ is said to Granger-cause $Y$ if $Y_t'$ provides a better autoregressive model.
+
+**t-Test and F-Test**
+
+Not going too far into the theory as we will be using python libraries to fit the autoregressive models, but the coefficients/variables in the autoregressive model are acquired by a combination of $t$-tests and $F$-tests. Any particular lagged value of one of the variables $X_{t-i}$ or $Y_{t-i}$ is retained in the regression if (1) it is significant according to a [$t$-test](https://en.wikipedia.org/wiki/Student%27s_t-test), and (2) it and the other lagged values of the variable jointly add explanatory power to the model according to an [$F$-test](https://en.wikipedia.org/wiki/F-test).
+
+**Granger Causality with Demand and Supply**
+
+Since Granger causality assumes time series data of real variables instead of functions and our initial goal is to find the causality between demand and supply functions, we will preemptively fix a content $c$ with corresponding $R$ in our demand/supply histogram data and perform the time series analysis above in various time snapshots of demand and supply for that particular $c$ across time $t$.
+
+We will then find the Granger-causality across the entire latent space of content by aggregating each individual fixed content causality.
+
+We will use the mean to aggregate the granger causality across the entire latent space of content.
 
 # High-Level Code Organization
 
@@ -107,111 +241,6 @@ It provides functions that calculate:
 - **Supply** for a given content embedding, set of users and time range. In plain English, supply is the number of tweets this user has posted about a certain topic within this time range combined with the number of retweets that this user posted and got retweeted by at least one other user that follows them (in this case, the retweet acts as an original tweet).
 
 - **Causation** between any two values of demand or supply given a content embedding.
-
-The functions above are more rigorously defined as following:
-
-> We restrict "content" to be simply represented by a string. Then, for an abstract content piece $c$ (defined next), let $s_c$ denote its string representation. Let $n \in \mathbb{N}$.
->
-> ### Content
->
-> We first introduce the concept of a (discrete) latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. Then, for a string of content $s_c$, we loosely define content $c \in S$ as a point in space that represents the semantic meaning of $s_c$. Let a time interval be denoted by $T \subseteq \mathbb{R}$.
->
-> Let
->
-> - $\mathcal{T}_{u, T}[P(x)]$
-> - $\mathcal{R}_{u, T}[P(x)]$
->
-> denote the set of tweets and retweets from user $u$ in time period $T$ where predicate $P(x)$ holds true respectively.
->
-> ### Demand
->
-> **INDIVIDUAL DEMAND**
->
-> For a user $u \in U$ and time period $T$, we define the demand function $D_{u, T}: S \to \mathbb{R}$ as:
->
-> $$D_{u, T}(c) = |\mathcal{R}_{u, T}[c' \in S: ||c' - c|| < R]|$$
->
-> For a $R \in \mathbb{R}$
->
-> **INFLUENCER DEMAND**
->
-> Note that for an influencer $i \in \mathcal{I} \subseteq U$, we define their demand to be the same as for any other user $u \in U$.
->
-> **GROUP DEMAND**
->
-> For a group of users $G \subseteq U$ and time period $T$, the aggregate demand $D_{G} \in \mathbb{R}$ of $G$ is defined as:
->
-> $$D_{G, T} (c) = \sum_{u \in G} D_{u,T}(c)$$
->
-> Additionally, the group's average demand is defined as:
->
-> $$\tilde{D}_{G, T} (c) = \frac{D_{G,T}(c)}{|G|}$$
->
-> ### Supply
->
-> **INDIVIDUAL SUPPLY**
->
-> For a user $u \in U$ and time period $T$, we define the supply function $S_{u, T}: S \to \mathbb{R}$ as:
->
-> $$S_{u, T}(c) = |\mathcal{T}_{u, T}[c' \in S:||c' - c|| < R]| + |\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]|$$
->
-> For a $R \in \mathbb{R}^n$.
->
-> Here, $\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]$ denotes "retweets in community" which is the number of retweets of $u$'s retweet by users that follow $u$ and with a post time after the corresponding tweet of $u$ (this essentially means that the retweet, that was initially an indicator of demand, becomes an indicator of supply).
->
-> **INFLUENCER SUPPLY**
->
-> Note that for an influencer $i \in \mathcal{I} \subseteq U$, we define their supply to be the same as for any other user.
->
-> **GROUP SUPPLY**
->
-> For a group of users $G \subseteq U$ and time period $T$, the aggregate supply $S_{G} \in \mathbb{R}$ of $G$ is defined as:
->
-> $$S_{G, T} (c) = \sum_{u \in G} S_{u,T}(c)$$
->
-> Additionally, the group's average supply is defined as:
->
-> $$\tilde{S}_{G, T} (c) = \frac{S_{G,T}(c)}{|G|}$$
->
-> ### Granger Causality
->
-> From researching in the literature we found that Granger causaility is one of the most widely used and simple to understand models of inferring causality. To put it briefly, a time series $X$ is said to Granger-cause $Y$ if it can be shown, usually through a series of $t$-tests and $F$-tests on lagged values of $X$ (and with lagged values of $Y$ also included), that those $X$ values provide statistically significant information about future values of $Y$.
->
-> **Autoregressive Model**
->
-> An autoregressive (AR) model is a representation of a type of random process; as such, we will be using it to fit a model of our caused time series $Y$.
->
-> **Pure Autoregressive Model**
->
-> More formally, we define a "pure" autoregressive model as a predictor $Y_t$ for a time $t$ where:
->
-> $$Y_t = \sum_{i} y_i Y_{t-i} + \varepsilon_t$$
->
-> for coefficients $x_i, y_i \in \mathbb{R}$ and white noise (error) $\varepsilon_t$.
->
-> **Impure Autoregressive Model**
->
-> Additionally, we define an "impure" autoregressive model as a predictor $Y_t'$ for a time $t$ where:
->
-> $$Y_t' = \sum_{i} (y_i Y_{t-i} + x_i X_{t-i}) + \varepsilon_t$$
->
-> for coefficients $x_i, y_i \in \mathbb{R}$ and white noise (error) $\varepsilon_t$ where $\exists i, \ x_i \neq 0$.
->
-> **Granger Causality \& Autoregression**
->
-> We therefore say that $X$ is said to Granger-cause $Y$ if $Y_t'$ provides a better autoregressive model.
->
-> **t-Test and F-Test**
->
-> Not going too far into the theory as we will be using python libraries to fit the autoregressive models, but the coefficients/variables in the autoregressive model are acquired by a combination of $t$-tests and $F$-tests. Any particular lagged value of one of the variables $X_{t-i}$ or $Y_{t-i}$ is retained in the regression if (1) it is significant according to a [$t$-test](https://en.wikipedia.org/wiki/Student%27s_t-test), and (2) it and the other lagged values of the variable jointly add explanatory power to the model according to an [$F$-test](https://en.wikipedia.org/wiki/F-test).
->
-> **Granger Causality with Demand and Supply**
->
-> Since Granger causality assumes time series data of real variables instead of functions and our initial goal is to find the causality between demand and supply functions, we will preemptively fix a content $c$ with corresponding $R$ in our demand/supply histogram data and perform the time series analysis above in various time snapshots of demand and supply for that particular $c$ across time $t$.
->
-> We will then find the Granger-causality across the entire latent space of content by aggregating each individual fixed content causality.
->
-> We will use the mean to aggregate the granger causality across the entire latent space of content.
 
 Values are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
 
@@ -321,7 +350,7 @@ We have a utility function which maps a given content vector to key / n-tuple th
 
 ### Storing Tweets
 
-In order to retrieve demand and supply information more efficiently, we store tweets in the User class (for the fields <tweets>, <retweets> and <retweets in community>) in an n-tuple dictonary explained above for each of the three fields.
+In order to retrieve demand and supply information more efficiently, we store tweets in the User class (for the fields <tweets>, <retweetsand <retweets in community>) in an n-tuple dictonary explained above for each of the three fields.
 This allows any algorithm traversing tweet data to only consider the tweets that are within the boundaries of the content interval we defined for any given content while also allowing for iterating over the entire dictionary if needed.
 
 ## Causality
@@ -380,3 +409,5 @@ We ended up going with option 1, treating users as both, because it allowed us t
 ## Supply
 
 When defining a user's supply, we considered whether to include retweets in addition to original tweets. Our thinking against doing so was that retweets simply share the content of others, and are already being used as a metric of demand (which feels diametrically opposed to supply). However, when considering that many actors (such as influencers) use retweets to propogate content around a community, we felt it makes more sense to consider shared retweets as part of a user's supply.
+
+# Code Walkthrough

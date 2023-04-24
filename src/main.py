@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
     print("Building content market...")
 
-    # build_content_market(content_market_name, config, load=True)
+    build_content_market(content_market_name, config, load=True)
 
     print("Generating data plots...")
     
