@@ -95,7 +95,8 @@ In our code, we take a Object-Oriented Approach that is primarily reliant on the
 A content market represents the space in which users of a community exchange content and attention. It is defined with respect to a community and its core node, and is used to manage and perform analysis on said entities.
 It holds the following information:
 
-- users: the users within the community
+- consumers: the consumers within the community
+- producers: the producers within the community
 - core_node: the core node of the community
 - computed_causations: A mapping of (users1, users2, start_time, end_time) to causations. This is updated as these values are computed on demand.
 
@@ -221,27 +222,75 @@ A content tweet object holds data about a tweet with respect to the following in
 - id
 - user_id
 - timestamp: timestamp of tweet
-- user: user who tweeted
-- is_retweet: true if this tweet is a retweet of another tweet; false otherwise
-- retweets: retweets of this tweet
+- text: the text content of the tweet
+- hashtags: the hashtags generated to represent the content of this tweet TODO: tales check this
 - content_vector: the embedding representation of the tweet's content, which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
 
 ## Content Market User
 
-A Content Market User object holds data about a User in the context of the Content Market, with respect to the following information:
+The ContentMarketUser class represents a general user in a content market. It is the base class for `ContentMarketCoreNodes`, `ContentMarketConsumers`, and `ContentMarketProducers`. It contains the following fields:
 
-- id
-- followers: users that follow this user
-- following: users that this user is following
-- tweets: the original tweets of this user
-- retweets: the retweets of this user
-- retweets in community: the retweets of this user's retweets by users that follow this user and with a post time after the corresponding tweet/retweet of this user (check who retweeted my retweet/tweet based on the timestamp and if the user follows me).
+- user_id: an integer representing the user's ID
+- original_tweets: a list of integers representing the IDs of the original tweets posted by the user
+- retweets_of_in_community: a list of integers representing the IDs of the retweets posted by the user within their community
+- retweets_of_out_community: a list of integers representing the IDs of the retweets posted by the user outside their community
+- quotes_of_in_community: a list of integers representing the IDs of the quotes posted by the user within their community
+- quotes_of_out_community: a list of integers representing the IDs of the quotes posted by the user outside their community
+- followers: a list of integers representing the IDs of the user's followers
+- following: a list of integers representing the IDs of the users the user is following
 
 Additionally, it holds functionality to compute the demand and supply (as described in [Implementation](#implementation)).
 
+## Content Market Producer
+
+The ContentMarketProducer class represents a Twitter user who produces content in the content market. It is a subclass of ContentMarketUser, and has one additional field:
+
+- `supply`: a mapping for from cluster id to tweets ids of this user, which stores the support of this user
+
+The `calculate_supply` method calculates the supply for this user by building support for their original tweets, quotes of tweets in the in-community, and quotes of tweets in the out-of-community.
+
+## Content Market Consumer
+
+The ContentMarketConsumer class is a subclass of ContentMarketUser that represents a Twitter user who is also a consumer in a content market. In addition to the properties inherited from ContentMarketUser, the ContentMarketConsumer class has three additional properties:
+
+- `demand_in_community`: a dictionary that maps cluster IDs to lists of tweet IDs that the consumer has retweeted within the same community.
+- `demand_out_of_community`: a dictionary that maps cluster IDs to lists of tweet IDs that the consumer has retweeted outside of their community.
+- `aggregate_demand`: a dictionary that maps cluster IDs to lists of tweet IDs that represent the aggregate demand for each cluster from all consumers.
+
+Additionally, it holds functionality to compute the demand and supply (as described in [Implementation](#implementation)).
+
+## Content Market Core Node
+
+The `ContentMarketCoreNode` class is a subclass of ContentMarketUser that represents an infleuncer in a content market. In addition to the properties inherited from ContentMarketUser, the `ContentMarketCoreNode` class has three additional properties:
+
+- demand_in_community: A DefaultDict mapping cluster IDs to a list of tweet IDs representing the demand for content within the same cluster.
+- demand_out_of_community: A DefaultDict mapping cluster IDs to a list of tweet IDs representing the demand for content outside of the same cluster.
+- aggregate_demand: A DefaultDict mapping cluster IDs to a list of tweet IDs representing the aggregate demand for content within and outside of the same cluster.
+- supply: A DefaultDict mapping cluster IDs to a list of tweet IDs representing the supply of content.
+
+Additionally, it holds functionality to compute the demand and supply (as described in [Implementation](#implementation)).
+
+## Content Market Clustering
+
+`ContentMarketClustering` is an object that holds information about the clustering of tweets in the latent space. It has the following fields:
+
+- tweet_to_cluster: a mapping of tweet ids from the community to the cluster they are assigned to
+- cluster_centers: the n-dimensional centerpoint of each cluster
+- radius: the radius of each cluster
+
+## Content Market Embedding
+
+A content market embedding stores information about the embeddings of the tweets in the community. It has the following fields:
+
+- latent_space_dim: the dimesionality of the embeddings
+- embedding_type: the embedding type used to embed the tweets
+- tweet_embeddings: mapping of tweet id to embedding vector
+
 ## DAO
 
-The DAO objects acts as an interface with MongoDB, allowing us to seperate the database accesses with our high level object definitions, giving us resiliciency to data definition changes and seperating database accesses from the responsbility of our objects. See [Data Ingestion](#data-ingestion) for details on how these databases are populated.
+The DAO objects acts as an interface with our datastore. This gives us the ability to switch between storage solutions while maintaining a common interface, seperating the database accesses with our high level object definitions. Currently, we have a MongoDB DAO implementation, and recommend using Mongo as the data layer for this app and the overall research project.
+
+TODO: See [Data Ingestion](#data-ingestion) for details on how these databases are populated.
 
 # Implementation
 
@@ -297,7 +346,18 @@ Time series for demand can be constructed using a similar method.
 
 ## Data Ingestion
 
-We are using logic from [SNACES](https://github.com/SNACES/core) to 1) collect twitter user data 2) collect tweet data 3) detect a community and core node. Once this data is loaded into the databases as defined by SNACES, we have several scripts that ingest the data from these databases, perform transformations (such as building users' followers lists), and then saves it into the databases used by this project. There are 3 databases corresponding to the main 4 objects of this project: ContentMarket, ContentMarketUser, ContentMarketCoreNode, and ContentTweet.
+\*\* should have a section where we talk about how this project integrates with the overall research
+
+The required input to build a content market is a community.
+** Insert definition of community here, talking about fields and all that. we shouldnt have to write this **
+
+The output is a content market database, where the core nodes, consumers, and producers are written out as collections. Note that these contain all information about their tweet actions (their original tweets, retweets in community, etc), as well as their computed supplies and / or demands.
+
+## Config
+
+To run main.py, the path to a json config file must be passed in. This file must contain the following information:
+
+TODO: chatgpt description of config here
 
 # Additional Design Decisions
 
