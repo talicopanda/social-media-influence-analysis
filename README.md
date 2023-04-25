@@ -105,7 +105,7 @@ More broadly, the project has the following structure:
 
 From the raw twitter data scrapped with Twitter's API, the data goes through an initial processing analysis for community detection that is beyond the scope of this project. For the sake of context and full understanding, however, it is worth mentioning here.
 
-The community detection/expansion algorithm leverages [SNACES](#https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here]() (TODO: relative link to Yanke's report or Anthony's outdated report), but we summarize the key steps here.
+The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here]() (TODO: relative link to Yanke's report or Anthony's outdated report), but we summarize the key steps here.
 
 Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then analyzes the users followed by 
 
@@ -125,7 +125,25 @@ Going from the high-level mathematical model elaborated in [Structure of Core-Pe
 
 We restrict "content" to be simply represented by a string. Then, for an abstract content piece $c$ (defined next), let $s_c$ denote its string representation. Let $n \in \mathbb{N}$.
 
-We first introduce the concept of a latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. Then, for a string of content $s_c$, we loosely define content $c \in S$ as a point in space that represents the semantic meaning of $s_c$. Let a time interval be denoted by $T \subseteq \mathbb{R}$.
+We first introduce the concept of a latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. For a rigorous understanding of laten spaces, refer to [this article](https://towardsdatascience.com/understanding-latent-space-in-machine-learning-de5a7c687d8d) that explains laten space embeddings in a machine learning context similar to how we are using here. To put in simple terms, however, a latent embedding of our content (in our a case a tweet string) is an algorithm that embedds or "converts" a string to a vector in an $n$ dimensional space maintaining its semantic properties. That is, the location that this strings gets map to in this $n$-dimensional space represents the semantic meaning of the string in a way that other strings with similar semantic properties are mapped close (e.g. euclidean distance) to each other. The following image illustrates a 2D latent space where each datapoint is a tweet string and each cluster is a content tweeted about:
+
+![](./assets/tweet_embedding_example.png)
+
+_For example, Cluster 1 could be tweets about sports and cluster 4 could be tweets about politics. Therefore, we notice that this embedding algorithm does a good job of maintaining the semantic properties of its content as most sports-related tweets are phisically located close to each other in that top-right cluster and politics-related tweets are located in the middle. Further notice that there is some overlap in red and blue custer, as for example, a tweet about sports could have a political conotation. Or even further, politics is located in the center of this embeddings space exactly because it can relate (and thus be located close) to many other topics._
+
+## Content Clustering
+
+Unfortunately, our data of tweets is not labeled and we can't precisely outline the boundaries of how wide a content topic ranges from in our embedding space. Ideally, we would partition our embedding space into an $n$-dimensional grid of hyper cubes of size $\delta \in \mathbb{R}$ and call each cube a different topic. 
+
+TODO: picture
+
+This is okay in a 2D latent embedding space like the one in the picture since the number of cubes (squares in that case) grows quadratically with the length of the embedding space. However, most embedding algorithms embedd in high dimensional spaces that could exceed 500 dimensions. This causes our number of hyper cubes (i.e. number of topics considered) to inscrease unreasonably for any feasable data analysis.
+
+We then consider a few different approaches to go around this issue under the [Implementation](#implementation) section. For now, this general abstraction that we can partition our content space of tweets into different topics is sufficient.
+
+## Definitions
+
+For a string of content $s_c$, we loosely define content $c \in S$ as a point in space that represents the semantic meaning of $s_c$. Let a time interval be denoted by $T \subseteq \mathbb{R}$.
 
 Let
 
@@ -180,7 +198,7 @@ Additionally, the group's average supply is defined as:
 
 $$\tilde{S}_{G, T} (c) = \frac{S_{G,T}(c)}{|G|}$$
 
-## Granger Causality
+## Inferring Causality
 
 From researching in the literature we found that Granger causaility is one of the most widely used and simple to understand models of inferring causality. To put it briefly, a time series $X$ is said to Granger-cause $Y$ if it can be shown, usually through a series of $t$-tests and $F$-tests on lagged values of $X$ (and with lagged values of $Y$ also included), that those $X$ values provide statistically significant information about future values of $Y$.
 
@@ -329,7 +347,9 @@ TODO: See [Data Ingestion](#data-ingestion) for details on how these databases a
 
 ## Latent Space Embedding
 
-We rely on previous literate for latent space embedding of our model, namely [tweet2vec](https://arxiv.org/abs/1605.03481).
+Latent embedding representation of words is ubiquitous in machine learning applications. However, embedding full sentences are much less prominent, let alone embedding tweets. This issue arises from the inherent nature of a tweet that is menat to be a casual string of text in which users often rely on the social context for using abbreviations, hashtags and making typos that cause most word to vector models to struggle for an accurate representation of the data. 
+
+Therefore, for our project we rely on previous literate for latent space embedding of tweets, namely [tweet2vec](https://arxiv.org/abs/1605.03481).
 For starters, this approach assumes that posts with the same hashtags should have embeddings which are close to each other.
 Hence, the authors train a Bi-directional Gated Recurrent Unit (Bi-GRU) neural network with the training objective of predicting hashtags for a post from its latent representation in order to verify latent representation correctness.
 
@@ -341,6 +361,50 @@ We thus consider trying two further approaches:
 
 1. Averaging the word embedding vectors of every word in a tweet
 2. Training a new tweet2vec encodder based strictly on our community's tweets
+
+## Content Clustering
+
+As explained in [Further Theory](#further-theory), our $\delta$-split of the latent space approach for content clustering is insufficient for our purposes. We then considered a few approaches to circunvent this issue.
+
+1. Modified K-means Clustering
+    
+    K-means is also a widdely used clustering techique that randomly creates $k$ clusters and iteratively assigns vectors (datapoints) to their closest clustes as well as recenter the clusters until the algorithm converges and every datapoint is assigned to its "best" cluster. More rigorous details on its functionality can be found [here](https://en.wikipedia.org/wiki/K-means_clustering).
+
+    The issue with the original k-means algorithm is that it does not guarantee consistent radius across clusters, which is an assumption we need for our demand and supply analysis. We then implement a modified k-means cluster that performs the following:
+
+    >1. For a number of clusters k, initialize the cluster centers randomly.
+    >2. Calculate the distance between each vector and each cluster center.
+    >3. For each cluster, calculate the average distance from the cluster center to all the vectors assigned to the cluster.
+    >4. Find the maximum average distance among all the clusters, and set this distance as the desired radius for all the clusters.
+    >5. For each cluster, remove all vectors that are farther than the desired radius from the cluster center.
+    >6. Recalculate the cluster centers as the means of the remaining vectors assigned to each cluster.
+    >7. Repeat steps 2 to 6 until convergence (i.e., until the cluster centers do not change significantly).
+
+    Notice that this does not guarantee that all datapoints will be assigned to a cluster. However, with a large enough $k$, this is actually a desired behaviour since this serves as filter of noise excluding outlying tweets that are too far from the interest of the community.
+
+2. Recursive K-means
+
+    A possible issue with the previous algorithm is when the data has varying sizes of clusters. 
+
+    ![](./assets/kmeans_big_small.png)
+
+    For example, if red is the topic of sports and blue is AI, our modifed k-means would not split the clusters into topics their major topics, but it would likely instead split the sports cluster into soccer, basketball and football. This inconsistency across topic sizes could add bias to the data.
+
+    We then discuss another approach that entails start from the [original k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering) algorithm to identify high-level topics and then analyze each topic individually by performing the modifed k-means clustering of fixed radius individually for each topic to identify sub-topics. 
+
+3. Principal Component Analysis
+
+    The inherit issue with our initial $\delta$-split was the increase in dimensionality of latent embedding algorithms. What if we somehow project the embedding down to lower dimensions? That is exactly what we try to do with Principal Component Analysis (PCA). Again, a rigourous explanation can be found [here](https://en.wikipedia.org/wiki/Principal_component_analysis) and an intuitive video can be found in [this article](https://builtin.com/data-science/step-step-explanation-principal-component-analysis), but the idea behind this algorithm is to reduce the dimensionality of the data "inteligently" so as to preserve as much information about the data as possible. It is inherent that some information will be lost as a consequence of projecting vectors to lower dimensions, however, PCA takes the desired number of dimensions $d$ and identifies the "best" $d$ basis vectors to project the given data so as to lose the fewest amount of information. 
+
+    From a lower dimensional dataset, we can more efficiently perform a $\delta$-split, or even visually the data directly in 1D, 2D or 3D projections.
+
+    The following is a $\delta$-split of a one-dimensional embedding space: 
+
+    ![](./assets/PCA_histogram.png)
+
+    Or we can visualize the latent space in 2D:
+
+    ![](./assets/PCA_scatter.png)
 
 ## Demand / Supply Functions
 
@@ -411,3 +475,9 @@ We ended up going with option 1, treating users as both, because it allowed us t
 When defining a user's supply, we considered whether to include retweets in addition to original tweets. Our thinking against doing so was that retweets simply share the content of others, and are already being used as a metric of demand (which feels diametrically opposed to supply). However, when considering that many actors (such as influencers) use retweets to propogate content around a community, we felt it makes more sense to consider shared retweets as part of a user's supply.
 
 # Code Walkthrough
+
+# Example Results
+
+Putting our work into action, we identify a community and sample 12 months worth of tweets from that community.
+
+TODO
