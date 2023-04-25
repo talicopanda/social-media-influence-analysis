@@ -17,6 +17,7 @@ class ContentTweet:
     retweet_user_id: str
     quote_id: str
     quote_user_id: str
+    # TODO: add hashtags and content_vector here
 
     def __init__(self, id: int, user_id: int, created_at: datetime, text: str, lang: str,
                  retweet_id: str = None, retweet_user_id: str = None, quote_id: str = None,
