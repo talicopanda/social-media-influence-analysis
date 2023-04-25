@@ -1,12 +1,43 @@
 # Table of Contents
 
-- [Running the Code](#running-the-code)
-- [Introduction](#introduction)
-- [Preface](#preface)
-- [High-Level Code Organization](#high-level-code-organization)
-- [Implementation](#implementation)
-- [Additional Design Decisions](#additional-design-decisions)
-- [Code Walkthrough](#code-walkthrough)
+1. [Running the Code](#running-the-code)
+2. [Introduction](#introduction)
+3. [Preface](#preface)
+    - [Influence](#influence)
+    - [Demand & Supply Distinction](#demand--supply-distinction)
+    - [Hypothesis](#hypothesis)
+4. [Project Context](#project-context)
+    - [Previous Work](#previous-work)
+5. [Contributions](#contributions)
+6. [Further Theory](#further-theory)
+    - [Content](#content)
+    - [Content Clustering](#content-clustering)
+    - [Definitions](#definitions)
+    - [Inferring Causality](#inferring-causality)
+7. [High-Level Code Organization](#high-level-code-organization)
+    - [Content Market](#content-market)
+    - [Content Tweet](#content-tweet)
+    - [Content Market User](#content-market-user)
+    - [Content Market Producer](#content-market-producer)
+    - [Content Market Consumer](#content-market-consumer)
+    - [Content Market Core Node](#content-market-core-node)
+    - [Content Market Clustering](#content-market-clustering)
+    - [Content Market Embedding](#content-market-embedding)
+    - [DAO](#dao)
+8. [Implementation](#implementation)
+    - [High-Level Diagram](#high-level-diagram)
+    - [Latent Space Embedding](#latent-space-embedding)
+    - [Content Clustering](#content-clustering-1)
+    - [Demand / Supply Functions](#demand--supply-functions)
+    - [Causality](#causality)
+    - [Data Ingestion](#data-ingestion)
+    - [Configurations](#configurations)
+9. [Additional Design Decisions](#additional-design-decisions)
+    - [Producers & Consumers Distinction](#producers--consumers-distinction)
+    - [Defining Supply](#defining-supply)
+    - [Causality Across Content Topics](#causality-across-content-topics)
+10. [Code Walkthrough](#code-walkthrough)
+11. [Example Results](#example-results)
 
 # Running the Code
 
@@ -19,14 +50,14 @@ However, the set up under `/src/INSTRUCTIONS.md` should give enough context and 
 
 # Introduction
 
-In this project our end goal is to verify the theoretical ground proposed in [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964) by analyzing how agents in a community influence each other on the content consumed and/or produced.
+In this project our end goal is to provide a framework to analyze in practice and verify the theoretical ground proposed in [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964) by studying how agents in a community influence each other with the content consumed and/or produced in a social network.
 
-More broadly, the aim of the project is to advance the understanding of social influence as a key feature of social media and a core mechanism underlying some of the main challenges emerging from the growing use of social media, including polarization, misinformation and disinformation, and the mental health crisis.
-Specifically, we will test the hypothesis -- debated by sociological theorists but not empirically tested -- that social influence can be understood as a generalized (social) system of interchange, analogous to money or power. In other words, the project studies influence as a general system of interchange where attention and content are traded.
+More broadly, the aim of the project is to advance the understanding of social influence as a key feature of social media and a core mechanism underlying some of the main challenges emerging from the growing use of social media, including polarization, misinformation & disinformation, and the mental health crisis.
+Specifically, we will test the hypothesis - debated by sociological theorists but not empirically tested - that social influence can be understood as a generalized (social) system of interchange, analogous to money or power. In other words, the project studies influence as a general system of interchange where attention and content are traded.
 
 # Preface
 
-In order to analyze influence between nodes we begin by using a game-theoric approach to model a social community. The theory behind this approach is derived on the paper [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964).
+In order to analyze influence relationships between nodes we begin by using a game-theoric approach to model a social community. The theory behind this approach is derived on the paper [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964).
 The results of the paper show that, if the model is correct and the assumptions are sound, in equilibrium:
 
 1. a community has a set of core agents (influencers) that follow all periphery agents (other users) in the community. The core agents then serve as a "hub" for the community by collecting and aggregating content and broadcasting it to others members of the community.
@@ -37,7 +68,7 @@ _Note: to simplify the analysis, the paper assumes that there exists a single co
 
 We define a content market for a community of users abstractly as a market where content is exchanged for attention.
 A community is comprised of producers of content and consumers of content.
-Therefore, going from the results found in the theory above, we can describe the trade flows as follows:
+Therefore, going from the results found in the theory above, we can describe the trade flow as follows:
 
 - **Flow of content**: content starts from producer nodes, goes through the core node and reaches the consumer nodes.
 - **Flow of attention**: attention starts from the consumer nodes, goes through the core node and reaches the producer nodes.
@@ -50,9 +81,9 @@ The following graph illustrates this idea more visually:
 
 Note that in a real social-media scenario, a user is usually both a consumer and a producer to some degree.
 
-A producer is characterized by the user's original tweets, which reveals what content the producer brings to the community.
+A **producer is characterized by the user's original tweets**, which reveals what content the producer posts to the community.
 
-A consumer is characterized by the user's retweets, which revelas what content the consumer is interested in consuming.
+A **consumer is characterized by the user's retweets**, which revelas what content the consumer is interested in consuming. Note that we could additionally use other measures of attention, such as likes, replies, scroll behaviour, etc. However, the use of retweets as a form of demand is the simplest form that most resembles real social interactions given that we reproduce content we pay attention to.
 
 ## Influence
 
@@ -64,7 +95,7 @@ In our context, the uncertainty comes into play with content demand. Naturally, 
 More importantly, as a core node, your broadcasting power is directly impacted by the interest of the community.
 Hence, we infer that the content consumers as a whole have an influence over the core node from their interest choices (the tweets they decide do retweet - i.e. pay attention to).
 Moreover, the core node serves as an aggregation of the community's demand and, in the same fashion, content producers are interested in posting content that will be broadcasted by the core node.
-Therefore, we reason that there exists yet another influence relationship of the core node over the content producer.
+Therefore, we reason that there exists yet another influence relationship between the core node over the content producer.
 
 ## Demand & Supply Distinction
 
@@ -120,6 +151,8 @@ TODO: outline community expansion steps
 In order to ease the analysis of twitter data in the context of the our theory background and facilitate the study of the data we have, this project implements the architecture to process a content market. A content market is defined with respect to a specific community and is a concept to represent the abstract means in which the members of this community exchange content for attention. 
 
 This content market implementation aims at providing all the functionality needed to analyze the relationships that we are focusing on. For that, it precomputes multiple values of interest and stores them back into a Mongo database for future access.
+
+We also provide scripts to interpret and debug the content market as well as some initial scripts to analyze the data in the context of our research.  
 
 # Further Theory
 
@@ -347,7 +380,7 @@ TODO: See [Data Ingestion](#data-ingestion) for details on how these databases a
 
 # Implementation
 
-## High-Level OOP Diagram
+## High-Level Diagram
 
 ![./Influence.drawio.png](./assets/influence_uml.png)
 
@@ -372,7 +405,7 @@ We thus consider trying two further approaches:
 
 As explained in [Further Theory](#further-theory), our $\delta$-split of the latent space approach for content clustering is insufficient for our purposes. We then considered a few approaches to circunvent this issue.
 
-1. Modified K-means Clustering
+1. **Modified K-means Clustering**
     
     K-means is also a widdely used clustering techique that randomly creates $k$ clusters and iteratively assigns vectors (datapoints) to their closest clustes as well as recenter the clusters until the algorithm converges and every datapoint is assigned to its "best" cluster. More rigorous details on its functionality can be found [here](https://en.wikipedia.org/wiki/K-means_clustering).
 
@@ -388,7 +421,7 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
 
     Notice that this does not guarantee that all datapoints will be assigned to a cluster. However, with a large enough $k$, this is actually a desired behaviour since this serves as filter of noise excluding outlying tweets that are too far from the interest of the community.
 
-2. Recursive K-means
+2. **Recursive K-means**
 
     A possible issue with the previous algorithm is when the data has varying sizes of clusters:
 
@@ -400,7 +433,7 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
 
     We then discuss another approach that entails start from the [original k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering) algorithm to identify high-level topics and then analyze each topic individually by performing the modifed k-means clustering of fixed radius individually for each topic to identify sub-topics. 
 
-3. Principal Component Analysis
+3. **Principal Component Analysis**
 
     The inherit issue with our initial $\delta$-split was the increase in dimensionality of latent embedding algorithms. What if we somehow project the embedding down to lower dimensions? That is exactly what we try to do with Principal Component Analysis (PCA). Again, a rigourous explanation can be found [here](https://en.wikipedia.org/wiki/Principal_component_analysis) and an intuitive video can be found in [this article](https://builtin.com/data-science/step-step-explanation-principal-component-analysis), but the idea behind this algorithm is to reduce the dimensionality of the data "inteligently" so as to preserve as much information about the data as possible. It is inherent that some information will be lost as a consequence of projecting vectors to lower dimensions, however, PCA takes the desired number of dimensions $d$ and identifies the "best" $d$ basis vectors to project the given data so as to lose the fewest amount of information. 
 
@@ -458,7 +491,7 @@ The required input to build a content market is a community.
 
 The output is a content market database, where the core nodes, consumers, and producers are written out as collections. Note that these contain all information about their tweet actions (their original tweets, retweets in community, etc), as well as their computed supplies and / or demands.
 
-## Config
+## Configurations
 
 To run main.py, the path to a json config file must be passed in. This file must contain the following information:
 
@@ -466,15 +499,7 @@ TODO: chatgpt description of config here
 
 # Additional Design Decisions
 
-## Causality
-
-We want to generalize the granger causality across all bins, which can be done through multiple approaches. Some proposed approaches are: by calculating the mean, euclidean norm, or p-norm for any given p $\in Z^+$. For all of these approaches, the preliminary stages are the same - iterate through the keys(bins) in our hash table and get the granger causality (value between 0 and 1) of all of them. Notice that since we only have bins with non-zero supply/demand values, we have finitely many of them, making it possible to iterate through all of them. Now that we have the granger causality data for all bins, we can find a way to see patterns in the data and infer causality across all non-zero bins in the $R^n$ space.
-
-We will explore some of our approaches here: We can calculate the mean of the granger causality in all bins, giving us an average across all non-zero bins in the $R^n$ space. An alternate approach would be to calculate the p-norm, and normalizing the output so that it lies between 0 and 1. The norm is able to capture different patterns in the data - for example, a 2-norm (or the euclidean norm) will skew values closer to 0 further towards 0, and values closer to 1 will be skewed less. The higher p gets, the higher the skewing gets.
-
-We will use the mean to find the aggregate in our approach, as it is a more cost-effective and gives a decent estimate.
-
-## Users as Both Producers and Consumers
+## Producers & Consumers Distinction
 
 We had the decision on how to define Producers and Consumers. We considered treating a user as 1) both a producer and consumer 2) either a producer or consumer or 3) exclusively a producer or consumer.
 
@@ -482,9 +507,17 @@ The latter two cases would require us to enforce metrics that would segregate us
 
 We ended up going with option 1, treating users as both, because it allowed us to not impose any assumptions on the data. We found it too arbitrary to attempt to qualify someone as a producer or consumer at this stage. It also means we consider all content and demand in our calculations - while this could be a positive or a negative in terms of representing the model accurately, we do not have strong enough evidence that filtering out data is beneficial so we would rather have all of it.
 
-## Supply
+## Defining Supply
 
 When defining a user's supply, we considered whether to include retweets in addition to original tweets. Our thinking against doing so was that retweets simply share the content of others, and are already being used as a metric of demand (which feels diametrically opposed to supply). However, when considering that many actors (such as influencers) use retweets to propogate content around a community, we felt it makes more sense to consider shared retweets as part of a user's supply.
+
+## Causality Across Content Topics
+
+We want to generalize the granger causality across all content topics (referred to as bins or clusters), which can be done through multiple approaches. Some proposed approaches are: by calculating the mean, euclidean norm, or p-norm for any given p $\in Z^+$. For all of these approaches, the preliminary stages are the same - iterate through the keys(bins) in our hash table and get the granger causality (value between 0 and 1) of all of them. Notice that since we only have bins with non-zero supply/demand values, we have finitely many of them, making it possible to iterate through all of them. Now that we have the granger causality data for all bins, we can find a way to see patterns in the data and infer causality across all non-zero bins in the $R^n$ space.
+
+We will explore some of our approaches here: We can calculate the mean of the granger causality in all bins, giving us an average across all non-zero bins in the $R^n$ space. An alternate approach would be to calculate the p-norm, and normalizing the output so that it lies between 0 and 1. The norm is able to capture different patterns in the data - for example, a 2-norm (or the euclidean norm) will skew values closer to 0 further towards 0, and values closer to 1 will be skewed less. The higher p gets, the higher the skewing gets.
+
+We will use the mean to find the aggregate in our approach, as it is a more cost-effective and gives a decent estimate.
 
 # Code Walkthrough
 
