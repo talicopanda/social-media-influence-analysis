@@ -44,7 +44,9 @@ Therefore, going from the results found in the theory above, we can describe the
 
 The following graph illustrates this idea more visually:
 
-![./content_market.png](./assets/content_market.png)
+<p align="center">
+    <img src="assets/content_market.png">
+</p>
 
 Note that in a real social-media scenario, a user is usually both a consumer and a producer to some degree.
 
@@ -99,7 +101,9 @@ This project assumes that we already located a community of users (e.g the AI co
 
 More broadly, the project has the following structure:
 
-![](./assets/project_flow_diagram.png)
+<p align="center">
+  <img src="assets/project_flow_diagram.png"  width=50% height=50%>
+</p>
 
 ## Previous Work
 
@@ -127,7 +131,9 @@ We restrict "content" to be simply represented by a string. Then, for an abstrac
 
 We first introduce the concept of a latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. For a rigorous understanding of laten spaces, refer to [this article](https://towardsdatascience.com/understanding-latent-space-in-machine-learning-de5a7c687d8d) that explains laten space embeddings in a machine learning context similar to how we are using here. To put in simple terms, however, a latent embedding of our content (in our a case a tweet string) is an algorithm that embedds or "converts" a string to a vector in an $n$ dimensional space maintaining its semantic properties. That is, the location that this strings gets map to in this $n$-dimensional space represents the semantic meaning of the string in a way that other strings with similar semantic properties are mapped close (e.g. euclidean distance) to each other. The following image illustrates a 2D latent space where each datapoint is a tweet string and each cluster is a content tweeted about:
 
-![](./assets/tweet_embedding_example.png)
+<p align="center">
+  <img src="assets/tweet_embedding_example.png"  width=50% height=50%>
+</p>
 
 _For example, Cluster 1 could be tweets about sports and cluster 4 could be tweets about politics. Therefore, we notice that this embedding algorithm does a good job of maintaining the semantic properties of its content as most sports-related tweets are phisically located close to each other in that top-right cluster and politics-related tweets are located in the middle. Further notice that there is some overlap in red and blue custer, as for example, a tweet about sports could have a political conotation. Or even further, politics is located in the center of this embeddings space exactly because it can relate (and thus be located close) to many other topics._
 
@@ -384,9 +390,11 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
 
 2. Recursive K-means
 
-    A possible issue with the previous algorithm is when the data has varying sizes of clusters. 
+    A possible issue with the previous algorithm is when the data has varying sizes of clusters:
 
-    ![](./assets/kmeans_big_small.png)
+    <p align="center">
+        <img src="assets/kmeans_big_small.png"  width=50% height=50%>
+    </p>
 
     For example, if red is the topic of sports and blue is AI, our modifed k-means would not split the clusters into topics their major topics, but it would likely instead split the sports cluster into soccer, basketball and football. This inconsistency across topic sizes could add bias to the data.
 
@@ -400,11 +408,15 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
 
     The following is a $\delta$-split of a one-dimensional embedding space: 
 
-    ![](./assets/PCA_histogram.png)
+    <p align="center">
+        <img src="assets/PCA_histogram.png"  width=50% height=50%>
+    </p>
 
     Or we can visualize the latent space in 2D:
 
-    ![](./assets/PCA_scatter.png)
+    <p align="center">
+        <img src="assets/PCA_scatter.png"  width=50% height=50%>
+    </p>
 
 ## Demand / Supply Functions
 
