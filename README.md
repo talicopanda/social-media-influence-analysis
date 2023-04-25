@@ -392,13 +392,13 @@ The DAO objects acts as an interface with our datastore. This gives us the abili
 
 ## Project Flow
 
-This module consists of two steps: 1) generating tweet embeddings and cleaned community data , and 2) building the content market. There are two required inputs that must be set up to run either of these steps, a [community](#project-context), and a [config file](#config).
+This module consists of two steps: 1) generating tweet embeddings and cleaned community data , and 2) building the content market. There are two required inputs that must be set up to run either of these steps, a [community](#project-context), and a [config file](#configuration).
 
 To generate the embeddings and clean the community data, follow the instructions of the embedding-type selected in the config file. By default, we recommend [tweet2vec](./tweet2vec/README.md). This will output the tweet embeddings to the intermediate database specified by the config file.
 
 To run the content market, run [`src/main.py`](/src/main.py) as per the [instructions in src](/src/INSTRUCTIONS.md). This will use the cleaned data and tweet embeddings in the database from the first step to [run each step of the `ContentMarketBuilder`](#content-market-builder) (generate clustering, populate and parition users, calculate demand and supplies), populate and write the content market to database, and output visualizations to provide initial insights into the data.
 
-## Config
+## Configuration
 
 This configuration file is used to configure the database and collection names of the inputs and outputs of this module, as well as various parameters which impact the computed data. A default/example config file can be found [here](./config.json).
 
