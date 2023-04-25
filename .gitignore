@@ -4,9 +4,9 @@
 *.DS_STORE
 *.json
 *.pkl
-*.png
+results
 .idea
 embedding_tweet2vec
 experiments
 word2vec
-/results/*
+results
