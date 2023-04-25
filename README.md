@@ -14,43 +14,55 @@
    - [Content Clustering](#content-clustering)
    - [Definitions](#definitions)
    - [Inferring Causality](#inferring-causality)
-7. [High-Level Code Organization](#high-level-code-organization)
+7. [Implementation](#implementation)
+   - [High-Level Diagram](#high-level-diagram)
    - [Content Market](#content-market)
-   - [Content Tweet](#content-tweet)
    - [Content Market User](#content-market-user)
    - [Content Market Producer](#content-market-producer)
    - [Content Market Consumer](#content-market-consumer)
    - [Content Market Core Node](#content-market-core-node)
    - [Content Market Clustering](#content-market-clustering)
+   - [Content Tweet](#content-tweet)
    - [Content Market Embedding](#content-market-embedding)
+   - [Content Market Builder](#content-market-builder)
    - [DAO](#dao)
-8. [Implementation](#implementation)
-   - [High-Level Diagram](#high-level-diagram)
+   - [Configurations](#configuration)
    - [Latent Space Embedding](#latent-space-embedding)
    - [Content Clustering](#content-clustering-1)
    - [Demand / Supply Functions](#demand--supply-functions)
-   - [Causality](#causality)
-   - [Data Ingestion](#data-ingestion)
-   - [Configurations](#configurations)
-9. [Additional Design Decisions](#additional-design-decisions)
+   - [Visualizations](#visualizations)
+8. [Further Discussion](#further-discussion)
    - [Producers & Consumers Distinction](#producers--consumers-distinction)
    - [Defining Supply](#defining-supply)
    - [Causality Across Content Topics](#causality-across-content-topics)
-10. [Code Walkthrough](#code-walkthrough)
-11. [Example Results](#example-results)
+   - [Creating Time Series](#creating-time-series)
+   - [Causality](#causality)
 
 # Running the Code
 
-The main contents of the project are under the `/src` folder, and instructions to set up and run the program are found on the `INSTRUCTIONS.md` file in `/src`.
-To run the code you may start there and follow the instructions on that `INSTRUCTIONS.md` file.
+<!-- TODO: flow diagram here -->
 
-At some point in the set up process, you might need to generate tweet embeddings using `tweet2vec` (taken from [here](https://github.com/bdhingra/tweet2vec/)).
+This project consists of two components to run:
+
+1.  Generating tweet embeddings and clean community data
+2.  Building and outputting the content market
+
+There are two required inputs that must be set up to run either of these steps, a [community](#project-context) and a [config file](#configuration).
+
+<!-- The main contents of the project are under the `/src` folder, and instructions to set up and run the program are found on the `INSTRUCTIONS.md` file in `/src`.
+To run the code you may start there and follow the instructions on that `INSTRUCTIONS.md` file. -->
+
+Before building the content market, you will need to generate tweet embeddings using `tweet2vec` (taken from [here](https://github.com/bdhingra/tweet2vec/)).
 Due to python versioning conflicts, `tweet2vec` has its own set of set up instructions on the `INSTRUCTIONS.md` file under the `/tweet2vec` folder.
-However, the set up under `/src/INSTRUCTIONS.md` should give enough context and instructions to guide you through the other set up as well.
+However, the set up under `/src/INSTRUCTIONS.md` should give enough context and instructions to guide you through the other set up as well. By default, we recommend [tweet2vec](./tweet2vec/README.md). This will output the tweet embeddings to the intermediate database specified by the config file.
+
+<!-- To generate the embeddings and clean the community data, follow the instructions of the embedding-type selected in the config file.  -->
+
+To run the content market construction, run [`src/main.py`](/src/main.py) as per the [instructions in src](/src/INSTRUCTIONS.md). This will use the cleaned data and tweet embeddings in the database from the first step to [run each step of the `ContentMarketBuilder`](#content-market-builder) (generate clustering, populate and partition users, calculate demand and supplies), populate and write the content market to the database, and output visualizations to provide initial insights into the data.
 
 # Introduction
 
-In this project our end goal is to provide a framework to analyze in practice and verify the theoretical ground proposed in [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964) by studying how agents in a community influence each other with the content consumed and/or produced in a social network.
+The end goal of this project is to provide a framework to analyze and verify the theoretical ground proposed in [Structure of Core-Periphery Communities](https://arxiv.org/abs/2207.06964) by studying how agents in a community influence each other with the content consumed and/or produced in a social network.
 
 More broadly, the aim of the project is to advance the understanding of social influence as a key feature of social media and a core mechanism underlying some of the main challenges emerging from the growing use of social media, including polarization, misinformation & disinformation, and the mental health crisis.
 Specifically, we will test the hypothesis - debated by sociological theorists but not empirically tested - that social influence can be understood as a generalized (social) system of interchange, analogous to money or power. In other words, the project studies influence as a general system of interchange where attention and content are traded.
@@ -83,7 +95,7 @@ Note that in a real social-media scenario, a user is usually both a consumer and
 
 A **producer is characterized by the user's original tweets**, which reveals what content the producer posts to the community.
 
-A **consumer is characterized by the user's retweets**, which revelas what content the consumer is interested in consuming. Note that we could additionally use other measures of attention, such as likes, replies, scroll behaviour, etc. However, the use of retweets as a form of demand is the simplest form that most resembles real social interactions given that we reproduce content we pay attention to.
+A **consumer is characterized by the user's retweets**, which reveals what content the consumer is interested in consuming. Note that we could additionally use other measures of attention, such as likes, replies, scroll behaviour, etc. However, the use of retweets as a form of demand is the simplest form that most resembles real social interactions given that we reproduce content we pay attention to.
 
 ## Influence
 
@@ -138,9 +150,9 @@ More broadly, the project has the following structure:
 
 ## Previous Work
 
-From the raw twitter data scrapped with Twitter's API, the data goes through an initial processing analysis for community detection that is beyond the scope of this project. For the sake of context and full understanding, however, it is worth mentioning here.
+From the raw twitter data scrapped with Twitter's API, the data goes through an initial processing analysis for community detection that is a outside the scope of this project. For the sake of context and full understanding, however, it is worth mentioning here.
 
-The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here]() (TODO: relative link to Yanke's report or Anthony's outdated report), but we summarize the key steps here.
+The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here](./assets/Final_Report_Anthony.pdf), but we summarize the key steps here.
 
 Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then analyzes the users followed by
 
@@ -150,7 +162,7 @@ TODO: outline community expansion steps
 
 In order to ease the analysis of twitter data in the context of the our theory background and facilitate the study of the data we have, this project implements the architecture to construct a content market. A content market is defined with respect to a specific community and is a concept to represent the abstract means in which the members of this community exchange content for attention.
 
-This content market implementation aims at providing all the functionality needed to analyze the relationships that we are focusing on. For that, it precomputes multiple values of interest and stores them back into a Mongo database for future access.
+This content market implementation aims at providing all the information needed to analyze the relationships that we are focusing on. For that, it precomputes multiple values of interest and stores them back into a Mongo database for future access.
 
 We also provide scripts to interpret and debug the content market as well as some initial scripts to analyze the data in the context of our research.
 
@@ -162,7 +174,7 @@ Going from the high-level mathematical model elaborated in [Structure of Core-Pe
 
 We restrict "content" to be simply represented by a string. Then, for an abstract content piece $c$ (defined next), let $s_c$ denote its string representation. Let $n \in \mathbb{N}$.
 
-We first introduce the concept of a latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. For a rigorous understanding of laten spaces, refer to [this article](https://towardsdatascience.com/understanding-latent-space-in-machine-learning-de5a7c687d8d) that explains laten space embeddings in a machine learning context similar to how we are using here. To put in simple terms, however, a latent embedding of our content (in our a case a tweet string) is an algorithm that embedds or "converts" a string to a vector in an $n$ dimensional space maintaining its semantic properties. That is, the location that this strings gets map to in this $n$-dimensional space represents the semantic meaning of the string in a way that other strings with similar semantic properties are mapped close (e.g. euclidean distance) to each other. The following image illustrates a 2D latent space where each datapoint is a tweet string and each cluster is a content tweeted about:
+We first introduce the concept of a latent space $S \subseteq \mathbb{R}^n$ to capture the relationship of tweet semantics. For a rigorous understanding of laten spaces, refer to [this article](https://towardsdatascience.com/understanding-latent-space-in-machine-learning-de5a7c687d8d) that explains laten space embeddings in a machine learning context similar to how we are using here. To put in simple terms, however, a latent embedding of our content (in our a case a tweet string) is an algorithm that embedds (or "converts") a string to a vector in an $n$-dimensional space maintaining its semantic properties. That is, the location that this strings gets map to in this $n$-dimensional space represents the semantic meaning of the string in a way that other strings with similar semantic properties are mapped close (e.g. euclidean distance) to each other. The following image illustrates a 2D latent space where each datapoint is a tweet string and each cluster is a content tweeted about:
 
 <p align="center">
   <img src="assets/tweet_embedding_example.png"  width=50% height=50%>
@@ -176,7 +188,7 @@ Unfortunately, our data of tweets is not labeled and we can't precisely outline 
 
 TODO: picture
 
-This is okay in a 2D latent embedding space like the one in the picture since the number of cubes (squares in that case) grows quadratically with the length of the embedding space. However, most embedding algorithms embedd in high dimensional spaces that could exceed 500 dimensions. This causes our number of hyper cubes (i.e. number of topics considered) to inscrease unreasonably for any feasable data analysis.
+This is okay in a 2D latent embedding space like the one in the picture since the number of cubes (or squares, in this case) grows quadratically with the length of the embedding space. However, most embedding algorithms embedd in high dimensional spaces that could exceed 500 dimensions. This causes our number of hyper cubes (i.e. number of topics considered) to increase unreasonably for any feasable data analysis.
 
 We then consider a few different approaches to go around this issue under the [Implementation](#implementation) section. For now, this general abstraction that we can partition our content space of tweets into different topics is sufficient.
 
@@ -217,11 +229,12 @@ $$\tilde{D}_{G, T} (c) = \frac{D_{G,T}(c)}{|G|}$$
 
 For a user $u \in U$ and time period $T$, we define the supply function $S_{u, T}: S \to \mathbb{R}$ as:
 
-$$S_{u, T}(c) = |\mathcal{T}_{u, T}[c' \in S:||c' - c|| < R]| + |\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]|$$
+$$S_{u, T}(c) = |\mathcal{T}_{u, T}[c' \in S:||c' - c|| < R]|$$
 
 For a $R \in \mathbb{R}^n$.
 
-Here, $\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]$ denotes "retweets in community" which is the number of retweets of $u$'s retweet by users that follow $u$ and with a post time after the corresponding tweet of $u$ (this essentially means that the retweet, that was initially an indicator of demand, becomes an indicator of supply).
+<!--
+Here, $\mathcal{C}_{u, T}[c' \in S:||c' - c|| < R]$ denotes "retweets in community" which is the number of retweets of $u$'s retweet by users that follow $u$ and with a post time after the corresponding tweet of $u$ (this essentially means that the retweet, that was initially an indicator of demand, becomes an indicator of supply). -->
 
 **INFLUENCER SUPPLY**
 
@@ -275,11 +288,15 @@ Since Granger causality assumes time series data of real variables instead of fu
 
 We will then find the Granger-causality across the entire latent space of content by aggregating each individual fixed content causality.
 
-We will use the mean to aggregate the granger causality across the entire latent space of content.
+We will initially use the mean to aggregate the granger causality across the entire latent space of content, but we also discuss this in [Further Discussion](#further-discussion).
 
-# High-Level Code Organization
+# Implementation
 
 In our code, we take a Object-Oriented Approach that is primarily reliant on the following classes:
+
+## High-Level Diagram
+
+![./Influence.drawio.png](./assets/influence_uml.png)
 
 ## Content Market
 
@@ -306,7 +323,7 @@ The ContentMarketUser class represents a general user in a content market. It is
 - followers: a list of integers representing the IDs of the user's followers
 - following: a list of integers representing the IDs of the users the user is following
 
-Additionally, it holds functionality to compute the demand and supply (as described in [Implementation](#implementation)).
+Additionally, it holds functionality to generate build a support from cluster ids to tweet ids.
 
 ## Content Market Producer
 
@@ -324,7 +341,7 @@ The ContentMarketConsumer class is a subclass of ContentMarketUser that represen
 - `demand_out_of_community`: a dictionary that maps cluster IDs to lists of tweet IDs that the consumer has retweeted outside of their community.
 - `aggregate_demand`: a dictionary that maps cluster IDs to lists of tweet IDs that represent the aggregate demand for each cluster from all consumers.
 
-Additionally, it holds functionality to compute the demand and supply (as described in [Implementation](#implementation)).
+Additionally, it holds functionality to compute demand.
 
 ## Content Market Core Node
 
@@ -335,7 +352,7 @@ The `ContentMarketCoreNode` class is a subclass of ContentMarketUser that repres
 - aggregate_demand: A DefaultDict mapping cluster IDs to a list of tweet IDs representing the aggregate demand for content within and outside of the same cluster.
 - supply: A DefaultDict mapping cluster IDs to a list of tweet IDs representing the supply of content.
 
-Additionally, it holds functionality to compute the demand and supply (as described in [Implementation](#implementation)).
+Additionally, it holds functionality to compute the demand and supply.
 
 ## Content Market Clustering
 
@@ -354,11 +371,10 @@ A content tweet object holds data about a tweet with respect to the following in
 - created_at: timestamp of tweet creation
 - text: the text content of the tweet
 - lang: language of the tweet
-- retweet_id: the id of
-- retweet_user_id:
-- quote_id: the id of the original tweet of this is a quote # TODO: double check this
+- retweet_id: the id of retweet, if this is a retweet
+- retweet_user_id: the user_id of the poster of the retweet, if this is a retweet
+- quote_id: the id of the original tweet if this is a quote
 - quote_user_id: the user_id of the user who created this quote, if it is a quote
-- hashtags: the hashtags generated to represent the content of this tweet TODO: tales check this
 - content_vector: the embedding representation of the tweet's content, as defined [here](#latent-space-embedding)
 
 ## Content Market Embedding
@@ -384,20 +400,6 @@ The entry point of the module [./src/main.py](/src/main.py) leverages the builde
 
 The DAO objects acts as an interface with our datastore. This gives us the ability to switch between storage solutions while maintaining a common interface, seperating the database accesses with our high level object definitions. Currently, we have a MongoDB DAO implementation, and recommend using Mongo as the data layer for this app and the overall research project.
 
-# Implementation
-
-## High-Level Diagram
-
-![./Influence.drawio.png](./assets/influence_uml.png)
-
-## Project Flow
-
-This module consists of two steps: 1) generating tweet embeddings and cleaned community data , and 2) building the content market. There are two required inputs that must be set up to run either of these steps, a [community](#project-context), and a [config file](#configuration).
-
-To generate the embeddings and clean the community data, follow the instructions of the embedding-type selected in the config file. By default, we recommend [tweet2vec](./tweet2vec/README.md). This will output the tweet embeddings to the intermediate database specified by the config file.
-
-To run the content market, run [`src/main.py`](/src/main.py) as per the [instructions in src](/src/INSTRUCTIONS.md). This will use the cleaned data and tweet embeddings in the database from the first step to [run each step of the `ContentMarketBuilder`](#content-market-builder) (generate clustering, populate and parition users, calculate demand and supplies), populate and write the content market to database, and output visualizations to provide initial insights into the data.
-
 ## Configuration
 
 This configuration file is used to configure the database and collection names of the inputs and outputs of this module, as well as various parameters which impact the computed data. A default/example config file can be found [here](./config.json).
@@ -405,7 +407,7 @@ This configuration file is used to configure the database and collection names o
 A config file includes the following fields:
 
 - **num_bins:** An integer representing the number of clusters to partition the tweet embeddings into.
-- **partitioning_strategy:** A string representing the partitioning strategy to use. Currently available options are: `users`. See [user-partitioning](#user-parititioning)
+- **partitioning_strategy:** A string representing the partitioning strategy to use. Currently available options are: "users". See [user-partitioning](#user-parititioning)
 - **embedding_type:** A string representing the type of tweet embeddings being used. For now, it is set to "tweet2vec".
 - **database:** An object containing information related to the databases used by the application. Since currently only Mongo is supported, the fields within this object include:
   - **db_type:** A string representing the type of database being used. In this case, it is set to "Mongo".
@@ -451,7 +453,7 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
 
 1. **Modified K-means Clustering**
 
-   K-means is also a widdely used clustering techique that randomly creates $k$ clusters and iteratively assigns vectors (datapoints) to their closest clustes as well as recenter the clusters until the algorithm converges and every datapoint is assigned to its "best" cluster. More rigorous details on its functionality can be found [here](https://en.wikipedia.org/wiki/K-means_clustering).
+   K-means is also a widely used clustering techique that randomly creates $k$ clusters and iteratively assigns vectors (datapoints) to their closest clusters as well as recenter the clusters until the algorithm converges and every datapoint is assigned to its "best" cluster. More rigorous details on its functionality can be found [here](https://en.wikipedia.org/wiki/K-means_clustering).
 
    The issue with the original k-means algorithm is that it does not guarantee consistent radius across clusters, which is an assumption we need for our demand and supply analysis. We then implement a modified k-means cluster that performs the following:
 
@@ -475,7 +477,7 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
 
    For example, if red is the topic of sports and blue is AI, our modifed k-means would not split the clusters into topics their major topics, but it would likely instead split the sports cluster into soccer, basketball and football. This inconsistency across topic sizes could add bias to the data.
 
-   We then discuss another approach that entails start from the [original k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering) algorithm to identify high-level topics and then analyze each topic individually by performing the modifed k-means clustering of fixed radius individually for each topic to identify sub-topics.
+   We then discuss another approach that entails start from the [original k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering) algorithm to identify high-level topics and then analyze each topic individually by performing the modifed k-means clustering of fixed radius recursively and individually for each topic to identify sub-topics.
 
 3. **Principal Component Analysis**
 
@@ -499,7 +501,7 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
 
 The supply and demand functions of a user are represented as hashtables that maps cluster ids to lists of tweet (includes tweets, retweets, quotes, and replies) ids. The demand or supply in a given cluster is the length of the corresponding tweet ids list. These can be easily aggregated by cluster across different users/user groups.
 
-## User Parititioning
+## User Partitioning
 
 As stated above, there are types of users: core nodes, producers, and consumers. Note that users can be both producers and consumers.
 
@@ -507,36 +509,21 @@ The partitioning strategy is implemented using a strategy pattern [here](/src/us
 
 - `'users'`: every non-core node user is both a producer and consumer
 
-## Causality
+## Visualizations
 
-To infer causality (influence) between nodes, we capture supply and demand data over time, and use granger causality to infer if there is any relationship between the time series. We use [this module](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function.
+To provide a brief insight into a content market, our project visualizations under [results](./results/) when building a content market using `main.py`. Currently, the following visualizations are generated:
 
-### Implementation
+- scatter plots of the demands and supplies of the different user groups reduced to two dimensions through PCA
+- histograms for the supplies and demands of the different user groups by cluster
 
-Recall that in our implementation of supply and demand functions, we have partitionined the $R^n$ space of content embeddings into non-overlapping hypercubes. Each non-empty hypercube represents a key in our hash table, its value representing the supply/demand information.
+The above are additionally split by in-community vs out-of-community demand.
 
-Over time, we can construct time series of supply and demand in each bin, and calculate the granger causality for each bin for a given time period. Since we know that calculating granger causality will output a value between 0 and 1, we can augment this information in the hash table, corresponding to each key(bin). We will then find the mean to aggregate the granger causality across all bins.
+<p align="center">
+    <img width="40%" src="assets/PCA_scatter.png">
+    <img width="40%" src="assets/core_nodes_in_community.png">
+</p>
 
-### Creating Time Series
-
-First, we will outline an approach to constructing the time series for the supply of a particular user.
-
-First, I will outline a way to find the support of the function. For a user $U$, recall that we can access the content vector embeddings for their tweets. Since there is a finite number of tweets for each user, $U$ has a tweet embedding with maximum norm $r$. We can create an open neighbourhood of radius $r$ centered at the origin, such that it involves tweets with norms smaller than or equal to $r$. Since $r$ is the maximum norm, it is guaranteed that all tweets of $U$ are contained inside the open ball. Since we have divided the space into non-overlapping hypercubes, we know that the open ball is segmented into a finite number of hypercubes. We have thus narrowed down the space into a finite number of hypercubes, narrowing down the support of the function. We can now iterate through the hypercubes, checking which of them are non-empty to find the support.
-
-For each hypercube, we can aggregate the number of tweets located in it at time interval t in a $(t, n)$ tuple, where t refers to the time interval and n refers to the supply, or the number of tweets in a hypercube for user $U$.After $M$ time intervals, we can see how the supply of user $U$ (n) changes over time.
-
-Time series for demand can be constructed using a similar method.
-
-## Data Ingestion
-
-\*\* should have a section where we talk about how this project integrates with the overall research
-
-The required input to build a content market is a community.
-** Insert definition of community here, talking about fields and all that. we shouldnt have to write this **
-
-The output is a content market database, where the core nodes, consumers, and producers are written out as collections. Note that these contain all information about their tweet actions (their original tweets, retweets in community, etc), as well as their computed supplies and / or demands.
-
-# Additional Design Decisions
+# Further Discussion
 
 ## Defining Supply
 
@@ -550,10 +537,22 @@ We will explore some of our approaches here: We can calculate the mean of the gr
 
 We will use the mean to find the aggregate in our approach, as it is a more cost-effective and gives a decent estimate.
 
-# Code Walkthrough
+## Creating Time Series
 
-# Example Results
+First, we will outline an approach to constructing the time series for the supply of a particular user.
 
-Putting our work into action, we identify a community and sample 12 months worth of tweets from that community.
+First, I will outline a way to find the support of the function. For a user $U$, recall that we can access the content vector embeddings for their tweets. Since there is a finite number of tweets for each user, $U$ has a tweet embedding with maximum norm $r$. We can create an open neighbourhood of radius $r$ centered at the origin, such that it involves tweets with norms smaller than or equal to $r$. Since $r$ is the maximum norm, it is guaranteed that all tweets of $U$ are contained inside the open ball. Since we have divided the space into non-overlapping hypercubes, we know that the open ball is segmented into a finite number of hypercubes. We have thus narrowed down the space into a finite number of hypercubes, narrowing down the support of the function. We can now iterate through the hypercubes, checking which of them are non-empty to find the support.
 
-TODO
+For each hypercube, we can aggregate the number of tweets located in it at time interval t in a $(t, n)$ tuple, where t refers to the time interval and n refers to the supply, or the number of tweets in a hypercube for user $U$.After $M$ time intervals, we can see how the supply of user $U$ (n) changes over time.
+
+Time series for demand can be constructed using a similar method.
+
+## Causality
+
+To infer causality (influence) between nodes, we capture supply and demand data over time, and use granger causality to infer if there is any relationship between the time series. We use [this module](https://www.statsmodels.org/dev/generated/statsmodels.tsa.stattools.grangercausalitytests.html) to implement the granger causality function.
+
+### Implementation
+
+Recall that in our implementation of supply and demand functions, we have partitionined the $R^n$ space of content embeddings into non-overlapping hypercubes. Each non-empty hypercube represents a key in our hash table, its value representing the supply/demand information.
+
+Over time, we can construct time series of supply and demand in each bin, and calculate the granger causality for each bin for a given time period. Since we know that calculating granger causality will output a value between 0 and 1, we can augment this information in the hash table, corresponding to each key(bin). We will then find the mean to aggregate the granger causality across all bins.

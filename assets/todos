@@ -1,0 +1,9 @@
+- graph in 1d
+- normalize supply/demand curves
+- use scoring function / rank of users to visualize content market across expansion / size
+- filter / investigate supply by retweet freqs
+- investigate / visualize curves by cluster. look at 'important' clusters, indicated by demands. Then use cluster to filter out noise, PCA there
+- investigate hashtags for each cluster, alternatives to hashtags for identifying topics
+
+- try to investigate different communities
+  \*\* prioritize report and clean code first before investigation
