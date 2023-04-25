@@ -152,11 +152,12 @@ More broadly, the project has the following structure:
 
 From the raw twitter data scrapped with Twitter's API, the data goes through an initial processing analysis for community detection that is a outside the scope of this project. For the sake of context and full understanding, however, it is worth mentioning here.
 
-The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here](./assets/Final_Report_Anthony.pdf), but we summarize the key steps here.
+The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here](./assets/Final_Report_Anthony.pdf), but we summarize the key steps intuitvely here.
 
-Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then analyzes the users followed by
-
-TODO: outline community expansion steps
+Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then:
+ 1. Analyzes the users that follow/are followed by our current candidates and calculates a number related to how much they "belong to that community" based on their community influence.
+ 2. For any user that have a score above the given threshold, add them to the community candidate set. Recurse on steps 1 and 2 until the algorithm converges and no new candidates can be added to the community (i.e. no new users pass the threshold).
+ 3. The candidate set in this last iteration is the final community of interest.
 
 # Contributions
 
@@ -186,7 +187,9 @@ _For example, Cluster 1 could be tweets about sports and cluster 4 could be twee
 
 Unfortunately, our data of tweets is not labeled and we can't precisely outline the boundaries of how wide a content topic ranges from in our embedding space. Ideally, we would partition our embedding space into an $n$-dimensional grid of hyper cubes of size $\delta \in \mathbb{R}$ and call each cube a different topic.
 
-TODO: picture
+<p align="center">
+  <img src="assets/delta-split.png"  width=50% height=50%>
+</p>
 
 This is okay in a 2D latent embedding space like the one in the picture since the number of cubes (or squares, in this case) grows quadratically with the length of the embedding space. However, most embedding algorithms embedd in high dimensional spaces that could exceed 500 dimensions. This causes our number of hyper cubes (i.e. number of topics considered) to increase unreasonably for any feasable data analysis.
 
