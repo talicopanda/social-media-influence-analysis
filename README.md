@@ -3,39 +3,39 @@
 1. [Running the Code](#running-the-code)
 2. [Introduction](#introduction)
 3. [Preface](#preface)
-    - [Influence](#influence)
-    - [Demand & Supply Distinction](#demand--supply-distinction)
-    - [Hypothesis](#hypothesis)
+   - [Influence](#influence)
+   - [Demand & Supply Distinction](#demand--supply-distinction)
+   - [Hypothesis](#hypothesis)
 4. [Project Context](#project-context)
-    - [Previous Work](#previous-work)
+   - [Previous Work](#previous-work)
 5. [Contributions](#contributions)
 6. [Further Theory](#further-theory)
-    - [Content](#content)
-    - [Content Clustering](#content-clustering)
-    - [Definitions](#definitions)
-    - [Inferring Causality](#inferring-causality)
+   - [Content](#content)
+   - [Content Clustering](#content-clustering)
+   - [Definitions](#definitions)
+   - [Inferring Causality](#inferring-causality)
 7. [High-Level Code Organization](#high-level-code-organization)
-    - [Content Market](#content-market)
-    - [Content Tweet](#content-tweet)
-    - [Content Market User](#content-market-user)
-    - [Content Market Producer](#content-market-producer)
-    - [Content Market Consumer](#content-market-consumer)
-    - [Content Market Core Node](#content-market-core-node)
-    - [Content Market Clustering](#content-market-clustering)
-    - [Content Market Embedding](#content-market-embedding)
-    - [DAO](#dao)
+   - [Content Market](#content-market)
+   - [Content Tweet](#content-tweet)
+   - [Content Market User](#content-market-user)
+   - [Content Market Producer](#content-market-producer)
+   - [Content Market Consumer](#content-market-consumer)
+   - [Content Market Core Node](#content-market-core-node)
+   - [Content Market Clustering](#content-market-clustering)
+   - [Content Market Embedding](#content-market-embedding)
+   - [DAO](#dao)
 8. [Implementation](#implementation)
-    - [High-Level Diagram](#high-level-diagram)
-    - [Latent Space Embedding](#latent-space-embedding)
-    - [Content Clustering](#content-clustering-1)
-    - [Demand / Supply Functions](#demand--supply-functions)
-    - [Causality](#causality)
-    - [Data Ingestion](#data-ingestion)
-    - [Configurations](#configurations)
+   - [High-Level Diagram](#high-level-diagram)
+   - [Latent Space Embedding](#latent-space-embedding)
+   - [Content Clustering](#content-clustering-1)
+   - [Demand / Supply Functions](#demand--supply-functions)
+   - [Causality](#causality)
+   - [Data Ingestion](#data-ingestion)
+   - [Configurations](#configurations)
 9. [Additional Design Decisions](#additional-design-decisions)
-    - [Producers & Consumers Distinction](#producers--consumers-distinction)
-    - [Defining Supply](#defining-supply)
-    - [Causality Across Content Topics](#causality-across-content-topics)
+   - [Producers & Consumers Distinction](#producers--consumers-distinction)
+   - [Defining Supply](#defining-supply)
+   - [Causality Across Content Topics](#causality-across-content-topics)
 10. [Code Walkthrough](#code-walkthrough)
 11. [Example Results](#example-results)
 
@@ -106,7 +106,7 @@ To be explicit on what we refer to as demand and supply from now onwards, we def
 3. the demand **of** a user: the aggregation of demand from other users on this user's supply (what is demanded of that user)
 4. the supply **to** a user: the aggreation of supplies of their followings (what is supplied to the user)
 
-However, when we say demand and supply, we refer to entities 1 and 2 above (i.e. the demand **from** a user and  the supply **of** a user) unless otherwise noted.
+However, when we say demand and supply, we refer to entities 1 and 2 above (i.e. the demand **from** a user and the supply **of** a user) unless otherwise noted.
 
 Additionally, we have that demand and supplies can also be aggregated to more than one user.
 
@@ -142,17 +142,17 @@ From the raw twitter data scrapped with Twitter's API, the data goes through an 
 
 The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here]() (TODO: relative link to Yanke's report or Anthony's outdated report), but we summarize the key steps here.
 
-Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then analyzes the users followed by 
+Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then analyzes the users followed by
 
 TODO: outline community expansion steps
 
 # Contributions
 
-In order to ease the analysis of twitter data in the context of the our theory background and facilitate the study of the data we have, this project implements the architecture to process a content market. A content market is defined with respect to a specific community and is a concept to represent the abstract means in which the members of this community exchange content for attention. 
+In order to ease the analysis of twitter data in the context of the our theory background and facilitate the study of the data we have, this project implements the architecture to construct a content market. A content market is defined with respect to a specific community and is a concept to represent the abstract means in which the members of this community exchange content for attention.
 
 This content market implementation aims at providing all the functionality needed to analyze the relationships that we are focusing on. For that, it precomputes multiple values of interest and stores them back into a Mongo database for future access.
 
-We also provide scripts to interpret and debug the content market as well as some initial scripts to analyze the data in the context of our research.  
+We also provide scripts to interpret and debug the content market as well as some initial scripts to analyze the data in the context of our research.
 
 # Further Theory
 
@@ -172,7 +172,7 @@ _For example, Cluster 1 could be tweets about sports and cluster 4 could be twee
 
 ## Content Clustering
 
-Unfortunately, our data of tweets is not labeled and we can't precisely outline the boundaries of how wide a content topic ranges from in our embedding space. Ideally, we would partition our embedding space into an $n$-dimensional grid of hyper cubes of size $\delta \in \mathbb{R}$ and call each cube a different topic. 
+Unfortunately, our data of tweets is not labeled and we can't precisely outline the boundaries of how wide a content topic ranges from in our embedding space. Ideally, we would partition our embedding space into an $n$-dimensional grid of hyper cubes of size $\delta \in \mathbb{R}$ and call each cube a different topic.
 
 TODO: picture
 
@@ -283,34 +283,15 @@ In our code, we take a Object-Oriented Approach that is primarily reliant on the
 
 ## Content Market
 
-A content market represents the space in which users of a community exchange content and attention. It is defined with respect to a community and its core node, and is used to manage and perform analysis on said entities.
+A content market represents the space in which users of a community exchange content and attention. It is defined with respect to a community and is used to manage and perform analysis on said entities. The key information in the content market are the [demand and supply curves](#demand--supply-functions) for users in the different [user groups](#user-parititioning). This is the main output of this module, and is written to database.
+
 It holds the following information:
 
 - consumers: the consumers within the community
 - producers: the producers within the community
 - core_node: the core node of the community
-- computed_causations: A mapping of (users1, users2, start_time, end_time) to causations. This is updated as these values are computed on demand.
-
-It provides functions that calculate:
-
-- **Demand** for a given content embedding, set of users and time range. In plain English, demand is the number of retweets this user has posted about a certain topic within this time range.
-
-- **Supply** for a given content embedding, set of users and time range. In plain English, supply is the number of tweets this user has posted about a certain topic within this time range combined with the number of retweets that this user posted and got retweeted by at least one other user that follows them (in this case, the retweet acts as an original tweet).
-
-- **Causation** between any two values of demand or supply given a content embedding.
-
-Values are computed on demand, output to the user, and stored in a `content_market` database. This has two purposes: 1) it allows values to be cached to reduce the time of future queries, and 2) It allows the `content_market` database to act as an output of our project, so that future research can populate certain content markets and then operate additional experiments using these content markets as input.
-
-## Content Tweet
-
-A content tweet object holds data about a tweet with respect to the following information:
-
-- id
-- user_id
-- timestamp: timestamp of tweet
-- text: the text content of the tweet
-- hashtags: the hashtags generated to represent the content of this tweet TODO: tales check this
-- content_vector: the embedding representation of the tweet's content, which is defined as a higher dimensional array in a latent space of content (see details in [Implementation](#implementation)).
+- name: the user-defined name of the market
+- clustering: the [`ContentMarketClustering`](/src/ContentMarket/ContentMarketClustering.py) object, containing information about the tweet to cluster mappings for this community
 
 ## Content Market User
 
@@ -364,6 +345,22 @@ Additionally, it holds functionality to compute the demand and supply (as descri
 - cluster_centers: the n-dimensional centerpoint of each cluster
 - radius: the radius of each cluster
 
+## Content Tweet
+
+A content tweet object holds data about a tweet with respect to the following information:
+
+- id
+- user_id
+- created_at: timestamp of tweet creation
+- text: the text content of the tweet
+- lang: language of the tweet
+- retweet_id: the id of
+- retweet_user_id:
+- quote_id: the id of the original tweet of this is a quote # TODO: double check this
+- quote_user_id: the user_id of the user who created this quote, if it is a quote
+- hashtags: the hashtags generated to represent the content of this tweet TODO: tales check this
+- content_vector: the embedding representation of the tweet's content, as defined [here](#latent-space-embedding)
+
 ## Content Market Embedding
 
 A content market embedding stores information about the embeddings of the tweets in the community. It has the following fields:
@@ -372,11 +369,20 @@ A content market embedding stores information about the embeddings of the tweets
 - embedding_type: the embedding type used to embed the tweets
 - tweet_embeddings: mapping of tweet id to embedding vector
 
+## Content Market Builder
+
+The content market builder is responsible for managing the process of constructing a content market from the given inputs by running the following individual steps:
+
+1. Creating and populating all user objects
+2. Partitioning the users into the different user groups according to the selected partitioning strategy
+3. Computing the clustering from the embedded tweets
+4. Calculating the supply and / or demand curves of each user based on the clustering
+
+The entry point of the module [./src/main.py](/src/main.py) leverages the builder and runs these steps.
+
 ## DAO
 
 The DAO objects acts as an interface with our datastore. This gives us the ability to switch between storage solutions while maintaining a common interface, seperating the database accesses with our high level object definitions. Currently, we have a MongoDB DAO implementation, and recommend using Mongo as the data layer for this app and the overall research project.
-
-TODO: See [Data Ingestion](#data-ingestion) for details on how these databases are populated.
 
 # Implementation
 
@@ -384,9 +390,47 @@ TODO: See [Data Ingestion](#data-ingestion) for details on how these databases a
 
 ![./Influence.drawio.png](./assets/influence_uml.png)
 
+## Project Flow
+
+This module consists of two steps: 1) generating tweet embeddings and cleaned community data , and 2) building the content market. There are two required inputs that must be set up to run either of these steps, a [community](#project-context), and a [config file](#config).
+
+To generate the embeddings and clean the community data, follow the instructions of the embedding-type selected in the config file. By default, we recommend [tweet2vec](./tweet2vec/README.md). This will output the tweet embeddings to the intermediate database specified by the config file.
+
+To run the content market, run [`src/main.py`](/src/main.py) as per the [instructions in src](/src/INSTRUCTIONS.md). This will use the cleaned data and tweet embeddings in the database from the first step to [run each step of the `ContentMarketBuilder`](#content-market-builder) (generate clustering, populate and parition users, calculate demand and supplies), populate and write the content market to database, and output visualizations to provide initial insights into the data.
+
+## Config
+
+This configuration file is used to configure the database and collection names of the inputs and outputs of this module, as well as various parameters which impact the computed data. A default/example config file can be found [here](./config.json).
+
+A config file includes the following fields:
+
+- **num_bins:** An integer representing the number of clusters to partition the tweet embeddings into.
+- **partitioning_strategy:** A string representing the partitioning strategy to use. Currently available options are: `users`. See [user-partitioning](#user-parititioning)
+- **embedding_type:** A string representing the type of tweet embeddings being used. For now, it is set to "tweet2vec".
+- **database:** An object containing information related to the databases used by the application. Since currently only Mongo is supported, the fields within this object include:
+  - **db_type:** A string representing the type of database being used. In this case, it is set to "Mongo".
+  - **connection_url:** A string representing the connection URL to the MongoDB instance.
+  - **community_db_name:** A string representing the name of the database used for storing community information.
+  - **community_info_collection:** A string representing the name of the collection used for storing community expansion information
+  - **user_info_collection:** A string representing the name of the collection used for storing user information.
+  - **original_tweets_collection:** A string representing the name of the collection used for storing original tweets in the communty.
+  - **quotes_of_in_community_collection:** A string representing the name of the collection used for storing quotes from within the community.
+  - **quotes_of_out_community_collection:** A string representing the name of the collection used for storing quotes from outside the community.
+  - **retweets_of_in_community_collection:** A string representing the name of the collection used for storing retweets from within the community.
+  - **retweets_of_out_community_collection:** A string representing the name of the collection used for storing retweets from outside the community.
+  - **content_market_db_name:** A string representing the name of the database used for storing content market data - the output database name.
+  - **clean_original_tweets_collection:** A string representing the name of the collection used for storing clean original tweets.
+  - **clean_replies_collection:** A string representing the name of the collection used for storing clean replies.
+  - **clean_quotes_of_in_community_collection:** A string representing the name of the collection used for storing clean quotes from within the community.
+  - **clean_quotes_of_out_community_collection:** A string representing the name of the collection used for storing clean quotes from outside the community.
+  - **clean_retweets_of_in_community_collection:** A string representing the name of the collection used for storing clean retweets from within the community.
+  - **clean_retweets_of_out_community_collection:**
+    A string representing the name of the collection used for storing clean retweets from outside the community.
+  - **tweet_embeddings_collection:** A string representing the name of the collection used for storing tweet embeddings.
+
 ## Latent Space Embedding
 
-Latent embedding representation of words is ubiquitous in machine learning applications. However, embedding full sentences are much less prominent, let alone embedding tweets. This issue arises from the inherent nature of a tweet that is menat to be a casual string of text in which users often rely on the social context for using abbreviations, hashtags and making typos that cause most word to vector models to struggle for an accurate representation of the data. 
+Latent embedding representation of words is ubiquitous in machine learning applications. However, embedding full sentences are much less prominent, let alone embedding tweets. This issue arises from the inherent nature of a tweet that is menat to be a casual string of text in which users often rely on the social context for using abbreviations, hashtags and making typos that cause most word to vector models to struggle for an accurate representation of the data.
 
 Therefore, for our project we rely on previous literate for latent space embedding of tweets, namely [tweet2vec](https://arxiv.org/abs/1605.03481).
 For starters, this approach assumes that posts with the same hashtags should have embeddings which are close to each other.
@@ -406,61 +450,62 @@ We thus consider trying two further approaches:
 As explained in [Further Theory](#further-theory), our $\delta$-split of the latent space approach for content clustering is insufficient for our purposes. We then considered a few approaches to circunvent this issue.
 
 1. **Modified K-means Clustering**
-    
-    K-means is also a widdely used clustering techique that randomly creates $k$ clusters and iteratively assigns vectors (datapoints) to their closest clustes as well as recenter the clusters until the algorithm converges and every datapoint is assigned to its "best" cluster. More rigorous details on its functionality can be found [here](https://en.wikipedia.org/wiki/K-means_clustering).
 
-    The issue with the original k-means algorithm is that it does not guarantee consistent radius across clusters, which is an assumption we need for our demand and supply analysis. We then implement a modified k-means cluster that performs the following:
+   K-means is also a widdely used clustering techique that randomly creates $k$ clusters and iteratively assigns vectors (datapoints) to their closest clustes as well as recenter the clusters until the algorithm converges and every datapoint is assigned to its "best" cluster. More rigorous details on its functionality can be found [here](https://en.wikipedia.org/wiki/K-means_clustering).
 
-    >1. For a number of clusters k, initialize the cluster centers randomly.
-    >2. Calculate the distance between each vector and each cluster center.
-    >3. For each cluster, calculate the average distance from the cluster center to all the vectors assigned to the cluster.
-    >4. Find the maximum average distance among all the clusters, and set this distance as the desired radius for all the clusters.
-    >5. For each cluster, remove all vectors that are farther than the desired radius from the cluster center.
-    >6. Recalculate the cluster centers as the means of the remaining vectors assigned to each cluster.
-    >7. Repeat steps 2 to 6 until convergence (i.e., until the cluster centers do not change significantly).
+   The issue with the original k-means algorithm is that it does not guarantee consistent radius across clusters, which is an assumption we need for our demand and supply analysis. We then implement a modified k-means cluster that performs the following:
 
-    Notice that this does not guarantee that all datapoints will be assigned to a cluster. However, with a large enough $k$, this is actually a desired behaviour since this serves as filter of noise excluding outlying tweets that are too far from the interest of the community.
+   > 1. For a number of clusters k, initialize the cluster centers randomly.
+   > 2. Calculate the distance between each vector and each cluster center.
+   > 3. For each cluster, calculate the average distance from the cluster center to all the vectors assigned to the cluster.
+   > 4. Find the maximum average distance among all the clusters, and set this distance as the desired radius for all the clusters.
+   > 5. For each cluster, remove all vectors that are farther than the desired radius from the cluster center.
+   > 6. Recalculate the cluster centers as the means of the remaining vectors assigned to each cluster.
+   > 7. Repeat steps 2 to 6 until convergence (i.e., until the cluster centers do not change significantly).
+
+   Notice that this does not guarantee that all datapoints will be assigned to a cluster. However, with a large enough $k$, this is actually a desired behaviour since this serves as filter of noise excluding outlying tweets that are too far from the interest of the community.
 
 2. **Recursive K-means**
 
-    A possible issue with the previous algorithm is when the data has varying sizes of clusters:
+   A possible issue with the previous algorithm is when the data has varying sizes of clusters:
 
-    <p align="center">
-        <img src="assets/kmeans_big_small.png"  width=50% height=50%>
-    </p>
+   <p align="center">
+       <img src="assets/kmeans_big_small.png"  width=50% height=50%>
+   </p>
 
-    For example, if red is the topic of sports and blue is AI, our modifed k-means would not split the clusters into topics their major topics, but it would likely instead split the sports cluster into soccer, basketball and football. This inconsistency across topic sizes could add bias to the data.
+   For example, if red is the topic of sports and blue is AI, our modifed k-means would not split the clusters into topics their major topics, but it would likely instead split the sports cluster into soccer, basketball and football. This inconsistency across topic sizes could add bias to the data.
 
-    We then discuss another approach that entails start from the [original k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering) algorithm to identify high-level topics and then analyze each topic individually by performing the modifed k-means clustering of fixed radius individually for each topic to identify sub-topics. 
+   We then discuss another approach that entails start from the [original k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering) algorithm to identify high-level topics and then analyze each topic individually by performing the modifed k-means clustering of fixed radius individually for each topic to identify sub-topics.
 
 3. **Principal Component Analysis**
 
-    The inherit issue with our initial $\delta$-split was the increase in dimensionality of latent embedding algorithms. What if we somehow project the embedding down to lower dimensions? That is exactly what we try to do with Principal Component Analysis (PCA). Again, a rigourous explanation can be found [here](https://en.wikipedia.org/wiki/Principal_component_analysis) and an intuitive video can be found in [this article](https://builtin.com/data-science/step-step-explanation-principal-component-analysis), but the idea behind this algorithm is to reduce the dimensionality of the data "inteligently" so as to preserve as much information about the data as possible. It is inherent that some information will be lost as a consequence of projecting vectors to lower dimensions, however, PCA takes the desired number of dimensions $d$ and identifies the "best" $d$ basis vectors to project the given data so as to lose the fewest amount of information. 
+   The inherit issue with our initial $\delta$-split was the increase in dimensionality of latent embedding algorithms. What if we somehow project the embedding down to lower dimensions? That is exactly what we try to do with Principal Component Analysis (PCA). Again, a rigourous explanation can be found [here](https://en.wikipedia.org/wiki/Principal_component_analysis) and an intuitive video can be found in [this article](https://builtin.com/data-science/step-step-explanation-principal-component-analysis), but the idea behind this algorithm is to reduce the dimensionality of the data "inteligently" so as to preserve as much information about the data as possible. It is inherent that some information will be lost as a consequence of projecting vectors to lower dimensions, however, PCA takes the desired number of dimensions $d$ and identifies the "best" $d$ basis vectors to project the given data so as to lose the fewest amount of information.
 
-    From a lower dimensional dataset, we can more efficiently perform a $\delta$-split, or even visually the data directly in 1D, 2D or 3D projections.
+   From a lower dimensional dataset, we can more efficiently perform a $\delta$-split, or even visually the data directly in 1D, 2D or 3D projections.
 
-    The following is a $\delta$-split of a one-dimensional embedding space: 
+   The following is a $\delta$-split of a one-dimensional embedding space:
 
-    <p align="center">
-        <img src="assets/PCA_histogram.png"  width=50% height=50%>
-    </p>
+   <p align="center">
+       <img src="assets/PCA_histogram.png"  width=50% height=50%>
+   </p>
 
-    Or we can visualize the latent space in 2D:
+   Or we can visualize the latent space in 2D:
 
-    <p align="center">
-        <img src="assets/PCA_scatter.png"  width=50% height=50%>
-    </p>
+   <p align="center">
+       <img src="assets/PCA_scatter.png"  width=50% height=50%>
+   </p>
 
 ## Demand / Supply Functions
 
-The supply and demand functions are represented as a hashtable that maps a tuple of size n to its respective quantity of demand/supply, where n is the dimension of the latent space.
-An n-tuple corresponds to a 'bin' or space in $R^n$, which are equal in size and aligned on non-overlapping intervals (for example, bin 1 may be a hypercube of size 1 centered at the zero vector, bin 2 a hypercube of size 1 centered at the $\vec{1}$, and so on until all tweets are encompassed within a hypercube).
-We have a utility function which maps a given content vector to key / n-tuple that corresponds to the bin containing the vector. The support of the function is the keys in the hashtable, as only bins with non-zero demand or supply are keys.
+The supply and demand functions of a user are represented as hashtables that maps cluster ids to lists of tweet (includes tweets, retweets, quotes, and replies) ids. The demand or supply in a given cluster is the length of the corresponding tweet ids list. These can be easily aggregated by cluster across different users/user groups.
 
-### Storing Tweets
+## User Parititioning
 
-In order to retrieve demand and supply information more efficiently, we store tweets in the User class (for the fields <tweets>, <retweetsand <retweets in community>) in an n-tuple dictonary explained above for each of the three fields.
-This allows any algorithm traversing tweet data to only consider the tweets that are within the boundaries of the content interval we defined for any given content while also allowing for iterating over the entire dictionary if needed.
+As stated above, there are types of users: core nodes, producers, and consumers. Note that users can be both producers and consumers.
+
+The partitioning strategy is implemented using a strategy pattern [here](/src/user_partitioning/). One can select which strategy to use by specifying the name of the strategy (as shown below) in the `partitioning_strategy` field of the config file. The currently existing strategies are:
+
+- `'users'`: every non-core node user is both a producer and consumer
 
 ## Causality
 
@@ -491,21 +536,7 @@ The required input to build a content market is a community.
 
 The output is a content market database, where the core nodes, consumers, and producers are written out as collections. Note that these contain all information about their tweet actions (their original tweets, retweets in community, etc), as well as their computed supplies and / or demands.
 
-## Configurations
-
-To run main.py, the path to a json config file must be passed in. This file must contain the following information:
-
-TODO: chatgpt description of config here
-
 # Additional Design Decisions
-
-## Producers & Consumers Distinction
-
-We had the decision on how to define Producers and Consumers. We considered treating a user as 1) both a producer and consumer 2) either a producer or consumer or 3) exclusively a producer or consumer.
-
-The latter two cases would require us to enforce metrics that would segregate users into one of the two cateogries. We considered options such as 1) looking at the ratio between a user's supply and demand 2) looking at the absolute supply and demand of a user relative to the rest of the community.
-
-We ended up going with option 1, treating users as both, because it allowed us to not impose any assumptions on the data. We found it too arbitrary to attempt to qualify someone as a producer or consumer at this stage. It also means we consider all content and demand in our calculations - while this could be a positive or a negative in terms of representing the model accurately, we do not have strong enough evidence that filtering out data is beneficial so we would rather have all of it.
 
 ## Defining Supply
 
