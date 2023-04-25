@@ -4,6 +4,7 @@ import json
 
 DATA_PATH = "../results/"
 
+# TODO: change to database DAO
 with open(DATA_PATH + "tweet2vec_embeddings.json") as f:
     embeddings = json.load(f)
 

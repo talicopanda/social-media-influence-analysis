@@ -7,6 +7,7 @@ from ContentMarket.ContentMarketSupportEntry import ContentMarketSupportEntry
 DATA_PATH = "../results/"
 num_clusters = 20
 
+# TODO: change to database DAO
 # open(DATA_PATH + "tweet2vec_text.json") as f3:
 with open(DATA_PATH + "tweet2vec_embeddings.json") as f1, open(DATA_PATH + "tweet2vec_hashtags.json") as f2:
     embeddings = json.load(f1)

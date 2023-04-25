@@ -44,10 +44,10 @@ def build_content_market(content_market_name, config, load = False):
 
     clustering = 0
     if load:
+        clustering = pickle.load(open("clusters.pkl", "rb"))
+    else:
         clustering = builder.compute_bins()
         pickle.dump(clustering, open("clusters.pkl", "wb"))
-    else:
-        clustering = pickle.load(open("clusters.pkl", "rb"))
 
     print("Computing supplies...")
 
