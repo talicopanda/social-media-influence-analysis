@@ -40,8 +40,6 @@
 
 # Running the Code
 
-<!-- TODO: flow diagram here -->
-
 This project consists of two components to run:
 
 1.  Generating tweet embeddings and clean community data
@@ -148,6 +146,10 @@ More broadly, the project has the following structure:
   <img src="assets/project_flow_diagram.png"  width=50% height=50%>
 </p>
 
+<p align="center">
+  <img src="assets/flow.png"  width=50% height=50%>
+</p>
+
 ## Previous Work
 
 From the raw twitter data scrapped with Twitter's API, the data goes through an initial processing analysis for community detection that is a outside the scope of this project. For the sake of context and full understanding, however, it is worth mentioning here.
@@ -155,9 +157,10 @@ From the raw twitter data scrapped with Twitter's API, the data goes through an 
 The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here](./assets/Final_Report_Anthony.pdf), but we summarize the key steps intuitvely here.
 
 Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then:
- 1. Analyzes the users that follow/are followed by our current candidates and calculates a number related to how much they "belong to that community" based on their community influence.
- 2. For any user that have a score above the given threshold, add them to the community candidate set. Recurse on steps 1 and 2 until the algorithm converges and no new candidates can be added to the community (i.e. no new users pass the threshold).
- 3. The candidate set in this last iteration is the final community of interest.
+
+1.  Analyzes the users that follow/are followed by our current candidates and calculates a number related to how much they "belong to that community" based on their community influence.
+2.  For any user that have a score above the given threshold, add them to the community candidate set. Recurse on steps 1 and 2 until the algorithm converges and no new candidates can be added to the community (i.e. no new users pass the threshold).
+3.  The candidate set in this last iteration is the final community of interest.
 
 # Contributions
 
