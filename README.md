@@ -32,7 +32,6 @@
    - [Demand / Supply Functions](#demand--supply-functions)
    - [Visualizations](#visualizations)
 8. [Further Discussion](#further-discussion)
-   - [Producers & Consumers Distinction](#producers--consumers-distinction)
    - [Defining Supply](#defining-supply)
    - [Causality Across Content Topics](#causality-across-content-topics)
    - [Creating Time Series](#creating-time-series)
