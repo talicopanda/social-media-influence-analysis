@@ -188,7 +188,7 @@ _For example, Cluster 1 could be tweets about sports and cluster 4 could be twee
 Unfortunately, our data of tweets is not labeled and we can't precisely outline the boundaries of how wide a content topic ranges from in our embedding space. Ideally, we would partition our embedding space into an $n$-dimensional grid of hyper cubes of size $\delta \in \mathbb{R}$ and call each cube a different topic.
 
 <p align="center">
-  <img src="assets/delta-split.png"  width=50% height=50%>
+  <img src="assets/delta-split.png"  width=55% height=55%>
 </p>
 
 This is okay in a 2D latent embedding space like the one in the picture since the number of cubes (or squares, in this case) grows quadratically with the length of the embedding space. However, most embedding algorithms embedd in high dimensional spaces that could exceed 500 dimensions. This causes our number of hyper cubes (i.e. number of topics considered) to increase unreasonably for any feasable data analysis.
