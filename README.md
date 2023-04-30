@@ -153,7 +153,7 @@ More broadly, the project has the following structure:
 
 From the raw twitter data scrapped with Twitter's API, the data goes through an initial processing analysis for community detection that is a outside the scope of this project. For the sake of context and full understanding, however, it is worth mentioning here.
 
-The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here](./assets/Final_Report_Anthony.pdf), but we summarize the key steps intuitvely here.
+The community detection/expansion algorithm leverages [SNACES](https://github.com/SNACES/core) (a Python library for downloading and analyze Twitter data) to search for and download a community of choice. The full details of this process are explained [here](./assets/Final_Report_Yanke.pdf) (and you might want to read [this](./assets/Final_Report_Anthony.pdf) before for some context), but we summarize the key steps intuitvely here.
 
 Let's say we are interested in analyzing the AI community. We begin by manually selecting an initial set of users of which we know for a fact are in this community. For the sake of our example, we select Geoffrey Hinton, Yoshua Bengio and Yann LeCun for their Turing Award winning work in the foundation of modern AI. Our algorithm then:
 
