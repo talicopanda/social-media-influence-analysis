@@ -214,7 +214,7 @@ For a user $u \in U$ and time period $T$, we define the demand function $D_{u, T
 
 $$D_{u, T}(c) = |\mathcal{R}_{u, T}[c' \in S: ||c' - c|| < R]|$$
 
-For a $R \in \mathbb{R}$
+For a $R \in \mathbb{R}^n$
 
 **INFLUENCER DEMAND**
 
