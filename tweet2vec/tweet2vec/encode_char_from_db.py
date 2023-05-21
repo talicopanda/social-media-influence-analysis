@@ -47,11 +47,11 @@ def main(args):
 
         collections = [config["database"]["clean_replies_collection"],
             config["database"]["clean_original_tweets_collection"],
-            config["database"]["clean_quotes_of_in_community_collection"], 
-            config["database"]["clean_quotes_of_out_community_collection"], 
-            config["database"]["clean_retweets_of_in_community_collection"], 
+            config["database"]["clean_quotes_of_in_community_collection"],
+            config["database"]["clean_quotes_of_out_community_collection"],
+            config["database"]["clean_retweets_of_in_community_collection"],
             config["database"]["clean_retweets_of_out_community_collection"]]
-        
+
         for collec in collections:
             print("Preparing " + collec + " data...")
             # Test data
@@ -67,9 +67,9 @@ def main(args):
             params = load_params('%s/best_model.npz' % model_path)
 
             print("Loading dictionaries...")
-            with open('%s/dict.pkl' % model_path, 'rb') as f:
+            with open('%s/dict2.pkl' % model_path, 'rb') as f:
                 chardict = pkl.load(f)
-            with open('%s/label_dict.pkl' % model_path, 'rb') as f:
+            with open('%s/label_dict2.pkl' % model_path, 'rb') as f:
                 labeldict = pkl.load(f)
             n_char = len(chardict.keys()) + 1
             n_classes = min(len(labeldict.keys()) + 1, MAX_CLASSES)
@@ -121,7 +121,7 @@ def main(args):
 
             assert(len(out_emb) == len(out_pred) == len(Xt) == len(ids))
 
-            tweet_embeddings_collection = config["database"]["tweet_embeddings"]
+            tweet_embeddings_collection = config["database"]["tweet_embeddings_collection"]
             for i in range(len(ids)):
                 db_content_market[tweet_embeddings_collection].insert_one({"id": ids[i], "embedding": list(out_emb[i]), "hashtags": out_pred[i].split(" ")})
 

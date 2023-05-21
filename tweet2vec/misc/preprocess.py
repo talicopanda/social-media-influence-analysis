@@ -53,7 +53,7 @@ with io.open(db_config, 'r') as config_file:
 
     community_db_name = config["database"]["community_db_name"]
     content_market_db_name = config["database"]["content_market_db_name"]
-    
+
     tweets_collection_name = config["database"]["original_tweets_collection"]
 
     client = pymongo.MongoClient()
@@ -78,15 +78,15 @@ with io.open(db_config, 'r') as config_file:
 
         # separate replies
         if "@user" == new_text[:5]:
-            db_content_market[clean_tweets_collection_name].insert_one(new_tweet)
-        else:
             db_content_market[clean_replies_collection_name].insert_one(new_tweet)
+        else:
+            db_content_market[clean_tweets_collection_name].insert_one(new_tweet)
 
-    collections = [(config["database"]["quotes_of_in_community_collection"], config["database"]["clean_quotes_of_in_community_collection"]), 
-        (config["database"]["quotes_of_out_community_collection"], config["database"]["clean_quotes_of_out_community_collection"]), 
-        (config["database"]["retweets_of_in_community_collection"], config["database"]["clean_retweets_of_in_community_collection"]), 
+    collections = [(config["database"]["quotes_of_in_community_collection"], config["database"]["clean_quotes_of_in_community_collection"]),
+        (config["database"]["quotes_of_out_community_collection"], config["database"]["clean_quotes_of_out_community_collection"]),
+        (config["database"]["retweets_of_in_community_collection"], config["database"]["clean_retweets_of_in_community_collection"]),
         (config["database"]["retweets_of_out_community_collection"], config["database"]["clean_retweets_of_out_community_collection"])]
-    
+
     for collec in collections:
         for tweet in db_community[collec[0]].find():
             new_text = preprocess(tweet["text"])

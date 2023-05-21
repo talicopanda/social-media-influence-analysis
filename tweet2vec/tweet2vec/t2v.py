@@ -93,14 +93,14 @@ def tweet2vec(tweet,mask,params,n_chars):
     l_c2w_source = lasagne.layers.ElemwiseSumLayer([l_fdense_source, l_bdense_source], coeffs=1)
 
     return l_c2w_source
-    
+
 def load_params(path):
     """
     Load previously saved model
     """
     params = OrderedDict()
 
-    with open(path,'r') as f:
+    with open(path,'rb') as f:
         npzfile = np.load(f)
         for kk, vv in npzfile.iteritems():
             params[kk] = vv
@@ -182,7 +182,7 @@ def word2seq(l_in_source,l_mask,params,prefix):
     l_w2s_source = lasagne.layers.ElemwiseSumLayer([l_fdense_source, l_bdense_source], coeffs=1, name='w2s_final')
 
     return lasagne.layers.get_output(l_w2s_source), l_w2s_source
-    
+
 def char2word(seqs,mask,params,prefix,n_char):
     '''
     Word embeddings by composing characters
@@ -222,7 +222,7 @@ def char2word(seqs,mask,params,prefix,n_char):
     l_c2w_source = lasagne.layers.ElemwiseSumLayer([l_fdense_source, l_bdense_source], coeffs=1, name='c2w_final')
 
     return lasagne.layers.get_output(l_c2w_source), l_c2w_source
-    
+
 def init_params_c2w2s(n_chars):
     '''
     Initialize all params for hierarchical GRU

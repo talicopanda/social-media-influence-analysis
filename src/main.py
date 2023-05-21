@@ -15,12 +15,12 @@ sys.path.append("user_partitioning")
 def build_content_market(content_market_name, config, load = False):
     if config['database']['db_type'] != "Mongo":
         raise Exception("Unsupported database type")
-    
+
     # check if a content market database with the given name already exists
     database_names = pymongo.MongoClient(config['database']['connection_url']).list_database_names()
     if content_market_name in database_names != -1:
         raise Exception("a content market with this name already exists in the database. Either drop this database or choose a different name")
-    
+
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
     partitioning_strategy = UserPartitioningStrategyFactory.get_user_type_strategy(
         config['partitioning_strategy'])
@@ -72,6 +72,7 @@ def build_content_market(content_market_name, config, load = False):
 
 if __name__ == '__main__':
     args = sys.argv[1:]
+    args = ["live_chess_content_market", "../config.json"]
     content_market_name = args[0]
     config_file_path = args[1]
 
@@ -81,10 +82,10 @@ if __name__ == '__main__':
 
     print("Building content market...")
 
-    build_content_market(content_market_name, config, load=True)
+    build_content_market(content_market_name, config, load=False)
 
     print("Generating data plots...")
-    
+
     save_plots(content_market_name, "core_nodes", "in_community", config["num_bins"])
     save_plots(content_market_name, "producers", "in_community", config["num_bins"])
     save_plots(content_market_name, "consumers", "in_community", config["num_bins"])
@@ -97,10 +98,12 @@ if __name__ == '__main__':
 
     pca(content_market_name, config, "in_community", num_dims=2)
     pca(content_market_name, config, "out_of_community", num_dims=2)
+    pca(content_market_name, config, "in_community", num_dims=1)
+    pca(content_market_name, config, "out_of_community", num_dims=1)
 
     print("Interpreting cluster meanings...")
 
     print_cluster_contents(content_market_name, config)
 
-    
-    
+
+

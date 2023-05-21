@@ -60,14 +60,14 @@ def print_cluster_contents(content_market_name, config, verbose=False):
 
     for tweet in db_community[config["database"]["tweet_embeddings_collection"]].find({}, { "id": 1, "hashtags": 1, "_id": 0 }):
         hashtags = tweet["hashtags"]
-        cluster_id = tweet_to_cluster[str(tweet["id"])]
+        cluster_id = tweet_to_cluster["tweet_to_cluster"][str(tweet["id"])]
         for hashtag in hashtags:
             if hashtag in ids_to_hashtag_count[cluster_id]:
                 ids_to_hashtag_count[cluster_id][hashtag] += 1
             else:
                 ids_to_hashtag_count[cluster_id][hashtag] = 0
             if verbose and cluster_id != -1 and i % 100 == 0:
-                for collec in ["clean_original_tweets_collection", 
+                for collec in ["clean_original_tweets_collection",
                     "clean_replies_collection",
                     "clean_quotes_of_in_community_collection",
                     "clean_quotes_of_out_community_collection",
@@ -77,7 +77,7 @@ def print_cluster_contents(content_market_name, config, verbose=False):
                         example_tweets[cluster_id].append(t["text"])
 
     del ids_to_hashtag_count[-1]
-    
+
 
     for key, val in ids_to_hashtag_count.items():
         print(f"=== Cluster {key} ({sum(val.values())} total hashtags) ===")
@@ -138,11 +138,11 @@ def pca(content_market_name, config, community_type, num_dims=2):
 
     if num_dims == 1:
         one_dim = pca.components_[0]
-        plt.hist(one_dim, density=False, bins=100) 
+        plt.hist(one_dim, density=False, bins=100)
         plt.ylabel('Frequency')
         plt.xlabel('Content Space')
         plt.savefig(f'../results/PCA_histogram')
-        
+
     if num_dims == 2:
         plt.scatter(pca.components_[0][user_supply_tweet_ids], pca.components_[1][user_supply_tweet_ids], color="red", marker="o", alpha=0.05, label="producer supply")
         plt.scatter(pca.components_[0][user_demand_tweet_ids], pca.components_[1][user_demand_tweet_ids], color="blue", marker="o", alpha=0.05, label="consumer demand")
@@ -151,5 +151,5 @@ def pca(content_market_name, config, community_type, num_dims=2):
         plt.title('PCA plot for ' + community_type)
         plt.legend()
         plt.savefig(f'../results/PCA_scatter_' + community_type)
-    
+
     plt.clf()
