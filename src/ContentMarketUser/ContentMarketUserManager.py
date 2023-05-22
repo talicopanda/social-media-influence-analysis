@@ -2,7 +2,7 @@ from ContentMarketUser import ContentMarketUser
 from ContentMarketConsumer import ContentMarketConsumer
 from ContentMarketProducer import ContentMarketProducer
 from ContentMarketCoreNode import ContentMarketCoreNode
-from user_partitioning.UsersStrategy import UsersStrategy
+from UserPartitioning.UsersStrategy import UsersStrategy
 from UserType import UserType
 
 from typing import Set, List
