@@ -13,14 +13,18 @@ sys.path.append("user_partitioning")
 
 
 def build_content_market(content_market_name, config, load = False):
+    # Pre check
     if config['database']['db_type'] != "Mongo":
         raise Exception("Unsupported database type")
 
     # check if a content market database with the given name already exists
     database_names = pymongo.MongoClient(config['database']['connection_url']).list_database_names()
     if content_market_name in database_names != -1:
-        raise Exception("a content market with this name already exists in the database. Either drop this database or choose a different name")
+        raise Exception("a content market with this name already exists "
+                        "in the database. Either drop this database "
+                        "or choose a different name")
 
+    # Start Building
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
     partitioning_strategy = UserPartitioningStrategyFactory.get_user_type_strategy(
         config['partitioning_strategy'])
@@ -72,7 +76,7 @@ def build_content_market(content_market_name, config, load = False):
 
 if __name__ == '__main__':
     args = sys.argv[1:]
-    args = ["live_chess_content_market", "../config.json"]
+    args = ["new_chess_content_market", "../config.json"]
     content_market_name = args[0]
     config_file_path = args[1]
 

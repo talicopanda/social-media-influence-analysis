@@ -1,6 +1,3 @@
-import sys
-sys.path.append("./user_partitioning")
-from typing import List, Tuple, Dict
 from ContentMarketUser.ContentMarketProducer import ContentMarketProducer
 from ContentMarketUser.ContentMarketConsumer import ContentMarketConsumer
 from ContentMarketUser.ContentMarketUser import ContentMarketUser
@@ -10,12 +7,19 @@ from ContentMarketUser.ContentMarketCoreNode import ContentMarketCoreNode
 from ContentMarket.ContentMarketClustering import ContentMarketClustering
 from ContentMarket.ContentTweet import ContentTweet
 from kmeans import kmer
+
+from typing import List, Tuple, Dict
 import numpy as np
+import sys
+
+sys.path.append("./user_partitioning")
+
 
 class ContentMarketBuilder:
     bin_size: int
     user_partitioning_strategy: UserPartitioningStrategy
     embedding_type: EmbeddingType
+
     # TODO: time_frame
 
     def __init__(self, dao, partitioning_strategy, num_bins, embedding_type):
@@ -25,7 +29,8 @@ class ContentMarketBuilder:
         self.embedding_type = embedding_type
 
     # load and populate each user
-    def build_users(self) -> List[ContentMarketUser]:
+    # TODO: possibly return wrong type
+    def build_users(self) -> Dict[int, ContentMarketUser]:
         users = {}
         for user in self.dao.load_community_users():
             # TODO: remove once naming is adjusted is given data
@@ -58,32 +63,40 @@ class ContentMarketBuilder:
         for quote_in_community in self.dao.load_quotes_of_in_community():
             del quote_in_community["_id"]
             tweet = ContentTweet(**quote_in_community)
-            users[float(quote_in_community["user_id"])].quotes_of_in_community.append(tweet)
+            users[float(
+                quote_in_community["user_id"])].quotes_of_in_community.append(
+                tweet)
 
         for quote_out_of_community in self.dao.load_quotes_of_out_community():
             del quote_out_of_community["_id"]
             tweet = ContentTweet(**quote_out_of_community)
-            users[float(quote_out_of_community["quote_user_id"])].quotes_of_out_community.append(tweet)
+            users[float(quote_out_of_community[
+                            "quote_user_id"])].quotes_of_out_community.append(
+                tweet)
 
         for retweet_in_community in self.dao.load_retweets_of_in_community():
             del retweet_in_community["_id"]
             tweet = ContentTweet(**retweet_in_community)
-            users[float(retweet_in_community["user_id"])].retweets_of_in_community.append(tweet)
+            users[float(retweet_in_community[
+                            "user_id"])].retweets_of_in_community.append(tweet)
 
         for retweet_of_out_community in self.dao.load_retweets_of_out_community():
             del retweet_of_out_community["_id"]
             tweet = ContentTweet(**retweet_of_out_community)
-            users[float(retweet_of_out_community["retweet_user_id"])].retweets_of_out_community.append(tweet)
-
+            users[float(retweet_of_out_community[
+                            "retweet_user_id"])].retweets_of_out_community.append(
+                tweet)
 
     # partition the users in the community to producers, consumer, and core nodes.
     # note that producers and consumers are not mutually exclusive
-    def partition_users(self, users) -> Tuple[List[ContentMarketProducer], List[ContentMarketConsumer], List[ContentMarketCoreNode]]:
+    def partition_users(self, users) -> Tuple[
+        List[ContentMarketProducer], List[ContentMarketConsumer], List[
+            ContentMarketCoreNode]]:
         producers = []
         consumers = []
         core_nodes = []
         for user in users:
-            if user.rank < 10: # 10 top users are core nodes
+            if user.rank < 10:  # 10 top users are core nodes
                 core_node = ContentMarketCoreNode(**vars(user))
                 core_nodes.append(core_node)
             else:
@@ -96,13 +109,15 @@ class ContentMarketBuilder:
 
         return (producers, consumers, core_nodes)
 
-    def compute_producer_consumer_split(self) -> Tuple[List[ContentMarketProducer], List[ContentMarketConsumer]]:
+    def compute_producer_consumer_split(self) -> Tuple[
+        List[ContentMarketProducer], List[ContentMarketConsumer]]:
         producers = []
         consumers = []
         for user in self.dao.load_users():
             if self.user_partitioning_strategy.is_producer(user):
                 new_prod = ContentMarketProducer(
-                    user['user_id'], self.dao, user['tweets'], user['retweets_in_community'])
+                    user['user_id'], self.dao, user['tweets'],
+                    user['retweets_in_community'])
                 producers.append(new_prod)
             if self.user_partitioning_strategy.is_consumer(user):
                 new_consumer = ContentMarketConsumer(
@@ -120,7 +135,7 @@ class ContentMarketBuilder:
 
         ids = list(embeddings.keys())
 
-        assert(len(data) == len(ids) == len(clusters))
+        assert (len(data) == len(ids) == len(clusters))
 
         tweet_to_cluster = {}
         for i in range(len(ids)):
@@ -131,8 +146,8 @@ class ContentMarketBuilder:
         for i in range(len(centers)):
             cluster_centers[str(i)] = centers[i].tolist()
 
-        return ContentMarketClustering(tweet_to_cluster, cluster_centers, radius)
-
+        return ContentMarketClustering(tweet_to_cluster, cluster_centers,
+                                       radius)
 
 # support = {}
 #        for i in range(len(ids)):

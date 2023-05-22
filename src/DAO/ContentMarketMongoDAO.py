@@ -28,7 +28,6 @@ class ContentMarketMongoDAO(ContentMarketDAO):
     community_db: any
     content_market_db: any
 
-
     def __init__(self, db_type, connection_url, community_db_name, community_info_collection, user_info_collection,
                  original_tweets_collection, quotes_of_in_community_collection, quotes_of_out_community_collection,
                  retweets_of_in_community_collection, retweets_of_out_community_collection, content_market_db_name,
@@ -79,23 +78,24 @@ class ContentMarketMongoDAO(ContentMarketDAO):
         return embeddings
 
     def load_users(self) -> List[ContentMarketUser]:
+        print("This function is never used")
         users = self.db[self.content_market_users_collection_name].find()
         return users
 
-    def load_original_tweets(self) -> List[str]:
+    def load_original_tweets(self) -> pymongo.cursor.Cursor:
         tweets = self.content_market_db[self.clean_original_tweets_collection].find()
         return tweets
 
-    def load_quotes_of_in_community(self) -> List[str]:
+    def load_quotes_of_in_community(self) -> pymongo.cursor.Cursor:
         return self.content_market_db[self.clean_quotes_of_in_community_collection].find()
 
-    def load_quotes_of_out_community(self) -> List[str]:
+    def load_quotes_of_out_community(self) -> pymongo.cursor.Cursor:
         return self.content_market_db[self.clean_quotes_of_out_community_collection].find()
 
-    def load_retweets_of_in_community(self) -> List[str]:
+    def load_retweets_of_in_community(self) -> pymongo.cursor.Cursor:
         return self.content_market_db[self.clean_retweets_of_in_community_collection].find()
 
-    def load_retweets_of_out_community(self) -> List[str]:
+    def load_retweets_of_out_community(self) -> pymongo.cursor.Cursor:
         return self.content_market_db[self.clean_retweets_of_out_community_collection].find()
 
     def load_content_market(self, content_market_name):
@@ -104,7 +104,8 @@ class ContentMarketMongoDAO(ContentMarketDAO):
     def write_content_market(self, content_market: ContentMarket):
         cm_dict = vars(content_market)
 
-        # in case a user is both a producer and consumer, we can't convert the object twice
+        # in case a user is both a producer and consumer,
+        # we can't convert the object twice
         converted_users = set()
 
         # convert nest objects into dictionaries to write out as json to mongo

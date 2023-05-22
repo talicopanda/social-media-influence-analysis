@@ -3,6 +3,7 @@ from collections import defaultdict
 from ContentMarketUser.ContentMarketUser import ContentMarketUser
 from ContentMarket.ContentMarketClustering import ContentMarketClustering
 
+
 class ContentMarketCoreNode(ContentMarketUser):
     demand_in_community: DefaultDict[int, List[int]]
     demand_out_of_community: DefaultDict[int, List[int]]

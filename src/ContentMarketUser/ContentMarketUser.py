@@ -3,6 +3,7 @@ from collections import defaultdict
 from ContentMarket.ContentMarketTweet import ContentMarketTweet
 from ContentMarket.ContentMarketClustering import ContentMarketClustering
 
+
 class ContentMarketUser:
     """
     A class that represents a twitter user in a content market
