@@ -1,0 +1,45 @@
+from abc import ABC, abstractmethod
+from ContentType import ContentType
+from Clustering.ContentMarketClustering import ContentMarketClustering
+from typing import Set, Any
+
+
+class ContentSpace(ABC):
+    # Attributes
+    content_space: Set[ContentType]
+    clustering: ContentMarketClustering
+
+    def create_content_space(self, clustering: ContentMarketClustering) -> None:
+        """Set value for <content_space> and <clustering>. If the clustering is
+        not valid, i.e. it's ContentType contains duplicate representation, then
+        there will raise Exception.
+        """
+        repr_list = []
+        for content_type in clustering.get_all_content_type():
+            if content_type.get_representation() not in repr_list:
+                self.content_space.add(content_type)
+            else:
+                self.content_space.clear()
+                raise Exception("Duplicate Representation in Content Type")
+        self.clustering = clustering
+
+    @abstractmethod
+    def get_content_type(self, tweet_id: int) -> ContentType:
+        return self.clustering.get_content_type(tweet_id)
+
+    def set_content_type(self, tweet_id, representation: Any) -> None:
+        """Change the belonging of the Tweet with <tweet_id> to ContentType
+        with <representation>.
+        """
+        for content_type in self.content_space:
+            # Caution: if == does not work for some Objects,
+            # so better to use primitive types as representation
+            if content_type.get_representation() == representation:
+                self.clustering.set_content_type(tweet_id, content_type)
+                return
+
+    def set_group_content_type(self, tweet_id, new_representation: Any) -> None:
+        """Change the ContentType's representation for all Tweets which belongs
+        to the same ContentType as <tweet_id>.
+        """
+        self.get_content_type(tweet_id).set_representation(new_representation)
