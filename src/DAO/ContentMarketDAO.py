@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from ContentMarket.ContentMarketUser import ContentMarketUser
-from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
-from typing import List, Tuple
+from ContentMarketUser.ContentMarketUser import ContentMarketUser
+from typing import List
 
 
 class ContentMarketDAO(ABC):

@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import DefaultDict, List
 from collections import defaultdict
-from ContentMarket.ContentMarketUser import ContentMarketUser
-from ContentMarket.ContentMarketEmbedding import ContentMarketEmbedding
+from ContentMarketUser.ContentMarketUser import ContentMarketUser
 from ContentMarket.ContentMarketClustering import ContentMarketClustering
 
 

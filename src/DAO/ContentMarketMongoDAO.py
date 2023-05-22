@@ -1,6 +1,5 @@
 from DAO.ContentMarketDAO import ContentMarketDAO
-from ContentMarket.ContentMarketUser import ContentMarketUser
-from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
+from ContentMarketUser.ContentMarketUser import ContentMarketUser
 from ContentMarket.ContentMarket import ContentMarket
 from typing import List
 import pymongo
@@ -126,7 +125,7 @@ class ContentMarketMongoDAO(ContentMarketDAO):
             cm_dict["consumers"][i] = vars(cm_dict["consumers"][i])
             converted_users.add(cm_dict["consumers"][i]["user_id"])
             serialize_user_fields("consumers")
-            
+
 
         for i in range(len(cm_dict["producers"])):
             cm_dict["producers"][i] = vars(cm_dict["producers"][i])

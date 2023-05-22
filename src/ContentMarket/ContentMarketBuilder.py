@@ -1,13 +1,12 @@
-from typing import List, Tuple, Dict
 import sys
 sys.path.append("./user_partitioning")
 from typing import List, Tuple, Dict
-from ContentMarket.ContentMarketProducer import ContentMarketProducer
-from ContentMarket.ContentMarketConsumer import ContentMarketConsumer
-from ContentMarket.ContentMarketUser import ContentMarketUser
+from ContentMarketUser.ContentMarketProducer import ContentMarketProducer
+from ContentMarketUser.ContentMarketConsumer import ContentMarketConsumer
+from ContentMarketUser.ContentMarketUser import ContentMarketUser
 from user_partitioning.UserPartitioningStrategy import UserPartitioningStrategy
 from ContentMarket.ContentMarketEmbedding import EmbeddingType
-from ContentMarket.ContentMarketCoreNode import ContentMarketCoreNode
+from ContentMarketUser.ContentMarketCoreNode import ContentMarketCoreNode
 from ContentMarket.ContentMarketClustering import ContentMarketClustering
 from ContentMarket.ContentTweet import ContentTweet
 from kmeans import kmer
