@@ -16,15 +16,19 @@ class ContentSpace(ABC):
         """
         repr_list = []
         for content_type in clustering.get_all_content_type():
-            if content_type.get_representation() not in repr_list:
+            new_repr = content_type.get_representation()
+            if new_repr not in repr_list:
                 self.content_space.add(content_type)
             else:
                 self.content_space.clear()
-                raise Exception("Duplicate Representation in Content Type")
+                raise Exception(f"Duplicate Representation in "
+                                f"Content Type `{new_repr}`")
         self.clustering = clustering
 
     @abstractmethod
     def get_content_type(self, tweet_id: int) -> ContentType:
+        """Return ContentType for a Tweet with <tweet_id>.
+        """
         return self.clustering.get_content_type(tweet_id)
 
     def set_content_type(self, tweet_id, representation: Any) -> None:
