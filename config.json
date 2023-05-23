@@ -21,5 +21,6 @@
   },
   "num_bins": 20,
   "partitioning_strategy": "users",
-  "embedding_type": "tweet2vec"
+  "embedding_type": "tweet2vec",
+  "clustering_method": "kmers"
 }
