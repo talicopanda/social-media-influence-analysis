@@ -1,5 +1,5 @@
 from DAO.ContentMarketDAO import ContentMarketDAO
-from ContentMarketUser.ContentMarketUser import ContentMarketUser
+from User.ContentMarketUser import ContentMarketUser
 from ContentMarket.ContentMarket import ContentMarket
 from typing import List
 import pymongo

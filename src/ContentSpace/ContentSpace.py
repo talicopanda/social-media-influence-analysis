@@ -1,10 +1,9 @@
-from abc import ABC, abstractmethod
-from ContentType import ContentType
+from ContentSpace.ContentType import ContentType
 from Clustering.ContentMarketClustering import ContentMarketClustering
 from typing import Set, Any
 
 
-class ContentSpace(ABC):
+class ContentSpace:
     # Attributes
     content_space: Set[ContentType]
     clustering: ContentMarketClustering
@@ -14,6 +13,8 @@ class ContentSpace(ABC):
         not valid, i.e. it's ContentType contains duplicate representation, then
         there will raise Exception.
         """
+        print("=================Start Creating=================")
+        self.content_space = set()
         repr_list = []
         for content_type in clustering.get_all_content_type():
             new_repr = content_type.get_representation()
@@ -24,8 +25,8 @@ class ContentSpace(ABC):
                 raise Exception(f"Duplicate Representation in "
                                 f"Content Type `{new_repr}`")
         self.clustering = clustering
+        print("=============Successfully Build Content Space=============")
 
-    @abstractmethod
     def get_content_type(self, tweet_id: int) -> ContentType:
         """Return ContentType for a Tweet with <tweet_id>.
         """

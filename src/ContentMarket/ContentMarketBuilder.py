@@ -1,11 +1,11 @@
-from ContentMarketUser.ContentMarketProducer import ContentMarketProducer
-from ContentMarketUser.ContentMarketConsumer import ContentMarketConsumer
-from ContentMarketUser.ContentMarketUser import ContentMarketUser
+from User.ContentMarketProducer import ContentMarketProducer
+from User.ContentMarketConsumer import ContentMarketConsumer
+from User.ContentMarketUser import ContentMarketUser
 from UserPartitioning.UserPartitioningStrategy import UserPartitioningStrategy
 from ContentMarket.ContentMarketEmbedding import EmbeddingType
-from ContentMarketUser.ContentMarketCoreNode import ContentMarketCoreNode
+from User.ContentMarketCoreNode import ContentMarketCoreNode
 from ContentMarket.ContentMarketClustering import ContentMarketClustering
-from ContentMarket.ContentTweet import ContentTweet
+from Tweet.ContentMarketTweet import ContentMarketTweet
 from kmeans import kmer
 
 from typing import List, Tuple, Dict
@@ -57,32 +57,32 @@ class ContentMarketBuilder:
     def load_tweets(self, users: Dict[str, ContentMarketUser]):
         for original_tweet in self.dao.load_original_tweets():
             del original_tweet["_id"]
-            tweet = ContentTweet(**original_tweet)
+            tweet = ContentMarketTweet(**original_tweet)
             users[original_tweet["user_id"]].original_tweets.append(tweet)
 
         for quote_in_community in self.dao.load_quotes_of_in_community():
             del quote_in_community["_id"]
-            tweet = ContentTweet(**quote_in_community)
+            tweet = ContentMarketTweet(**quote_in_community)
             users[float(
                 quote_in_community["user_id"])].quotes_of_in_community.append(
                 tweet)
 
         for quote_out_of_community in self.dao.load_quotes_of_out_community():
             del quote_out_of_community["_id"]
-            tweet = ContentTweet(**quote_out_of_community)
+            tweet = ContentMarketTweet(**quote_out_of_community)
             users[float(quote_out_of_community[
                             "quote_user_id"])].quotes_of_out_community.append(
                 tweet)
 
         for retweet_in_community in self.dao.load_retweets_of_in_community():
             del retweet_in_community["_id"]
-            tweet = ContentTweet(**retweet_in_community)
+            tweet = ContentMarketTweet(**retweet_in_community)
             users[float(retweet_in_community[
                             "user_id"])].retweets_of_in_community.append(tweet)
 
         for retweet_of_out_community in self.dao.load_retweets_of_out_community():
             del retweet_of_out_community["_id"]
-            tweet = ContentTweet(**retweet_of_out_community)
+            tweet = ContentMarketTweet(**retweet_of_out_community)
             users[float(retweet_of_out_community[
                             "retweet_user_id"])].retweets_of_out_community.append(
                 tweet)

@@ -6,4 +6,4 @@ class ContentMarketFactory:
         if db_config['db_type'] == "Mongo":
             return ContentMarketMongoDAO(**db_config)
         else:
-            ValueError
+            raise ValueError

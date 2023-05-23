@@ -4,7 +4,7 @@ import datetime
 import numpy as np
 
 
-class ContentMarketTweet:
+class tempTweet:
     """
     A class that represents a tweet object
     """

@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from ContentMarketUser.ContentMarketUser import ContentMarketUser
+from User.ContentMarketUser import ContentMarketUser
+
 from typing import List
+import pymongo
 
 
 class ContentMarketDAO(ABC):
@@ -13,27 +15,27 @@ class ContentMarketDAO(ABC):
         pass
 
     @abstractmethod
-    def load_community_users(self) -> List[ContentMarketUser]:
+    def load_community_users(self) -> pymongo.cursor.Cursor:
         pass
 
     @abstractmethod
-    def load_original_tweets(self) -> List[str]:
+    def load_original_tweets(self) -> pymongo.cursor.Cursor:
         pass
 
     @abstractmethod
-    def load_quotes_of_in_community(self) -> List[str]:
+    def load_quotes_of_in_community(self) -> pymongo.cursor.Cursor:
         pass
 
     @abstractmethod
-    def load_quotes_of_out_community(self) -> List[str]:
+    def load_quotes_of_out_community(self) -> pymongo.cursor.Cursor:
         pass
 
     @abstractmethod
-    def load_retweets_of_in_community(self) -> List[str]:
+    def load_retweets_of_in_community(self) -> pymongo.cursor.Cursor:
         pass
 
     @abstractmethod
-    def load_retweets_of_out_community(self) -> List[str]:
+    def load_retweets_of_out_community(self) -> pymongo.cursor.Cursor:
         pass
 
     @abstractmethod

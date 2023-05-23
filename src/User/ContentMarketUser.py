@@ -1,12 +1,12 @@
 from typing import List, DefaultDict
 from collections import defaultdict
-from ContentMarket.ContentMarketTweet import ContentMarketTweet
-from ContentMarket.ContentMarketClustering import ContentMarketClustering
+from Tweet.ContentMarketTweet import ContentMarketTweet
+from Clustering.ContentMarketClustering import ContentMarketClustering
 
 
 class ContentMarketUser:
     """
-    A class that represents a twitter user in a content market
+    A class that represents a Twitter user in a content market
     """
 
     user_id: int
@@ -29,7 +29,7 @@ class ContentMarketUser:
     """
 
     def __init__(self, **kwargs):
-        self.user_id = kwargs.get("user_id")
+        self.user_id = int(kwargs.get("user_id"))
         self.rank = kwargs.get("rank")
         self.username = kwargs.get("username")
         self.influence_one = kwargs.get("influence_one")
@@ -49,7 +49,8 @@ class ContentMarketUser:
         self.retweets_of_in_community = kwargs.get("retweets_of_in_community", [])
         self.retweets_of_out_community = kwargs.get("retweets_of_out_community", [])
 
-    def build_support(self, tweets: ContentMarketTweet, clustering: ContentMarketClustering) -> DefaultDict[tuple, List[ContentMarketTweet]]:
+    def build_support(self, tweets: List[ContentMarketTweet], clustering: ContentMarketClustering) -> DefaultDict[tuple, List[ContentMarketTweet]]:
+        # TODO: change the type contract
         support = defaultdict(list)
         for tweet in tweets:
             cluster_id = clustering.get_cluster_id(tweet.id)
@@ -59,3 +60,6 @@ class ContentMarketUser:
     def merge_support(self, support1: DefaultDict[tuple, List[ContentMarketTweet]], support2: DefaultDict[tuple, List[ContentMarketTweet]]):
         for key in support2:
             support1[str(key)].extend(support2[key])
+
+if __name__ == "__main__":
+    print(1)

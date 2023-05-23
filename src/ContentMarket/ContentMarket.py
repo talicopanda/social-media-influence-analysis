@@ -1,7 +1,7 @@
 from typing import List
-from ContentMarketUser.ContentMarketConsumer import ContentMarketConsumer
-from ContentMarketUser.ContentMarketProducer import ContentMarketProducer
-from ContentMarketUser.ContentMarketCoreNode import ContentMarketCoreNode
+from User.ContentMarketConsumer import ContentMarketConsumer
+from User.ContentMarketProducer import ContentMarketProducer
+from User.ContentMarketCoreNode import ContentMarketCoreNode
 from ContentMarket.ContentMarketClustering import ContentMarketClustering
 
 

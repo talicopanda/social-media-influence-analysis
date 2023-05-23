@@ -1,9 +1,7 @@
-from enum import Enum
-from typing import List, Dict, Optional
 import datetime
 
 
-class ContentTweet:
+class ContentMarketTweet:
     """
     A class that represents a tweet object
     """
@@ -22,8 +20,8 @@ class ContentTweet:
     def __init__(self, id: int, user_id: int, created_at: datetime, text: str, lang: str,
                  retweet_id: str = None, retweet_user_id: str = None, quote_id: str = None,
                  quote_user_id: str = None):
-        self.id = id
-        self.user_id = user_id
+        self.id = int(id)
+        self.user_id = int(user_id)
         self.created_at = created_at
         self.text = text
         self.lang = lang
