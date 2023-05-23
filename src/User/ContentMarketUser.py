@@ -1,7 +1,8 @@
-from typing import List, DefaultDict
-from collections import defaultdict
 from Tweet.ContentMarketTweet import ContentMarketTweet
 from Clustering.ContentMarketClustering import ContentMarketClustering
+
+from typing import List, DefaultDict, Any, Set
+from collections import defaultdict
 
 
 class ContentMarketUser:
@@ -43,23 +44,23 @@ class ContentMarketUser:
         self.global_follower_count = kwargs.get("global_follower_count")
         self.global_following_count = kwargs.get("global_following_count")
         self.is_new_user = kwargs.get("is_new_user")
-        self.original_tweets = kwargs.get("original_tweets", [])
-        self.quotes_of_in_community = kwargs.get("quotes_of_in_community", [])
-        self.quotes_of_out_community = kwargs.get("quotes_of_out_community", [])
-        self.retweets_of_in_community = kwargs.get("retweets_of_in_community", [])
-        self.retweets_of_out_community = kwargs.get("retweets_of_out_community", [])
+        self.original_tweets = set(kwargs.get("original_tweets", []))
+        self.quotes_of_in_community = set(kwargs.get("quotes_of_in_community", []))
+        self.quotes_of_out_community = set(kwargs.get("quotes_of_out_community", []))
+        self.retweets_of_in_community = set(kwargs.get("retweets_of_in_community", []))
+        self.retweets_of_out_community =set(kwargs.get("retweets_of_out_community", []))
 
-    def build_support(self, tweets: List[ContentMarketTweet], clustering: ContentMarketClustering) -> DefaultDict[tuple, List[ContentMarketTweet]]:
-        # TODO: change the type contract
-        support = defaultdict(list)
+    def build_support(self, tweets: Set[ContentMarketTweet],
+                      clustering: ContentMarketClustering) \
+            -> DefaultDict[Any, Set[ContentMarketTweet]]:
+        # Use the representation of ContentType as key to the output dict
+        support = defaultdict(set)
         for tweet in tweets:
-            cluster_id = clustering.get_cluster_id(tweet.id)
-            support[str(cluster_id)].append(tweet.id)
+            tweet_id = int(tweet.id)
+            content_type = clustering.get_content_type(tweet_id)
+            support[content_type.get_representation()].add(tweet)
         return support
 
-    def merge_support(self, support1: DefaultDict[tuple, List[ContentMarketTweet]], support2: DefaultDict[tuple, List[ContentMarketTweet]]):
+    def merge_support(self, support1: DefaultDict[Any, Set[ContentMarketTweet]], support2: DefaultDict[Any, Set[ContentMarketTweet]]):
         for key in support2:
-            support1[str(key)].extend(support2[key])
-
-if __name__ == "__main__":
-    print(1)
+            support1[key].update(support2[key])

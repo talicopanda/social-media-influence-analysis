@@ -1,19 +1,20 @@
-from typing import DefaultDict, List
-from collections import defaultdict
-
 from User.ContentMarketUser import ContentMarketUser
-from ContentMarket.ContentMarketClustering import ContentMarketClustering
+from Clustering.ContentMarketClustering import ContentMarketClustering
+from Tweet.ContentMarketTweet import ContentMarketTweet
+
+from typing import DefaultDict, Set, Any
+from collections import defaultdict
 
 
 class ContentMarketConsumer(ContentMarketUser):
-    demand_in_community: DefaultDict[int, List[int]]
-    demand_out_of_community: DefaultDict[int, List[int]]
-    aggregate_demand: DefaultDict[int, List[int]]
+    demand_in_community: DefaultDict[Any, Set[ContentMarketTweet]]
+    demand_out_of_community: DefaultDict[Any, Set[ContentMarketTweet]]
+    aggregate_demand: DefaultDict[Any, Set[ContentMarketTweet]]
 
     def __init__(self, **kwargs):
-        self.demand_in_community = defaultdict(list)
-        self.demand_out_of_community = defaultdict(list)
-        self.aggregate_demand = defaultdict(list)
+        self.demand_in_community = defaultdict(set)
+        self.demand_out_of_community = defaultdict(set)
+        self.aggregate_demand = defaultdict(set)
         super().__init__(**kwargs)
 
     def calculate_demand(self, clustering: ContentMarketClustering):

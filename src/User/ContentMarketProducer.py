@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-from typing import DefaultDict, List
-from collections import defaultdict
 from User.ContentMarketUser import ContentMarketUser
-from ContentMarket.ContentMarketClustering import ContentMarketClustering
+from Clustering.ContentMarketClustering import ContentMarketClustering
+from Tweet.ContentMarketTweet import ContentMarketTweet
+
+from typing import DefaultDict, Set, Any
+from collections import defaultdict
 
 
 class ContentMarketProducer(ContentMarketUser):
-    supply: DefaultDict[int, List[int]]
+    supply: DefaultDict[Any, Set[ContentMarketTweet]]
 
     def __init__(self, **kwargs):
-        self.supply = defaultdict(list)
+        self.supply = defaultdict(set)
         super().__init__(**kwargs)
 
     def calculate_supply(self, clustering: ContentMarketClustering):
