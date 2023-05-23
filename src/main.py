@@ -33,11 +33,11 @@ def build_content_market(content_market_name, config, load = False):
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
     partition = UserPartitioningStrategyFactory.get_user_type_strategy(config['partitioning_strategy'])
 
-    # Build Tweet Manager
-    tweet_manager = ContentMarketTweetManager(dao)
-
     # Build User Manager
-    user_manager = ContentMarketUserManager(dao, partition, tweet_manager)
+    user_manager = ContentMarketUserManager(dao, partition)
+
+    # Build Tweet Manager
+    tweet_manager = ContentMarketTweetManager(dao, user_manager)
 
     ##########################################################
     # Building Content Space
@@ -60,7 +60,6 @@ def build_content_market(content_market_name, config, load = False):
     # Build Content Space
     content_space = ContentSpace()
     content_space.create_content_space(clustering)
-    print(5)
 
 
 

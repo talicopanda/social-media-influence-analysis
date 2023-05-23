@@ -6,7 +6,7 @@ from UserPartitioning.UsersStrategy import UsersStrategy
 from DAO.ContentMarketDAO import ContentMarketDAO
 from User.UserType import UserType
 from Tweet.TweetType import TweetType
-from Tweet.ContentMarketTweetManager import ContentMarketTweetManager
+from Tweet.ContentMarketTweet import ContentMarketTweet
 
 from typing import Set
 
@@ -16,10 +16,8 @@ class ContentMarketUserManager:
     consumers: Set[ContentMarketConsumer]
     producers: Set[ContentMarketProducer]
     core_nodes: Set[ContentMarketCoreNode]
-    tweet_manager: ContentMarketTweetManager
 
-    def __init__(self, dao: ContentMarketDAO, partition: UsersStrategy,
-                 tweet_manager: ContentMarketTweetManager):
+    def __init__(self, dao: ContentMarketDAO, partition: UsersStrategy):
         print("=================Build Users=================")
         # initialize variables
         self.consumers = set()
@@ -31,7 +29,6 @@ class ContentMarketUserManager:
         print("=================Partition Users=================")
         self._partition_users(users, partition)
 
-        self.tweet_manager = tweet_manager
         print("=========Successfully Build UserManager=========")
 
     def _build_users(self, dao: ContentMarketDAO) -> Set[ContentMarketUser]:
@@ -97,20 +94,42 @@ class ContentMarketUserManager:
         else:
             raise Exception(f"Invalid User Type `{user_type}`")
 
+    def add_tweet(self, tweet: ContentMarketTweet,
+                  tweet_type: TweetType) -> None:
+        """Add <tweet> with <tweet_type> to the user by <tweet.get_userid()>.
+        """
+        if tweet_type == TweetType.ORIGINAL_TWEET:
+            user = self.get_user(tweet.user_id)
+            user.original_tweets.add(tweet)
+        elif tweet_type == TweetType.QUOTE_OF_IN_COMM:
+            user = self.get_user(tweet.user_id)
+            user.quotes_of_in_community.add(tweet)
+        elif tweet_type == TweetType.QUOTE_OF_OUT_COMM:
+            user = self.get_user(int(tweet.quote_user_id))
+            user.quotes_of_out_community.add(tweet)
+        elif tweet_type == TweetType.RETWEET_OF_IN_COMM:
+            user = self.get_user(tweet.user_id)
+            user.retweets_of_in_community.add(tweet)
+        elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
+            user = self.get_user(int(tweet.retweet_user_id))
+            user.retweets_of_out_community.add(tweet)
+        else:
+            raise Exception(f"Invalid Tweet Type `{tweet_type}` when adding")
+
     def get_user_tweets(self, userid, tweet_type: TweetType):
         """Return a list of Tweet for user with <userid> of
         type <tweet_type>.
         """
         user = self.get_user(userid)
         if tweet_type == TweetType.ORIGINAL_TWEET:
-            return self.tweet_manager.get_tweets(user.original_tweets)
+            return user.original_tweets
         elif tweet_type == TweetType.QUOTE_OF_IN_COMM:
-            return self.tweet_manager.get_tweets(user.quotes_of_in_community)
+            return user.quotes_of_in_community
         elif tweet_type == TweetType.QUOTE_OF_OUT_COMM:
-            return self.tweet_manager.get_tweets(user.quotes_of_out_community)
+            return user.quotes_of_out_community
         elif tweet_type == TweetType.RETWEET_OF_IN_COMM:
-            return self.tweet_manager.get_tweets(user.retweets_of_in_community)
+            return user.retweets_of_in_community
         elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
-            return self.tweet_manager.get_tweets(user.retweets_of_out_community)
+            return user.retweets_of_out_community
         else:
-            raise Exception(f"Invalid Tweet Type `{tweet_type}`")
+            raise Exception(f"Invalid Tweet Type `{tweet_type}` when getting")
