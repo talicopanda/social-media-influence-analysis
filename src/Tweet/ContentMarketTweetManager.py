@@ -4,6 +4,7 @@ from User.ContentMarketUserManager import ContentMarketUserManager
 from Tweet.TweetType import TweetType
 
 from typing import Set, List
+from datetime import datetime
 
 
 class ContentMarketTweetManager:
@@ -88,3 +89,7 @@ class ContentMarketTweetManager:
         for tweet_id in tweet_ids:
             tweet_list.append(self.get_tweet(tweet_id))
         return tweet_list
+
+    def tweet_created_between_time(self, tweet_id, start_time: datetime, end_time: datetime) -> int:
+        create_time = self.get_tweet(tweet_id).created_at
+        return int((start_time <= create_time <= end_time))

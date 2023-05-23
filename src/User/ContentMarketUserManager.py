@@ -7,8 +7,11 @@ from DAO.ContentMarketDAO import ContentMarketDAO
 from User.UserType import UserType
 from Tweet.TweetType import TweetType
 from Tweet.ContentMarketTweet import ContentMarketTweet
+from Clustering.ContentMarketClustering import ContentMarketClustering
+from ContentSpace.ContentSpace import ContentSpace
 
-from typing import Set
+from typing import Set, Dict, Any, List
+from datetime import datetime
 
 
 class ContentMarketUserManager:
@@ -64,6 +67,7 @@ class ContentMarketUserManager:
                 core_node = ContentMarketCoreNode(**vars(user))
                 self.core_nodes.add(core_node)
             else:
+                # the rest ordinary user are consumer/producer
                 if partition.is_producer(user):
                     new_prod = ContentMarketProducer(**vars(user))
                     self.producers.add(new_prod)
@@ -133,3 +137,46 @@ class ContentMarketUserManager:
             return user.retweets_of_out_community
         else:
             raise Exception(f"Invalid Tweet Type `{tweet_type}` when getting")
+
+    def calculate_mapping(self, clustering: ContentMarketClustering) -> None:
+        """Summarize supply and demand information in each user (regardless of
+        creation time period).
+        """
+        # Consumers
+        print("=================Calculate Consumer Mapping=================")
+        for consumer in self.consumers:
+            consumer.calculate_demand(clustering)
+
+        # Producers
+        print("=================Calculate Producer Mapping=================")
+        for producer in self.producers:
+            producer.calculate_supply(clustering)
+
+        # Core Nodes
+        print("================Calculate Core Node Mapping================")
+        for core_node in self.core_nodes:
+            core_node.calculate_demand(clustering)
+            core_node.calculate_supply(clustering)
+
+    def calculate_time_mapping(self, user_type: UserType,
+                               start_time: datetime, end_time:datetime,
+                               clustering: ContentMarketClustering,
+                               content_space: ContentSpace,
+                               tweet_types: List[TweetType],
+                               tweet_manager) -> Dict[Any, int]:
+        # TODO: resolve this circular import issue
+        # initialize dictionary storage
+        freq_dict = {}
+        for content_type in content_space.get_all_content_types():
+            freq_dict[content_type.get_representation()] = 0
+
+        # accumulate time series
+        for user in self.get_type_users(user_type):
+            for tweet_type in tweet_types:
+                for tweet in self.get_user_tweets(user.user_id, tweet_type):
+                    # This is bad practice: shouldn't cross boundary
+                    freq_dict[clustering.get_content_type(tweet.id).get_representation()] \
+                        += tweet_manager.tweet_created_between_time(tweet.id, start_time, end_time)
+
+        # return dictionary
+        return freq_dict

@@ -4,12 +4,14 @@ from Tweet.ContentMarketTweetManager import ContentMarketTweetManager
 from User.ContentMarketUserManager import ContentMarketUserManager
 from Clustering.ContentMarketClusteringFactory import ContentMarketClusteringFactory
 from ContentSpace.ContentSpace import ContentSpace
+from ContentMarket.ContentMappingManager import ContentMappingManager
 
 import json
 import sys
 import pickle
 import pymongo
 from analysis import *
+from datetime import timedelta
 
 
 def build_content_market(content_market_name, config, load = False):
@@ -27,7 +29,7 @@ def build_content_market(content_market_name, config, load = False):
                         "or choose a different name")
 
     ##########################################################
-    # Building Managers
+    # Build Managers
     ##########################################################
     # build DAO and Partition Strategy
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
@@ -40,9 +42,9 @@ def build_content_market(content_market_name, config, load = False):
     tweet_manager = ContentMarketTweetManager(dao, user_manager)
 
     ##########################################################
-    # Building Content Space
+    # Build Content Space
     ##########################################################
-    # Build Clustering
+    # Build/Load Clustering
     clustering = None
     if load:
         print("=================Load Clustering=================")
@@ -61,7 +63,21 @@ def build_content_market(content_market_name, config, load = False):
     content_space = ContentSpace()
     content_space.create_content_space(clustering)
 
+    ##########################################################
+    # Calculate Supply and Demand
+    ##########################################################
+    # Calculate individual supply and demand
+    user_manager.calculate_mapping(clustering) # might not need
 
+    # Build Mapping Manager
+    mapping_manager = ContentMappingManager(content_space, user_manager,
+                                            tweet_manager, timedelta(days=30))
+
+    # Calculate Aggregate Supply and Demand
+    mapping_manager.calculate_type_demand()
+    mapping_manager.calculate_type_supply()
+    mapping_manager.calculate_agg_mapping()
+    return mapping_manager
 
     # builder = ContentMarketBuilder(
     #     dao, partitioning_strategy, config['num_bins'], config['embedding_type'])
@@ -120,7 +136,15 @@ if __name__ == '__main__':
 
     print("Building content market...")
 
-    build_content_market(content_market_name, config, load=True)
+    mapping_manager = build_content_market(content_market_name, config, load=True)
+
+    import matplotlib.pyplot as plt
+
+    for user_type in mapping_manager.agg_demand.keys():
+        plt.figure()
+        plt.bar(mapping_manager.agg_demand[user_type].keys(),
+                mapping_manager.agg_demand[user_type].values(), width=0.4)
+        plt.show()
 
     # print("Generating data plots...")
     #
