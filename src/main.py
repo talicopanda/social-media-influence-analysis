@@ -35,11 +35,11 @@ def build_content_market(content_market_name, config, load = False):
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
     partition = UserPartitioningStrategyFactory.get_user_type_strategy(config['partitioning_strategy'])
 
-    # Build User Manager
-    user_manager = ContentMarketUserManager(dao, partition)
-
     # Build Tweet Manager
-    tweet_manager = ContentMarketTweetManager(dao, user_manager)
+    tweet_manager = ContentMarketTweetManager(dao)
+
+    # Build User Manager
+    user_manager = ContentMarketUserManager(dao, partition, tweet_manager)
 
     ##########################################################
     # Build Content Space
@@ -67,7 +67,7 @@ def build_content_market(content_market_name, config, load = False):
     # Calculate Supply and Demand
     ##########################################################
     # Calculate individual supply and demand
-    user_manager.calculate_mapping(clustering) # might not need
+    # user_manager.calculate_mapping(clustering) # might not need
 
     # Build Mapping Manager
     mapping_manager = ContentMappingManager(content_space, user_manager,
@@ -137,14 +137,6 @@ if __name__ == '__main__':
     print("Building content market...")
 
     mapping_manager = build_content_market(content_market_name, config, load=True)
-
-    import matplotlib.pyplot as plt
-
-    for user_type in mapping_manager.agg_demand.keys():
-        plt.figure()
-        plt.bar(mapping_manager.agg_demand[user_type].keys(),
-                mapping_manager.agg_demand[user_type].values(), width=0.4)
-        plt.show()
 
     # print("Generating data plots...")
     #

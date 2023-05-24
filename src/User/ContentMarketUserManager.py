@@ -6,12 +6,13 @@ from UserPartitioning.UsersStrategy import UsersStrategy
 from DAO.ContentMarketDAO import ContentMarketDAO
 from User.UserType import UserType
 from Tweet.TweetType import TweetType
-from Tweet.ContentMarketTweet import ContentMarketTweet
 from Clustering.ContentMarketClustering import ContentMarketClustering
 from ContentSpace.ContentSpace import ContentSpace
+from Tweet.ContentMarketTweetManager import ContentMarketTweetManager
 
 from typing import Set, Dict, Any, List
 from datetime import datetime
+from tqdm import tqdm
 
 
 class ContentMarketUserManager:
@@ -20,7 +21,8 @@ class ContentMarketUserManager:
     producers: Set[ContentMarketProducer]
     core_nodes: Set[ContentMarketCoreNode]
 
-    def __init__(self, dao: ContentMarketDAO, partition: UsersStrategy):
+    def __init__(self, dao: ContentMarketDAO, partition: UsersStrategy,
+                 tweet_manager: ContentMarketTweetManager):
         print("=================Build Users=================")
         # initialize variables
         self.consumers = set()
@@ -29,8 +31,14 @@ class ContentMarketUserManager:
 
         # build users
         users = self._build_users(dao)
+
+        # partition user to consumer/producer/core node
         print("=================Partition Users=================")
         self._partition_users(users, partition)
+
+        # add tweets to user's information
+        print("==============Add Tweets To Users==============")
+        self._add_tweets_to_users(tweet_manager)
 
         print("=========Successfully Build UserManager=========")
 
@@ -75,6 +83,36 @@ class ContentMarketUserManager:
                     new_consumer = ContentMarketConsumer(**vars(user))
                     self.consumers.add(new_consumer)
 
+    def _add_tweets_to_users(self,
+                             tweet_manager: ContentMarketTweetManager) -> None:
+        """Add tweet id to each user's object variables.
+        """
+        # For Original Tweet
+        for tweet in tweet_manager.get_type_tweets(TweetType.ORIGINAL_TWEET):
+            self.get_user(tweet.user_id).original_tweets.add(tweet.id)
+
+        # For Quotes of In Community
+        for tweet in tweet_manager.get_type_tweets(TweetType.QUOTE_OF_IN_COMM):
+            self.get_user(int(tweet.quote_user_id)). \
+                quotes_of_in_community.add(tweet.id)
+
+        # For Quotes of Out Community
+        for tweet in tweet_manager.get_type_tweets(TweetType.QUOTE_OF_OUT_COMM):
+            self.get_user(int(tweet.quote_user_id)). \
+                quotes_of_out_community.add(tweet.id)
+
+        # For Retweets of In Community
+        for tweet in tweet_manager.get_type_tweets(
+                TweetType.RETWEET_OF_IN_COMM):
+            self.get_user(int(tweet.retweet_user_id)). \
+                retweets_of_in_community.add(tweet.id)
+
+        # For Retweets of Out Community
+        for tweet in tweet_manager.get_type_tweets(
+                TweetType.RETWEET_OF_OUT_COMM):
+            self.get_user(int(tweet.retweet_user_id)). \
+                retweets_of_out_community.add(tweet.id)
+
     def get_user(self, userid: int) -> ContentMarketUser:
         """Return a User with <userid>.
         """
@@ -98,33 +136,10 @@ class ContentMarketUserManager:
         else:
             raise Exception(f"Invalid User Type `{user_type}`")
 
-    def add_tweet(self, tweet: ContentMarketTweet,
-                  tweet_type: TweetType) -> None:
-        """Add <tweet> with <tweet_type> to the user by <tweet.get_userid()>.
-        """
-        if tweet_type == TweetType.ORIGINAL_TWEET:
-            user = self.get_user(tweet.user_id)
-            user.original_tweets.add(tweet)
-        elif tweet_type == TweetType.QUOTE_OF_IN_COMM:
-            user = self.get_user(tweet.user_id)
-            user.quotes_of_in_community.add(tweet)
-        elif tweet_type == TweetType.QUOTE_OF_OUT_COMM:
-            user = self.get_user(int(tweet.quote_user_id))
-            user.quotes_of_out_community.add(tweet)
-        elif tweet_type == TweetType.RETWEET_OF_IN_COMM:
-            user = self.get_user(tweet.user_id)
-            user.retweets_of_in_community.add(tweet)
-        elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
-            user = self.get_user(int(tweet.retweet_user_id))
-            user.retweets_of_out_community.add(tweet)
-        else:
-            raise Exception(f"Invalid Tweet Type `{tweet_type}` when adding")
-
-    def get_user_tweets(self, userid, tweet_type: TweetType):
+    def _get_user_tweets(self, user, tweet_type: TweetType):
         """Return a list of Tweet for user with <userid> of
         type <tweet_type>.
         """
-        user = self.get_user(userid)
         if tweet_type == TweetType.ORIGINAL_TWEET:
             return user.original_tweets
         elif tweet_type == TweetType.QUOTE_OF_IN_COMM:
@@ -159,24 +174,33 @@ class ContentMarketUserManager:
             core_node.calculate_supply(clustering)
 
     def calculate_time_mapping(self, user_type: UserType,
-                               start_time: datetime, end_time:datetime,
+                               time_stamps: List[datetime],
                                clustering: ContentMarketClustering,
                                content_space: ContentSpace,
                                tweet_types: List[TweetType],
-                               tweet_manager) -> Dict[Any, int]:
-        # TODO: resolve this circular import issue
+                               tweet_manager: ContentMarketTweetManager) -> \
+            Dict[Any, List[int]]:
+        len_time = len(time_stamps)
         # initialize dictionary storage
         freq_dict = {}
         for content_type in content_space.get_all_content_types():
-            freq_dict[content_type.get_representation()] = 0
+            freq_dict[content_type.get_representation()] = \
+                [0 for _ in range(len_time)]
 
         # accumulate time series
         for user in self.get_type_users(user_type):
             for tweet_type in tweet_types:
-                for tweet in self.get_user_tweets(user.user_id, tweet_type):
-                    # This is bad practice: shouldn't cross boundary
-                    freq_dict[clustering.get_content_type(tweet.id).get_representation()] \
-                        += tweet_manager.tweet_created_between_time(tweet.id, start_time, end_time)
+                for tweet_id in tqdm(self._get_user_tweets(user, tweet_type)):
+                    create_time = tweet_manager.get_tweet_created_time(tweet_id)
+                    representation = clustering.get_content_type(tweet_id).get_representation()
+                    index = self._find_time_index(create_time, time_stamps, len_time)
+                    freq_dict[representation][index] += 1
 
         # return dictionary
         return freq_dict
+
+    def _find_time_index(self, create_time: datetime,
+                         time_stamps: List[datetime], len_time: int) -> int:
+        for i in range(len_time):
+            if create_time < time_stamps[i]:
+                return i - 1

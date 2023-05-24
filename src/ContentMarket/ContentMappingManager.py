@@ -6,7 +6,6 @@ from Tweet.TweetType import TweetType
 
 from typing import Dict, List, Any
 from datetime import datetime, timedelta
-from tqdm import trange
 
 
 class ContentMappingManager:
@@ -75,18 +74,15 @@ class ContentMappingManager:
         <tweet_types>, and store in <storage>.
         """
         for user_type in get_all_user_types():
-            for i in trange(len(self.time_stamps) - 1):
-                start_time = self.time_stamps[i]
-                end_time = self.time_stamps[i + 1]
-                # get data
-                freq_dict = self.user_manager.\
-                    calculate_time_mapping(user_type,start_time,end_time,
-                                           self.content_space.clustering,
-                                           self.content_space, tweet_types,
-                                           self.tweet_manager)
-                # store data
-                for representation, freq in freq_dict.items():
-                    storage[user_type][representation].append(freq)
+            # get data
+            print(f"User Type: {user_type}")
+            freq_dict = self.user_manager.\
+                calculate_time_mapping(user_type, self.time_stamps,
+                                       self.content_space.clustering,
+                                       self.content_space, tweet_types,
+                                       self.tweet_manager)
+            # store data
+            storage[user_type] = freq_dict
 
     def calculate_type_demand(self) -> None:
         """Calculate demand time series for each ContentType for each UserType
@@ -135,4 +131,16 @@ class ContentMappingManager:
         """
         return self.time_stamps, self.type_demand[user_type]
 
+    def get_type_supply_series(self, user_type: UserType) \
+            -> (List[datetime], Dict[Any, List[int]]):
+        """Return the demand time series for <user_type>.
+        """
+        return self.time_stamps, self.type_supply[user_type]
 
+    def get_agg_demand(self, user_type: UserType) -> Dict[Any, int]:
+        """Return the aggregate demand dictionary for <user_type>.
+        """
+        return self.agg_demand[user_type]
+
+    def get_agg_supply(self, user_type: UserType) -> Dict[Any, int]:
+        return self.agg_supply[user_type]
