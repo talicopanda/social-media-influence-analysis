@@ -1,6 +1,8 @@
 from Clustering.ContentMarketClustering import ContentMarketClustering
 from Clustering.CreatorClustering import CreatorClustering
 from Clustering.KmersClustering import KmersClustering
+from Clustering.EmbeddingClustering import EmbeddingClustering
+
 from typing import Dict, Any
 
 
@@ -15,6 +17,8 @@ class ContentMarketClusteringFactory:
         try:
             if self.division_type == "kmers":
                 return KmersClustering(args)
+            elif self.division_type == "embedding":
+                return EmbeddingClustering(args)
             elif self.division_type == "creator":
                 return CreatorClustering(args)
             else:

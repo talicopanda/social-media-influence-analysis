@@ -32,6 +32,8 @@ class KmersClustering(ContentMarketClustering):
         self.radius = radius
 
     def generate_tweet_to_type(self):
+        """Assign each tweet with cluster generated from Kmers algorithm.
+        """
         content_type_set = set()
         for i in range(len(self.ids)):
             cluster_id = self.clusters[i]

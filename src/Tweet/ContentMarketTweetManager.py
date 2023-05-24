@@ -91,5 +91,8 @@ class ContentMarketTweetManager:
         return tweet_list
 
     def tweet_created_between_time(self, tweet_id, start_time: datetime, end_time: datetime) -> int:
+        """Return 0 if the Tweet with <tweet_id> is not created between
+        <start_time> and <end_time>.
+        """
         create_time = self.get_tweet(tweet_id).created_at
         return int((start_time <= create_time <= end_time))

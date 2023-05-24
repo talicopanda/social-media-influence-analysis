@@ -14,6 +14,8 @@ class CreatorClustering(ContentMarketClustering):
         self.dao = args["dao"]
 
     def generate_tweet_to_type(self):
+        """Assign each tweet with its original tweet's creator.
+        """
         content_type_set = set()
         for tweet_group in [self.dao.load_original_tweets(),
                             self.dao.load_quotes_of_in_community(),

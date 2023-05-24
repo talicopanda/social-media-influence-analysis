@@ -41,12 +41,14 @@ class ContentMappingManager:
         self.type_supply = {}
         self.agg_demand = {}
         self.agg_supply = {}
+
         # initialize first layer
         for user_type in get_all_user_types():
             self.type_demand[user_type] = {}
             self.type_supply[user_type] = {}
             self.agg_demand[user_type] = {}
             self.agg_supply[user_type] = {}
+
         # initialize second layer
         for user_type in get_all_user_types():
             for content_type in self.content_space.get_all_content_types():
@@ -57,6 +59,9 @@ class ContentMappingManager:
                 self.agg_supply[user_type][representation] = 0
 
     def _create_time_stamps(self) -> None:
+        """Create a list of time stamps for partitioning the Tweet, and
+        store in self.time_stamps.
+        """
         min_time = datetime(2020, 6, 29)
         end_time = datetime.now()
         curr_time = min_time
@@ -66,6 +71,9 @@ class ContentMappingManager:
 
     def _calculate_type_mapping(self, storage: Dict[UserType, Dict[Any, List[int]]],
                                 tweet_types: List[TweetType]) -> None:
+        """A helper function to create Dictionary of time series with given
+        <tweet_types>, and store in <storage>.
+        """
         for user_type in get_all_user_types():
             for i in trange(len(self.time_stamps) - 1):
                 start_time = self.time_stamps[i]
@@ -81,6 +89,9 @@ class ContentMappingManager:
                     storage[user_type][representation].append(freq)
 
     def calculate_type_demand(self) -> None:
+        """Calculate demand time series for each ContentType for each UserType
+        and store in self.type_demand.
+        """
         print("=================Calculate Type Demand=================")
         tweet_types = [TweetType.RETWEET_OF_IN_COMM,
                        TweetType.RETWEET_OF_OUT_COMM]
@@ -88,6 +99,9 @@ class ContentMappingManager:
         print("=============Successfully Calculate Type Demand=============")
 
     def calculate_type_supply(self) -> None:
+        """Calculate supply time series for each ContentType for each UserType
+        and store in self.type_supply.
+        """
         print("=================Calculate Type Supply=================")
         tweet_types = [TweetType.ORIGINAL_TWEET,
                        TweetType.QUOTE_OF_IN_COMM,
@@ -96,6 +110,9 @@ class ContentMappingManager:
         print("=============Successfully Calculate Type Supply=============")
 
     def calculate_agg_mapping(self):
+        """Aggregate information in self.type_demand and self.type_supply,
+        then store the results in self.agg_demand and self.agg_supply.
+        """
         print("===============Calculate Aggregate Mapping===============")
         for user_type in get_all_user_types():
             for content_type in self.content_space.get_all_content_types():
@@ -110,3 +127,12 @@ class ContentMappingManager:
                     self.type_supply[user_type][representation]
                 )
         print("=========Successfully Calculate Aggregate Demand=========")
+
+    # Below are methods for extraction from outer space
+    def get_type_demand_series(self, user_type: UserType) \
+            -> (List[datetime], Dict[Any, List[int]]):
+        """Return the demand time series for <user_type>.
+        """
+        return self.time_stamps, self.type_demand[user_type]
+
+
