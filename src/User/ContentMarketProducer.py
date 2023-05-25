@@ -1,6 +1,3 @@
-from __future__ import annotations
-# TODO: try to remove this import
-
 from User.ContentMarketUser import ContentMarketUser
 from Clustering.ContentMarketClustering import ContentMarketClustering
 from Tweet.ContentMarketTweet import ContentMarketTweet

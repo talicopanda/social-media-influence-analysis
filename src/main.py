@@ -5,6 +5,7 @@ from User.ContentMarketUserManager import ContentMarketUserManager
 from Clustering.ContentMarketClusteringFactory import ContentMarketClusteringFactory
 from ContentSpace.ContentSpace import ContentSpace
 from ContentMarket.ContentMappingManager import ContentMappingManager
+from Visualization.MappingPlotter import *
 
 import json
 import sys
@@ -77,7 +78,11 @@ def build_content_market(content_market_name, config, load = False):
     mapping_manager.calculate_type_demand()
     mapping_manager.calculate_type_supply()
     mapping_manager.calculate_agg_mapping()
-    return mapping_manager
+
+    ##########################################################
+    # Plotting
+    ##########################################################
+    create_mapping_curves(mapping_manager)
 
     # builder = ContentMarketBuilder(
     #     dao, partitioning_strategy, config['num_bins'], config['embedding_type'])
@@ -122,6 +127,7 @@ def build_content_market(content_market_name, config, load = False):
     # content_market = ContentMarket(content_market_name, consumers, producers, core_nodes, clustering)
     #
     # dao.write_content_market(content_market)
+    return mapping_manager
 
 
 if __name__ == '__main__':
