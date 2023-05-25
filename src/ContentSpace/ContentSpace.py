@@ -13,7 +13,6 @@ class ContentSpace:
         not valid, i.e. it's ContentType contains duplicate representation, then
         there will raise Exception.
         """
-        # TODO: not store clustering in Content Space
         print("=================Creating Content Space=================")
         self.content_space = set()
         repr_list = []
@@ -28,14 +27,14 @@ class ContentSpace:
         self.clustering = clustering
         print("=============Successfully Build Content Space=============")
 
-    def get_tweet_content_type(self, tweet_id: int) -> ContentType:
+    def get_tweet_content_type_repr(self, tweet_id: int) -> ContentType:
         """Return ContentType for a Tweet with <tweet_id>.
         """
-        return self.clustering.get_content_type(tweet_id)
+        return self.clustering.get_content_type(tweet_id).get_representation()
 
     def get_content_type(self, representation: Any) -> ContentType:
         for content_type in self.content_space:
-            if  content_type.get_representation() == representation:
+            if content_type.get_representation() == representation:
                 return content_type
         raise KeyError(f"No ContentType has representation `{representation}`")
 
@@ -54,9 +53,10 @@ class ContentSpace:
             if content_type.get_representation() == representation:
                 self.clustering.set_content_type(tweet_id, content_type)
                 return
+        raise ValueError(f"ContentType with `{representation}` does not exist")
 
-    def set_group_content_type(self, tweet_id, new_representation: Any) -> None:
+    def set_group_content_type(self, old_repr: Any, new_repr: Any) -> None:
         """Change the ContentType's representation for all Tweets which belongs
         to the same ContentType as <tweet_id>.
         """
-        self.get_tweet_content_type(tweet_id).set_representation(new_representation)
+        self.get_content_type(old_repr).set_representation(new_repr)

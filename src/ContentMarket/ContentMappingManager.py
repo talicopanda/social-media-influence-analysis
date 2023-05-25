@@ -1,7 +1,6 @@
 from ContentSpace.ContentSpace import ContentSpace
 from User.ContentMarketUserManager import ContentMarketUserManager
-from Tweet.ContentMarketTweetManager import ContentMarketTweetManager
-from User.UserType import UserType, get_all_user_types
+from User.UserType import UserType
 from Tweet.TweetType import TweetType
 
 from typing import Dict, List, Any
@@ -12,7 +11,6 @@ class ContentMappingManager:
     # Attributes
     content_space: ContentSpace
     user_manager: ContentMarketUserManager
-    tweet_manager: ContentMarketTweetManager
     period: timedelta
 
     time_stamps: List[datetime]
@@ -23,12 +21,10 @@ class ContentMappingManager:
 
     def __init__(self, content_space: ContentSpace,
                  user_manager: ContentMarketUserManager,
-                 tweet_manager: ContentMarketTweetManager,
                  period: timedelta):
         # load from arguments
         self.content_space = content_space
         self.user_manager = user_manager
-        self.tweet_manager = tweet_manager
         self.period = period
         self.time_stamps = []
 
@@ -87,9 +83,7 @@ class ContentMappingManager:
         # get data
         freq_dict = self.user_manager.\
             calculate_time_mapping(user_type, self.time_stamps,
-                                   self.content_space.clustering,
-                                   self.content_space, tweet_types,
-                                   self.tweet_manager)
+                                   self.content_space, tweet_types)
         # store data
         storage[user_type] = freq_dict
 
@@ -129,6 +123,7 @@ class ContentMappingManager:
                 self.agg_demand[user_type][representation] = sum(
                     self.type_demand[user_type][representation]
                 )
+        print("=========Successfully Calculate Aggregate Demand=========")
 
         # Supply
         for user_type in self.agg_supply.keys():
@@ -138,7 +133,7 @@ class ContentMappingManager:
                 self.agg_supply[user_type][representation] = sum(
                     self.type_supply[user_type][representation]
                 )
-        print("=========Successfully Calculate Aggregate Demand=========")
+        print("=========Successfully Calculate Aggregate Supply=========")
 
     # Below are methods for extraction from outer space
     def get_type_demand_series(self, user_type: UserType) \

@@ -13,7 +13,6 @@ from Tweet.ContentMarketTweet import ContentMarketTweet
 
 from typing import Set, Dict, Any, List
 from datetime import datetime
-from tqdm import tqdm
 
 
 class ContentMarketUserManager:
@@ -40,7 +39,7 @@ class ContentMarketUserManager:
 
         # partition user to consumer/producer/core node
         print("=================Partition Users=================")
-        self._partition_users(self.users, partition)
+        self._partition_users(partition)
 
         print("=========Successfully Build UserManager=========")
 
@@ -67,13 +66,11 @@ class ContentMarketUserManager:
             users.add(new_user)
         return users
 
-    def _partition_users(self, users: Set[ContentMarketUser],
-                         partition: UsersStrategy) -> None:
+    def _partition_users(self, partition: UsersStrategy) -> None:
         """Split <users> into consumers, producers, and core nodes
         by <partition>, and store them into class variables.
         """
-        # TODO: when code stabilizes, remove <users> parameter
-        for user in users:
+        for user in self.users:
             if user.rank < 10:  # 10 top users are core nodes
                 core_node = ContentMarketCoreNode(**vars(user))
                 self.core_nodes.add(core_node)
@@ -177,11 +174,10 @@ class ContentMarketUserManager:
 
     def calculate_time_mapping(self, user_type: UserType,
                                time_stamps: List[datetime],
-                               clustering: ContentMarketClustering,
                                content_space: ContentSpace,
-                               tweet_types: List[TweetType],
-                               tweet_manager: ContentMarketTweetManager) -> \
+                               tweet_types: List[TweetType]) -> \
             Dict[Any, List[int]]:
+        # TODO: internalize the calculation into each user
         len_time = len(time_stamps)
         # initialize dictionary storage
         freq_dict = {}
@@ -189,21 +185,12 @@ class ContentMarketUserManager:
             freq_dict[content_type.get_representation()] = \
                 [0 for _ in range(len_time)]
 
-        # accumulate time series (user does not have own ContentMarketTweet)
-        # for user in self.get_type_users(user_type):
-        #     for tweet_type in tweet_types:
-        #         for tweet_id in tqdm(self._get_user_tweets(user, tweet_type)):
-        #             create_time = tweet_manager.get_tweet_created_time(tweet_id)
-        #             representation = clustering.get_content_type(tweet_id).get_representation()
-        #             index = self._find_time_index(create_time, time_stamps, len_time)
-        #             freq_dict[representation][index] += 1
-
         # accumulate time series (user has own ContentMarketTweet)
         for user in self.get_type_users(user_type):
             for tweet_type in tweet_types:
                 for tweet in self._get_user_tweets(user, tweet_type):
                     create_time = tweet.created_at
-                    representation = clustering.get_content_type(int(tweet.id)).get_representation()
+                    representation = content_space.get_tweet_content_type_repr(int(tweet.id))
                     index = self._find_time_index(create_time, time_stamps, len_time)
                     freq_dict[representation][index] += 1
 

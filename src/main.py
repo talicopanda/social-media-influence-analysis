@@ -72,7 +72,7 @@ def build_content_market(content_market_name, config, load = False):
 
     # Build Mapping Manager
     mapping_manager = ContentMappingManager(content_space, user_manager,
-                                            tweet_manager, timedelta(days=30))
+                                            timedelta(days=30))
 
     # Calculate Aggregate Supply and Demand
     mapping_manager.calculate_type_demand()
@@ -142,7 +142,7 @@ if __name__ == '__main__':
 
     print("Building content market...")
 
-    mapping_manager = build_content_market(content_market_name, config, load=True)
+    build_content_market(content_market_name, config, load=True)
 
     # print("Generating data plots...")
     #

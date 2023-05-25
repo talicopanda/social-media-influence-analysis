@@ -3,7 +3,6 @@ from DAO.ContentMarketDAO import ContentMarketDAO
 from Tweet.TweetType import TweetType
 
 from typing import Set, List
-from datetime import datetime
 
 
 class ContentMarketTweetManager:
@@ -97,6 +96,3 @@ class ContentMarketTweetManager:
             return self.retweets_of_out_comm
         else:
             raise Exception(f"Invalid Tweet Type `{tweet_type}` when getting")
-
-    def get_tweet_created_time(self, tweet_id: int) -> datetime:
-        return self.get_tweet(tweet_id).created_at
