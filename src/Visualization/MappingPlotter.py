@@ -6,30 +6,39 @@ import matplotlib.pyplot as plt
 
 def create_demand_curves(is_core_node: bool,
                          mapping_manager: ContentMappingManager) -> None:
-    # TODO: docstring for all methods
-    if is_core_node:
-        demand = mapping_manager.get_agg_demand(UserType.CORE_NODE)
-    else:
-        demand = mapping_manager.get_agg_demand(UserType.CONSUMER)
+    """Create demand bar plot for each ContentType, where the users are
+    determined by <is_core_node>.
+    """
+    # Retrieve Data
+    user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
+    demand = mapping_manager.get_agg_demand(user_type)
+    # Plot
     plt.bar(demand.keys(), demand.values(), width=0.4)
 
 
 def create_supply_curves(is_core_node: bool,
                          mapping_manager: ContentMappingManager) -> None:
-    if is_core_node:
-        supply = mapping_manager.get_agg_supply(UserType.CORE_NODE)
-    else:
-        supply = mapping_manager.get_agg_supply(UserType.PRODUCER)
+    """Create supply bar plot for each ContentType, where the users are
+    determined by <is_core_node>.
+    """
+    # Retrieve Data
+    user_type = UserType.CORE_NODE if is_core_node else UserType.PRODUCER
+    supply = mapping_manager.get_agg_supply(user_type)
+    # Plot
     plt.bar(supply.keys(), supply.values(), width=0.4)
 
 
 def create_mapping_curves(mapping_manager: ContentMappingManager) -> None:
+    """Create both supply and demand bar plots for core node and ordinary user.
+    """
+    # Core Nodes
     plt.figure()
     create_demand_curves(True, mapping_manager)
     create_supply_curves(True, mapping_manager)
     plt.title("Supply and Demand for Core Node")
     plt.show()
 
+    # Ordinary Users
     plt.figure()
     create_demand_curves(False, mapping_manager)
     create_supply_curves(False, mapping_manager)
@@ -37,12 +46,16 @@ def create_mapping_curves(mapping_manager: ContentMappingManager) -> None:
     plt.show()
 
 
-def create_demand_time_series(user_type: UserType,
+def create_demand_time_series(is_core_node: bool,
                               mapping_manager: ContentMappingManager) -> None:
-    # retrieve value
+    """Create demand time series for each ContentType, where the users are
+    determined by <is_core_node>.
+    """
+    # Retrieve Data
+    user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
     time_stamps, demand = mapping_manager.get_type_demand_series(user_type)
 
-    # plot
+    # Plot
     plt.figure()
     for type_repr, time_series in demand:
         plt.plot(time_stamps, time_series, label=type_repr)
@@ -51,12 +64,16 @@ def create_demand_time_series(user_type: UserType,
     plt.show()
 
 
-def create_supply_time_series(user_type: UserType,
+def create_supply_time_series(is_core_node: bool,
                               mapping_manager: ContentMappingManager) -> None:
-    # retrieve value
+    """Create demand time series for each ContentType, where the users are
+    determined by <is_core_node>.
+    """
+    # Retrieve Data
+    user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
     time_stamps, supply = mapping_manager.get_type_supply_series(user_type)
 
-    # plot
+    # Plot
     plt.figure()
     for type_repr, time_series in supply:
         plt.plot(time_stamps, time_series, label=type_repr)
