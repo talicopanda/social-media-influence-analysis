@@ -25,7 +25,7 @@ def kmer(X: np.array, k: int, radius_tol=0.1, max_iters=100) -> Tuple[np.array, 
     The assignments are an array of size n indicating the cluster index (0 to k-1) to which each vector is assigned.
     The centers are a matrix of shape (k, d) containing the coordinates of the cluster centers.
     """
-
+    np.random.seed(42)
     # Step 1: Initialize cluster centers randomly
 
     # np.random.choice generates an array of k unique integers between 0 and n-1,
@@ -87,10 +87,10 @@ def kmeans(X: np.array, k: int) -> Tuple[np.array, np.array]:
 
 
 def plot_kmeans_inertia(embeddings: Dict[int, List]):
-    """ 
+    """
     Elbow method to find a good value of k:
 
-    A good model is one with low inertia AND a low number of clusters (K). 
+    A good model is one with low inertia AND a low number of clusters (K).
     However, this is a tradeoff because as K increases, inertia decreases.
 
     See the graph outputted and find the k where the decrease in inertia begins to slow.
