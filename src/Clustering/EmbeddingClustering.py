@@ -16,6 +16,15 @@ class EmbeddingClustering(ContentMarketClustering):
     def generate_tweet_to_type(self):
         """Assign each tweet with embedding vector generated from ./tweet2vec.
         """
-        self.tweet_to_type = {int(tweet_id): vector
-                              for tweet_id, vector in self.embeddings.items()}
+        content_type_set = set()
+        for tweet_id, vector in self.embeddings.items():
+            self.tweet_to_type[tweet_id] = self._populate_content_type(
+                tuple(vector), content_type_set)
+
+        # self.cluster_centers = {}
+        # for i in range(len(self.centers)):
+        #     self.cluster_centers[str(i)] = self.centers[i].tolist()
+        ###
+        # self.tweet_to_type = {int(tweet_id): self._populate_content_type(tuple(vector), content_type_set)
+        #                       for tweet_id, vector in self.embeddings.items()}
         print("===============Successfully Classify Content===============")

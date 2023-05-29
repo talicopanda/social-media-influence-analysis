@@ -5,7 +5,7 @@ from User.ContentMarketUserManager import ContentMarketUserManager
 from Clustering.ContentMarketClusteringFactory import ContentMarketClusteringFactory
 from ContentSpace.ContentSpace import ContentSpace
 from ContentMarket.ContentMappingManager import ContentMappingManager
-from Visualization.MappingPlotter import *
+from Visualization.KmersPlotter import *
 
 import json
 import sys
@@ -41,6 +41,7 @@ def build_content_market(content_market_name, config, load = False):
 
     # Build User Manager
     user_manager = ContentMarketUserManager(dao, partition, tweet_manager)
+    # pickle.dump(user_manager, open("user_manager.pkl", "wb"))
 
     ##########################################################
     # Build Content Space
@@ -49,6 +50,7 @@ def build_content_market(content_market_name, config, load = False):
     if load:
         print("=================Load Clustering=================")
         clustering = pickle.load(open("clusters.pkl", "rb"))
+        # print(clustering.cluster_centers[0][0])
     else:
         cluster_factory = ContentMarketClusteringFactory(
             config["clustering_method"])
@@ -81,7 +83,8 @@ def build_content_market(content_market_name, config, load = False):
     ##########################################################
     # Plotting
     ##########################################################
-    create_mapping_curves(mapping_manager)
+    kmers_plotter = KmersPlotter()
+    kmers_plotter.create_mapping_curves(mapping_manager, True)
 
     return mapping_manager
 
@@ -101,24 +104,24 @@ if __name__ == '__main__':
     mapping_manager = build_content_market(content_market_name, config, load=True)
 
     # print("Generating data plots...")
-    #
+    
     # save_plots(content_market_name, "core_nodes", "in_community", config["num_bins"])
     # save_plots(content_market_name, "producers", "in_community", config["num_bins"])
     # save_plots(content_market_name, "consumers", "in_community", config["num_bins"])
-    #
+    
     # save_plots(content_market_name, "core_nodes", "out_of_community", config["num_bins"])
     # save_plots(content_market_name, "producers", "out_of_community", config["num_bins"])
     # save_plots(content_market_name, "consumers", "out_of_community", config["num_bins"])
-    #
+    
     # print("Performing and plotting PCA analysis...")
-    #
+    
     # pca(content_market_name, config, "in_community", num_dims=2)
     # pca(content_market_name, config, "out_of_community", num_dims=2)
     # pca(content_market_name, config, "in_community", num_dims=1)
     # pca(content_market_name, config, "out_of_community", num_dims=1)
-    #
+    
     # print("Interpreting cluster meanings...")
-    #
+    
     # print_cluster_contents(content_market_name, config)
 
 

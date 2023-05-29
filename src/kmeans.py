@@ -25,11 +25,13 @@ def kmer(X: np.array, k: int, radius_tol=0.1, max_iters=100) -> Tuple[np.array, 
     The assignments are an array of size n indicating the cluster index (0 to k-1) to which each vector is assigned.
     The centers are a matrix of shape (k, d) containing the coordinates of the cluster centers.
     """
+    # Seed to ensure consistency between different files
     np.random.seed(42)
+
     # Step 1: Initialize cluster centers randomly
 
     # np.random.choice generates an array of k unique integers between 0 and n-1,
-    # which are used as indices to select the random vectors from X
+    # which are used as indices to select the random vectors from X 
     centers = X[np.random.choice(X.shape[0], k, replace=False), :]
     radius = 0
     for iter in range(max_iters):
