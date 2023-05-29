@@ -58,7 +58,11 @@ class MappingCausalityAnalysis:
         for content_type_repr in self.mapping_manager.get_content_type_repr():
             core_node_series = self.mapping_manager.get_type_demand_series(UserType.CORE_NODE)[1][content_type_repr]
             producer_series = self.mapping_manager.get_type_supply_series(UserType.PRODUCER)[1][content_type_repr]
-            p_dict[content_type_repr] = min(gc_score_for_lags(core_node_series,
-                                                              producer_series,
-                                                              lags))
+            try:
+                p_dict[content_type_repr] = min(gc_score_for_lags(core_node_series,
+                                                                  producer_series,
+                                                                  lags))
+            except InfeasibleTestError:
+                print(f"ContentType {content_type_repr} has constant series")
+                p_dict[content_type_repr] = 1
         return p_dict

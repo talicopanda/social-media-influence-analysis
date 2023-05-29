@@ -46,7 +46,6 @@ def build_content_market(content_market_name, config, load=False):
 
     # Build User Manager
     user_manager = ContentMarketUserManager(dao, partition, tweet_manager)
-    # pickle.dump(user_manager, open("user_manager.pkl", "wb"))
 
     ##########################################################
     # Build Content Space
@@ -54,8 +53,7 @@ def build_content_market(content_market_name, config, load=False):
     # Build/Load Clustering
     if load:
         print("=================Load Clustering=================")
-        clustering = pickle.load(open("clusters.pkl", "rb"))
-        # print(clustering.cluster_centers[0][0])
+        clustering = pickle.load(open("kmers_clusters.pkl", "rb"))
     else:
         cluster_factory = ContentMarketClusteringFactory(
             config["clustering_method"])
@@ -64,7 +62,7 @@ def build_content_market(content_market_name, config, load=False):
             "num_bins": config["num_bins"]
         })
         clustering.generate_tweet_to_type()
-        pickle.dump(clustering, open("clusters.pkl", "wb"))
+        pickle.dump(clustering, open("kmers_clusters.pkl", "wb"))
 
     # Build Content Space
     content_space = ContentSpace()
