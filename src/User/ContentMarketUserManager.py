@@ -177,7 +177,6 @@ class ContentMarketUserManager:
                                content_space: ContentSpace,
                                tweet_types: List[TweetType]) -> \
             Dict[Any, List[int]]:
-        # TODO: internalize the calculation into each user
         len_time = len(time_stamps)
         # initialize dictionary storage
         freq_dict = {}

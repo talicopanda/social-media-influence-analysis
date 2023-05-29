@@ -89,10 +89,10 @@ def kmeans(X: np.array, k: int) -> Tuple[np.array, np.array]:
 
 
 def plot_kmeans_inertia(embeddings: Dict[int, List]):
-    """ 
+    """
     Elbow method to find a good value of k:
 
-    A good model is one with low inertia AND a low number of clusters (K). 
+    A good model is one with low inertia AND a low number of clusters (K).
     However, this is a tradeoff because as K increases, inertia decreases.
 
     See the graph outputted and find the k where the decrease in inertia begins to slow.

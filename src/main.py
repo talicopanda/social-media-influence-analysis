@@ -47,7 +47,6 @@ def build_content_market(content_market_name, config, load = False):
     # Build Content Space
     ##########################################################
     # Build/Load Clustering
-    clustering = None
     if load:
         print("=================Load Clustering=================")
         clustering = pickle.load(open("clusters.pkl", "rb"))
@@ -87,49 +86,6 @@ def build_content_market(content_market_name, config, load = False):
     kmers_plotter = KmersPlotter()
     kmers_plotter.create_mapping_curves(mapping_manager, True)
 
-    # builder = ContentMarketBuilder(
-    #     dao, partitioning_strategy, config['num_bins'], config['embedding_type'])
-    #
-    # print("Building users...")
-    #
-    # users = builder.build_users()
-    #
-    # print("Loading tweets...")
-    #
-    # builder.load_tweets(users)
-    #
-    # print("Partitioning users...")
-    #
-    # producers, consumers, core_nodes = builder.partition_users(users.values())
-    #
-    # print("Computing bins...")
-    #
-    # clustering = 0
-    # if load:
-    #     clustering = pickle.load(open("clusters.pkl", "rb"))
-    # else:
-    #     clustering = builder.compute_bins()
-    #     pickle.dump(clustering, open("clusters.pkl", "wb"))
-    #
-    # print("Computing supplies...")
-    #
-    # # compute supply for producers given clustering
-    # for producer in producers:
-    #     producer.calculate_supply(clustering)
-    #
-    # print("Computing demands...")
-    #
-    # # computer demand for consumers given clustering
-    # for consumer in consumers:
-    #     consumer.calculate_demand(clustering)
-    #
-    # for core_node in core_nodes:
-    #     core_node.calculate_demand(clustering)
-    #     core_node.calculate_supply(clustering)
-    #
-    # content_market = ContentMarket(content_market_name, consumers, producers, core_nodes, clustering)
-    #
-    # dao.write_content_market(content_market)
     return mapping_manager
 
 
@@ -145,7 +101,7 @@ if __name__ == '__main__':
 
     print("Building content market...")
 
-    build_content_market(content_market_name, config, load=True)
+    mapping_manager = build_content_market(content_market_name, config, load=True)
 
     # print("Generating data plots...")
     

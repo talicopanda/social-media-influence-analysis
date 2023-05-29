@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 
 class ContentMarketTweet:
@@ -11,11 +12,10 @@ class ContentMarketTweet:
     created_at: datetime
     text: str
     lang: str
-    retweet_id: str
-    retweet_user_id: str
-    quote_id: str
-    quote_user_id: str
-    # TODO: add hashtags and content_vector here
+    retweet_id: Optional[str]
+    retweet_user_id: Optional[str]
+    quote_id: Optional[str]
+    quote_user_id: Optional[str]
 
     def __init__(self, id: int, user_id: int, created_at: datetime, text: str, lang: str,
                  retweet_id: str = None, retweet_user_id: str = None, quote_id: str = None,
