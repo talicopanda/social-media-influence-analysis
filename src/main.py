@@ -6,6 +6,7 @@ from Clustering.ContentMarketClusteringFactory import ContentMarketClusteringFac
 from ContentSpace.ContentSpace import ContentSpace
 from ContentMarket.ContentMappingManager import ContentMappingManager
 from Visualization.KmersPlotter import *
+from Visualization.PCAPlotter import *
 
 import json
 import sys
@@ -50,7 +51,7 @@ def build_content_market(content_market_name, config, load = False):
     clustering = None
     if load:
         print("=================Load Clustering=================")
-        clustering = pickle.load(open("clusters.pkl", "rb"))
+        clustering = pickle.load(open("clusters2.pkl", "rb"))
         # print(clustering.cluster_centers[0][0])
     else:
         cluster_factory = ContentMarketClusteringFactory(
@@ -60,7 +61,7 @@ def build_content_market(content_market_name, config, load = False):
             "num_bins": config["num_bins"]
         })
         clustering.generate_tweet_to_type()
-        pickle.dump(clustering, open("clusters.pkl", "wb"))
+        pickle.dump(clustering, open("clusters2.pkl", "wb"))
 
     # Build Content Space
     content_space = ContentSpace()
@@ -84,8 +85,17 @@ def build_content_market(content_market_name, config, load = False):
     ##########################################################
     # Plotting
     ##########################################################
-    kmers_plotter = KmersPlotter()
-    kmers_plotter.create_mapping_curves(mapping_manager, True)
+    # KMers Plotting
+    # kmers_plotter = KmersPlotter()
+    # kmers_plotter.create_mapping_curves(mapping_manager, True)
+
+    # PCA 2D Plotting
+    pca_plotter = PCAPlotter(2)
+    pca_plotter.create_demand_curves(is_core_node=False, mapping_manager=mapping_manager, save=True)
+    pca_plotter.create_demand_curves(is_core_node=True, mapping_manager=mapping_manager, save=True)
+    pca_plotter.create_supply_curves(is_core_node=False, mapping_manager=mapping_manager, save=True)
+    pca_plotter.create_supply_curves(is_core_node=True, mapping_manager=mapping_manager, save=True)
+    pca_plotter.create_mapping_curves(mapping_manager, save=True)
 
     # builder = ContentMarketBuilder(
     #     dao, partitioning_strategy, config['num_bins'], config['embedding_type'])
