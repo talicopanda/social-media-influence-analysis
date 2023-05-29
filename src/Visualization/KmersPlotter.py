@@ -14,12 +14,11 @@ class KmersPlotter(MappingPlotter):
         """
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
-        print(str(user_type))
         demand = mapping_manager.get_agg_demand(user_type)
         # Plot
         plt.bar(demand.keys(), demand.values(), width=0.4)
         if save:
-            plt.savefig(f'../results/kmers_' + 'demand_for_' + user_type)
+            plt.savefig(f'../results/kmers_' + 'demand_for_' + user_type.value)
 
 
     def create_supply_curves(self, is_core_node: bool,
@@ -34,7 +33,7 @@ class KmersPlotter(MappingPlotter):
         # Plot
         plt.bar(supply.keys(), supply.values(), width=0.4)
         if save:
-            plt.savefig(f'../results/kmers_' + 'supply_for_' + user_type)
+            plt.savefig(f'../results/kmers_' + 'supply_for_' + user_type.value)
 
 
     def create_mapping_curves(self, mapping_manager: ContentMappingManager,
