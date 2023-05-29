@@ -39,6 +39,10 @@ class ContentMarketDAO(ABC):
         pass
 
     @abstractmethod
+    def load_replies(self) -> pymongo.cursor.Cursor:
+        pass
+
+    @abstractmethod
     def load_content_market(self, content_market_id):
         pass
 

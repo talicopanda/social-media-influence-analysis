@@ -112,6 +112,14 @@ class ContentMarketUserManager:
                 TweetType.RETWEET_OF_OUT_COMM):
             self.get_user(int(tweet.retweet_user_id)). \
                 retweets_of_out_community.add(tweet)
+        
+        # For Replies
+        # TODO: Remove later
+        for tweet in tweet_manager.get_type_tweets(
+                TweetType.REPLY):
+            self.get_user(int(tweet.user_id)). \
+                replies.add(tweet)
+
 
     def get_user(self, userid: int) -> ContentMarketUser:
         """Return a User with <userid>.
@@ -149,6 +157,8 @@ class ContentMarketUserManager:
             return user.retweets_of_in_community
         elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
             return user.retweets_of_out_community
+        elif tweet_type == TweetType.REPLY:
+            return user.replies
         else:
             raise Exception(f"Invalid Tweet Type `{tweet_type}` when getting")
 
