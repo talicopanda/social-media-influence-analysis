@@ -1,7 +1,7 @@
 from ContentSpace.ContentSpace import ContentSpace
 from User.ContentMarketUserManager import ContentMarketUserManager
 from User.UserType import UserType
-from Tweet.TweetType import TweetType
+from Tweet.TweetType import TweetType, get_tweet_type
 
 from typing import Dict, List, Any
 from datetime import datetime, timedelta
@@ -14,6 +14,9 @@ class ContentMappingManager:
     period: timedelta
 
     time_stamps: List[datetime]
+    demand_spec: Dict[UserType, List[TweetType]]
+    supply_spec: Dict[UserType, List[TweetType]]
+
     type_demand: Dict[UserType, Dict[Any, List[int]]]
     type_supply: Dict[UserType, Dict[Any, List[int]]]
     agg_demand: Dict[UserType, Dict[Any, int]]
@@ -21,7 +24,8 @@ class ContentMappingManager:
 
     def __init__(self, content_space: ContentSpace,
                  user_manager: ContentMarketUserManager,
-                 period: timedelta):
+                 period: timedelta,
+                 mapping_spec: Dict[str, Dict[str, List[str]]]):
         # load from arguments
         self.content_space = content_space
         self.user_manager = user_manager
@@ -30,6 +34,11 @@ class ContentMappingManager:
 
         # create time stamps
         self._create_time_stamps()
+
+        # extract supply and demand specification
+        self.demand_spec = {}
+        self.supply_spec = {}
+        self._get_mapping_spec(mapping_spec)
 
         # initialize supply and demand variable
         self.type_demand = {}
@@ -74,6 +83,29 @@ class ContentMappingManager:
             self.time_stamps.append(curr_time)
             curr_time += self.period
 
+    def _get_mapping_spec(self, mapping_spec: Dict[str,
+    Dict[str, List[str]]]) -> None:
+        """Extract information from <mapping_spec> and store in class
+        attributes.
+        """
+        # extract and store
+        self.demand_spec[UserType.CONSUMER] = [get_tweet_type(tweet_str) for
+                                               tweet_str in
+                                               mapping_spec["consumer"][
+                                                   "demand"]]
+        self.demand_spec[UserType.CORE_NODE] = [get_tweet_type(tweet_str) for
+                                                tweet_str in
+                                                mapping_spec["core node"][
+                                                    "demand"]]
+        self.supply_spec[UserType.PRODUCER] = [get_tweet_type(tweet_str) for
+                                               tweet_str in
+                                               mapping_spec["producer"][
+                                                   "supply"]]
+        self.supply_spec[UserType.CORE_NODE] = [get_tweet_type(tweet_str) for
+                                                tweet_str in
+                                                mapping_spec["core node"][
+                                                    "supply"]]
+
     def _calculate_type_mapping(self, user_type: UserType,
                                 storage: Dict[UserType, Dict[Any, List[int]]],
                                 tweet_types: List[TweetType]) -> None:
@@ -81,7 +113,7 @@ class ContentMappingManager:
         <tweet_types>, and store in <storage>.
         """
         # get data
-        freq_dict = self.user_manager.\
+        freq_dict = self.user_manager. \
             calculate_time_mapping(user_type, self.time_stamps,
                                    self.content_space, tweet_types)
         # store data
@@ -92,10 +124,10 @@ class ContentMappingManager:
         and store in self.type_demand.
         """
         print("=================Calculate Type Demand=================")
-        tweet_types = [TweetType.RETWEET_OF_IN_COMM,
-                       TweetType.RETWEET_OF_OUT_COMM]
-        self._calculate_type_mapping(UserType.CONSUMER, self.type_demand, tweet_types)
-        self._calculate_type_mapping(UserType.CORE_NODE, self.type_demand, tweet_types)
+        self._calculate_type_mapping(UserType.CONSUMER, self.type_demand,
+                                     self.demand_spec[UserType.CONSUMER])
+        self._calculate_type_mapping(UserType.CORE_NODE, self.type_demand,
+                                     self.demand_spec[UserType.CORE_NODE])
         print("=============Successfully Calculate Type Demand=============")
 
     def calculate_type_supply(self) -> None:
@@ -103,11 +135,10 @@ class ContentMappingManager:
         and store in self.type_supply.
         """
         print("=================Calculate Type Supply=================")
-        tweet_types = [TweetType.ORIGINAL_TWEET,
-                       TweetType.QUOTE_OF_IN_COMM,
-                       TweetType.QUOTE_OF_OUT_COMM]
-        self._calculate_type_mapping(UserType.PRODUCER, self.type_supply, tweet_types)
-        self._calculate_type_mapping(UserType.CORE_NODE, self.type_supply, tweet_types)
+        self._calculate_type_mapping(UserType.PRODUCER, self.type_supply,
+                                     self.supply_spec[UserType.PRODUCER])
+        self._calculate_type_mapping(UserType.CORE_NODE, self.type_supply,
+                                     self.supply_spec[UserType.CORE_NODE])
         print("=============Successfully Calculate Type Supply=============")
 
     def calculate_agg_mapping(self):

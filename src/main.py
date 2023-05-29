@@ -2,9 +2,9 @@ from DAO.ContentMarketFactory import ContentMarketFactory
 from UserPartitioning import UserPartitioningStrategyFactory
 from Tweet.ContentMarketTweetManager import ContentMarketTweetManager
 from User.ContentMarketUserManager import ContentMarketUserManager
-from Clustering.ContentMarketClusteringFactory import ContentMarketClusteringFactory
+from Clustering.ContentMarketClusteringFactory import \
+    ContentMarketClusteringFactory
 from ContentSpace.ContentSpace import ContentSpace
-from ContentMarket.ContentMappingManager import ContentMappingManager
 from Visualization.KmersPlotter import *
 from Visualization.PCAPlotter import *
 
@@ -16,7 +16,7 @@ from analysis import *
 from datetime import timedelta
 
 
-def build_content_market(content_market_name, config, load = False):
+def build_content_market(content_market_name, config, load=False):
     ##########################################################
     # Pre check
     ##########################################################
@@ -24,7 +24,8 @@ def build_content_market(content_market_name, config, load = False):
         raise Exception("Unsupported database type")
 
     # check if a content market database with the given name already exists
-    database_names = pymongo.MongoClient(config['database']['connection_url']).list_database_names()
+    database_names = pymongo.MongoClient(
+        config['database']['connection_url']).list_database_names()
     if content_market_name in database_names != -1:
         raise Exception("a content market with this name already exists "
                         "in the database. Either drop this database "
@@ -35,7 +36,8 @@ def build_content_market(content_market_name, config, load = False):
     ##########################################################
     # build DAO and Partition Strategy
     dao = ContentMarketFactory.get_content_market_dao(config['database'])
-    partition = UserPartitioningStrategyFactory.get_user_type_strategy(config['partitioning_strategy'])
+    partition = UserPartitioningStrategyFactory.get_user_type_strategy(
+        config['partitioning_strategy'])
 
     # Build Tweet Manager
     tweet_manager = ContentMarketTweetManager(dao)
@@ -48,7 +50,6 @@ def build_content_market(content_market_name, config, load = False):
     # Build Content Space
     ##########################################################
     # Build/Load Clustering
-    clustering = None
     if load:
         print("=================Load Clustering=================")
         clustering = pickle.load(open("clusters2.pkl", "rb"))
@@ -70,12 +71,29 @@ def build_content_market(content_market_name, config, load = False):
     ##########################################################
     # Calculate Supply and Demand
     ##########################################################
-    # Calculate individual supply and demand
-    # user_manager.calculate_mapping(clustering) # might not need
+    # define supply and demand
+    mapping_spec = {
+        "consumer": {
+            "demand": ["original tweet",
+                       "quote in community",
+                       "quote out community"]
+        },
+        "producer": {
+            "supply": ["retweet in community",
+                       "retweet out community"]
+        },
+        "core node": {
+            "demand": ["original tweet",
+                       "quote in community",
+                       "quote out community"],
+            "supply": ["retweet in community",
+                       "retweet out community"]
+        }
+    }
 
     # Build Mapping Manager
     mapping_manager = ContentMappingManager(content_space, user_manager,
-                                            timedelta(days=30))
+                                            timedelta(days=30), mapping_spec)
 
     # Calculate Aggregate Supply and Demand
     mapping_manager.calculate_type_demand()
@@ -97,49 +115,6 @@ def build_content_market(content_market_name, config, load = False):
     pca_plotter.create_supply_curves(is_core_node=True, mapping_manager=mapping_manager, save=True)
     pca_plotter.create_mapping_curves(mapping_manager, save=True)
 
-    # builder = ContentMarketBuilder(
-    #     dao, partitioning_strategy, config['num_bins'], config['embedding_type'])
-    #
-    # print("Building users...")
-    #
-    # users = builder.build_users()
-    #
-    # print("Loading tweets...")
-    #
-    # builder.load_tweets(users)
-    #
-    # print("Partitioning users...")
-    #
-    # producers, consumers, core_nodes = builder.partition_users(users.values())
-    #
-    # print("Computing bins...")
-    #
-    # clustering = 0
-    # if load:
-    #     clustering = pickle.load(open("clusters.pkl", "rb"))
-    # else:
-    #     clustering = builder.compute_bins()
-    #     pickle.dump(clustering, open("clusters.pkl", "wb"))
-    #
-    # print("Computing supplies...")
-    #
-    # # compute supply for producers given clustering
-    # for producer in producers:
-    #     producer.calculate_supply(clustering)
-    #
-    # print("Computing demands...")
-    #
-    # # computer demand for consumers given clustering
-    # for consumer in consumers:
-    #     consumer.calculate_demand(clustering)
-    #
-    # for core_node in core_nodes:
-    #     core_node.calculate_demand(clustering)
-    #     core_node.calculate_supply(clustering)
-    #
-    # content_market = ContentMarket(content_market_name, consumers, producers, core_nodes, clustering)
-    #
-    # dao.write_content_market(content_market)
     return mapping_manager
 
 
@@ -155,28 +130,26 @@ if __name__ == '__main__':
 
     print("Building content market...")
 
-    build_content_market(content_market_name, config, load=True)
+    mapping_manager = build_content_market(content_market_name, config,
+                                           load=True)
 
     # print("Generating data plots...")
-    
+
     # save_plots(content_market_name, "core_nodes", "in_community", config["num_bins"])
     # save_plots(content_market_name, "producers", "in_community", config["num_bins"])
     # save_plots(content_market_name, "consumers", "in_community", config["num_bins"])
-    
+
     # save_plots(content_market_name, "core_nodes", "out_of_community", config["num_bins"])
     # save_plots(content_market_name, "producers", "out_of_community", config["num_bins"])
     # save_plots(content_market_name, "consumers", "out_of_community", config["num_bins"])
-    
+
     # print("Performing and plotting PCA analysis...")
-    
+
     # pca(content_market_name, config, "in_community", num_dims=2)
     # pca(content_market_name, config, "out_of_community", num_dims=2)
     # pca(content_market_name, config, "in_community", num_dims=1)
     # pca(content_market_name, config, "out_of_community", num_dims=1)
-    
+
     # print("Interpreting cluster meanings...")
-    
+
     # print_cluster_contents(content_market_name, config)
-
-
-
