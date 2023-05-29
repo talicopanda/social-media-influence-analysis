@@ -188,3 +188,7 @@ class ContentMappingManager:
         """Return the aggregate supply dictionary for <user_type>.
         """
         return self.agg_supply[user_type]
+
+    def get_content_type_repr(self) -> List:
+        return [content_type.get_representation() for content_type
+                in self.content_space.get_all_content_types()]
