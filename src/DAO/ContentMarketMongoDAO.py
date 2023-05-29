@@ -1,7 +1,9 @@
 from DAO.ContentMarketDAO import ContentMarketDAO
 from User.ContentMarketUser import ContentMarketUser
-from ContentMarket.ContentMarket import ContentMarket
-from typing import List
+from ContentMarket.ContentMappingManager import ContentMappingManager
+from User.UserType import UserType
+
+from typing import List, Dict, Any
 import pymongo
 
 
@@ -101,50 +103,78 @@ class ContentMarketMongoDAO(ContentMarketDAO):
     def load_content_market(self, content_market_name):
         return self.content_market_db[self.content_market_output_db].find_one({"name": content_market_name})
 
-    def write_content_market(self, content_market: ContentMarket):
-        cm_dict = vars(content_market)
+    def write_mapping_manager(self, name: str,
+                              mapping_manager: ContentMappingManager) -> None:
+        """Write supply and demand to database.
+        """
+        # initialize database connection
+        output_db = pymongo.MongoClient(self.connection_url)[name]
 
-        # in case a user is both a producer and consumer,
-        # we can't convert the object twice
-        converted_users = set()
+        # create processable dictionary
+        pre_cm_dict = {}
 
-        # convert nest objects into dictionaries to write out as json to mongo
-        def serialize_user_fields(user_type: str):
-            for j in range(len(cm_dict[user_type][i]["original_tweets"])):
-                cm_dict[user_type][i]["original_tweets"][j] = vars(cm_dict[user_type][i]["original_tweets"][j])
-            for j in range(len(cm_dict[user_type][i]["quotes_of_in_community"])):
-                cm_dict[user_type][i]["quotes_of_in_community"][j] = vars(cm_dict[user_type][i]["quotes_of_in_community"][j])
-            for j in range(len(cm_dict[user_type][i]["quotes_of_out_community"])):
-                cm_dict[user_type][i]["quotes_of_out_community"][j] = vars(cm_dict[user_type][i]["quotes_of_out_community"][j])
-            for j in range(len(cm_dict[user_type][i]["retweets_of_in_community"])):
-                cm_dict[user_type][i]["retweets_of_in_community"][j] = vars(cm_dict[user_type][i]["retweets_of_in_community"][j])
-            for j in range(len(cm_dict[user_type][i]["retweets_of_out_community"])):
-                cm_dict[user_type][i]["retweets_of_out_community"][j] = vars(cm_dict[user_type][i]["retweets_of_out_community"][j])
+        # convert demand
+        for user_type in mapping_manager.demand_spec.keys():
+            user_key = user_type.value.replace(" ", "_")
+            pre_cm_dict[user_key + "_type_demand"] = mapping_manager.type_demand[user_type]
+            pre_cm_dict[user_key + "_agg_demand"] = mapping_manager.agg_demand[user_type]
 
+        # convert supply
+        for user_type in mapping_manager.supply_spec.keys():
+            user_key = user_type.value.replace(" ", "_")
+            pre_cm_dict[user_key + "_type_supply"] = mapping_manager.type_supply[user_type]
+            pre_cm_dict[user_key + "_agg_supply"] = mapping_manager.agg_supply[user_type]
 
-        for i in range(len(cm_dict["consumers"])):
-            cm_dict["consumers"][i] = vars(cm_dict["consumers"][i])
-            converted_users.add(cm_dict["consumers"][i]["user_id"])
-            serialize_user_fields("consumers")
+        key_map_created = False
+        cm_dict = {}
+        key_dict = {}
+        for key, value in pre_cm_dict.items():
+            if not key_map_created:
+                key_dict, data_dict = self._create_num_type_mapping(value)
+                cm_dict[key] = data_dict
+                key_map_created = True
+            else:
+                cm_dict[key] = self._convert_num_type_mapping(value, key_dict)
 
+        # write to database
+        # time stamps
+        output_db["time_stamps"].insert_one({
+            "time_stamps": mapping_manager.time_stamps
+        })
+        # ContentType mapping
+        output_db["content_type"].insert_many(
+            [{key: value} for key, value in key_dict.items()]
+        )
+        # supply and demand
+        for coll_name, data in cm_dict.items():
+            output_db[coll_name].insert_one(data)
 
-        for i in range(len(cm_dict["producers"])):
-            cm_dict["producers"][i] = vars(cm_dict["producers"][i])
-            if cm_dict["producers"][i]["user_id"] in converted_users:
-                continue
-            serialize_user_fields("producers")
+    def _create_num_type_mapping(self, raw_dict: Dict) -> (Dict[str, Any], Dict):
+        """Return a mapping of string '1', '2', '3', ... to keys in <raw_dict>,
+        and '1', '2', '3', ... to values in <raw_dict>. The original key-value
+        pair correspond to the same key in the return dictionaries.
+        """
+        acc = "0"
+        key_dict = {}
+        data_dict = {}
+        for key, value in raw_dict.items():
+            key_dict[acc] = key
+            data_dict[acc] = value
+            acc = str(int(acc) + 1)
+        return key_dict, data_dict
 
-        # Note: this assumes that a core node cannot also be a producer or consumer
-        for i in range(len(cm_dict["core_nodes"])):
-            cm_dict["core_nodes"][i] = vars(cm_dict["core_nodes"][i])
-            serialize_user_fields("core_nodes")
+    def _convert_num_type_mapping(self, raw_dict: Dict, key_dict: Dict[str, Any]) -> Dict:
+        """Return a dictionary with <raw_dict>'s keys changed to corresponding
+        keys in <key_dict>.
+        """
+        data_dict = {}
+        for key, value in raw_dict.items():
+            data_dict[self.get_key_from_value(key_dict, key)] = value
+        return data_dict
 
-        cm_dict["clustering"] = vars(cm_dict["clustering"])
-
-        output_db = pymongo.MongoClient(self.connection_url)[content_market.name]
-        output_db["core_nodes"].insert_many(cm_dict["core_nodes"])
-        output_db["consumers"].insert_many(cm_dict["consumers"])
-        output_db["producers"].insert_many(cm_dict["producers"])
-        output_db["clustering"].insert_one(cm_dict["clustering"])
-
-
+    def get_key_from_value(self, raw_dict: Dict, value: Any) -> Any:
+        """Return the key that maps to <value> in <raw_dict>.
+        """
+        for k, v in raw_dict.items():
+            if v == value:
+                return k

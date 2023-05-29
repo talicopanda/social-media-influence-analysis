@@ -100,6 +100,12 @@ def build_content_market(content_market_name, config, load=False):
     mapping_manager.calculate_agg_mapping()
 
     ##########################################################
+    # Write Mapping Manager to Database
+    ##########################################################
+    write_db_name = "kmers_mapping"
+    dao.write_mapping_manager(write_db_name, mapping_manager)
+
+    ##########################################################
     # Plotting
     ##########################################################
     kmers_plotter = KmersPlotter()

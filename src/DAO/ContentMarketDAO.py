@@ -41,7 +41,3 @@ class ContentMarketDAO(ABC):
     @abstractmethod
     def load_content_market(self, content_market_id):
         pass
-
-    @abstractmethod
-    def write_content_market(self, content_market):
-        pass
