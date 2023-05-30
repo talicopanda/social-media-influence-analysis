@@ -16,3 +16,4 @@ class TweetType(Enum):
     QUOTE_OF_OUT_COMM = "quote out community"
     RETWEET_OF_IN_COMM = "retweet in community"
     RETWEET_OF_OUT_COMM = "retweet out community"
+    REPLY = "reply"

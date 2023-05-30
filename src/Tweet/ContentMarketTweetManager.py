@@ -12,6 +12,7 @@ class ContentMarketTweetManager:
     quotes_of_out_comm: Set[ContentMarketTweet]
     retweets_of_in_comm: Set[ContentMarketTweet]
     retweets_of_out_comm: Set[ContentMarketTweet]
+    replies: Set[ContentMarketTweet]
 
     def __init__(self, dao: ContentMarketDAO):
         print("=================Build Tweets=================")
@@ -21,6 +22,7 @@ class ContentMarketTweetManager:
         self.quotes_of_out_comm = set()
         self.retweets_of_in_comm = set()
         self.retweets_of_out_comm = set()
+        self.replies = set()
 
         # load tweets into manager
         self._load_tweets(dao)
@@ -59,13 +61,19 @@ class ContentMarketTweetManager:
             del retweet_of_out_community["_id"]
             tweet = ContentMarketTweet(**retweet_of_out_community)
             self.retweets_of_out_comm.add(tweet)
+        
+        print("===============Build Replies===============")
+        for reply in dao.load_replies():
+            del reply["_id"]
+            tweet = ContentMarketTweet(**reply)
+            self.replies.add(tweet)
 
     def get_tweet(self, tweet_id: int) -> ContentMarketTweet:
         """Return Tweet with <tweet_id>.
         """
         for tweet_group in [self.original_tweets, self.quotes_of_in_comm,
                             self.quotes_of_out_comm, self.retweets_of_in_comm,
-                            self.retweets_of_out_comm]:
+                            self.retweets_of_out_comm, self.replies]:
             for tweet in tweet_group:
                 if tweet.id == tweet_id:
                     return tweet
@@ -94,5 +102,7 @@ class ContentMarketTweetManager:
             return self.retweets_of_in_comm
         elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
             return self.retweets_of_out_comm
+        elif tweet_type == TweetType.REPLY:
+            return self.replies
         else:
             raise Exception(f"Invalid Tweet Type `{tweet_type}` when getting")

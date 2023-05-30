@@ -49,6 +49,7 @@ class ContentMarketUser:
         self.quotes_of_out_community = set(kwargs.get("quotes_of_out_community", []))
         self.retweets_of_in_community = set(kwargs.get("retweets_of_in_community", []))
         self.retweets_of_out_community =set(kwargs.get("retweets_of_out_community", []))
+        self.replies = set(kwargs.get("replies", []))
 
     def build_support(self, tweets: Set[ContentMarketTweet],
                       clustering: ContentMarketClustering) \

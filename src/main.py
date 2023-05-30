@@ -8,6 +8,8 @@ from ContentSpace.ContentSpace import ContentSpace
 from Visualization.KmersPlotter import KmersPlotter
 from ContentMarket.ContentMappingManager import ContentMappingManager
 from Causality.MappingCausalityAnalysis import MappingCausalityAnalysis
+from Visualization.PCAPlotter import *
+from Visualization.TweetToRetweetRatio import *
 
 import json
 import sys
@@ -52,7 +54,8 @@ def build_content_market(content_market_name, config, load=False):
     # Build/Load Clustering
     if load:
         print("=================Load Clustering=================")
-        clustering = pickle.load(open("kmers_clusters.pkl", "rb"))
+        clustering = pickle.load(open("clusters_supply_only_embedding.pkl", "rb"))
+        # print(clustering.cluster_centers[0][0])
     else:
         cluster_factory = ContentMarketClusteringFactory(
             config["clustering_method"])
@@ -61,7 +64,7 @@ def build_content_market(content_market_name, config, load=False):
             "num_bins": config["num_bins"]
         })
         clustering.generate_tweet_to_type()
-        pickle.dump(clustering, open("kmers_clusters.pkl", "wb"))
+        pickle.dump(clustering, open("clusters_supply_only_embedding.pkl", "wb"))
 
     # Build Content Space
     content_space = ContentSpace()
@@ -71,48 +74,47 @@ def build_content_market(content_market_name, config, load=False):
     # Calculate Supply and Demand
     ##########################################################
     # define supply and demand
-    mapping_spec = {
+    full_mapping_spec = {
         "consumer": {
-            "demand": ["original tweet"]
+            "demand": ["retweet in community",
+                       "retweet out community"]
         },
         "producer": {
-            "supply": ["retweet in community",
-                       "retweet out community"]
+            "supply": ["original tweet"]
         },
         "core node": {
-            "demand": ["original tweet"],
-            "supply": ["retweet in community",
-                       "retweet out community"]
+            "demand": ["retweet in community",
+                       "retweet out community"],
+            "supply": ["original tweet"]
         }
     }
-    # mapping_spec = {
-    #     "consumer": {
-    #         "demand": ["original tweet",
-    #                    "quote in community",
-    #                    "quote out community"]
-    #     },
-    #     "producer": {
-    #         "supply": ["retweet in community",
-    #                    "retweet out community"]
-    #     },
-    #     "core node": {
-    #         "demand": ["original tweet",
-    #                    "quote in community",
-    #                    "quote out community"],
-    #         "supply": ["retweet in community",
-    #                    "retweet out community"]
-    #     }
-    # }
+    plotting_mapping_spec = {
+        "consumer": {
+            "demand": ["retweet out community"]
+        },
+        "producer": {
+            "supply": ["original tweet"]
+        },
+        "core node": {
+            "demand": ["retweet out community"],
+            "supply": ["original tweet"]
+        }
+    }
 
     # Build Mapping Manager
-    mapping_manager = ContentMappingManager(content_space, user_manager,
-                                            timedelta(days=30), mapping_spec)
+    full_mapping_manager = ContentMappingManager(content_space, user_manager,
+                                            timedelta(days=30), full_mapping_spec)
+    plotting_mapping_manager = ContentMappingManager(content_space, user_manager,
+                                            timedelta(days=30), plotting_mapping_spec)
 
     # Calculate Aggregate Supply and Demand
-    mapping_manager.calculate_type_demand()
-    mapping_manager.calculate_type_supply()
-    mapping_manager.calculate_agg_mapping()
-
+    full_mapping_manager.calculate_type_demand()
+    full_mapping_manager.calculate_type_supply()
+    full_mapping_manager.calculate_agg_mapping()
+    
+    plotting_mapping_manager.calculate_type_demand()
+    plotting_mapping_manager.calculate_type_supply()
+    plotting_mapping_manager.calculate_agg_mapping()
     ##########################################################
     # Write Mapping Manager to Database
     ##########################################################
@@ -121,10 +123,30 @@ def build_content_market(content_market_name, config, load=False):
     ##########################################################
     # Plotting
     ##########################################################
-    kmers_plotter = KmersPlotter()
-    kmers_plotter.create_mapping_curves(mapping_manager, True)
+    # KMers Plotting
+    # kmers_plotter = KmersPlotter()
+    # kmers_plotter.create_mapping_curves(full_mapping_manager, True)
 
-    return mapping_manager
+    # PCA 2D Plotting
+    pca_plotter = PCAPlotter(2, full_mapping_manager, plotting_mapping_manager)
+    # pca_plotter.compute_correlation_matrix()
+    pca_plotter.create_demand_curves(is_core_node=False, mapping_manager=plotting_mapping_manager, 
+                                     save=True)
+    pca_plotter.create_demand_curves(is_core_node=True, mapping_manager=plotting_mapping_manager, 
+                                     save=True)
+    pca_plotter.create_supply_curves(is_core_node=False, mapping_manager=plotting_mapping_manager, 
+                                     save=True)
+    pca_plotter.create_supply_curves(is_core_node=True, mapping_manager=plotting_mapping_manager, 
+                                     save=True)
+    pca_plotter.create_mapping_curves(plotting_mapping_manager, save=True)
+
+    # Retweet Ratios
+    plot_tweet_to_retweet_ratios({UserType.CORE_NODE}, full_mapping_manager, "in_community", True)
+    print(calculate_mean_tweet_to_retweet_ratios({UserType.CORE_NODE}, full_mapping_manager, "in_community"))
+    plot_tweet_to_retweet_ratios({UserType.PRODUCER, UserType.CONSUMER}, full_mapping_manager, "in_community", True)
+    print(calculate_mean_tweet_to_retweet_ratios({UserType.PRODUCER, UserType.CONSUMER}, full_mapping_manager, "in_community"))
+    
+    # return plotting_mapping_manager
 
 
 if __name__ == '__main__':
@@ -147,25 +169,3 @@ if __name__ == '__main__':
     lags = list(range(1, 5))
     mapping_causality.mapping_cause_all(lags)
     mapping_causality.mapping_cause_type(lags)
-
-
-    # print("Generating data plots...")
-
-    # save_plots(content_market_name, "core_nodes", "in_community", config["num_bins"])
-    # save_plots(content_market_name, "producers", "in_community", config["num_bins"])
-    # save_plots(content_market_name, "consumers", "in_community", config["num_bins"])
-
-    # save_plots(content_market_name, "core_nodes", "out_of_community", config["num_bins"])
-    # save_plots(content_market_name, "producers", "out_of_community", config["num_bins"])
-    # save_plots(content_market_name, "consumers", "out_of_community", config["num_bins"])
-
-    # print("Performing and plotting PCA analysis...")
-
-    # pca(content_market_name, config, "in_community", num_dims=2)
-    # pca(content_market_name, config, "out_of_community", num_dims=2)
-    # pca(content_market_name, config, "in_community", num_dims=1)
-    # pca(content_market_name, config, "out_of_community", num_dims=1)
-
-    # print("Interpreting cluster meanings...")
-
-    # print_cluster_contents(content_market_name, config)

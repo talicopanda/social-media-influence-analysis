@@ -99,6 +99,9 @@ class ContentMarketMongoDAO(ContentMarketDAO):
 
     def load_retweets_of_out_community(self) -> pymongo.cursor.Cursor:
         return self.content_market_db[self.clean_retweets_of_out_community_collection].find()
+    
+    def load_replies(self) -> pymongo.cursor.Cursor:
+        return self.content_market_db[self.clean_replies_collection].find()
 
     def load_content_market(self, content_market_name):
         return self.content_market_db[self.content_market_output_db].find_one({"name": content_market_name})
