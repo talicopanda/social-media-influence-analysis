@@ -8,6 +8,9 @@ from statsmodels.tsa.stattools import grangercausalitytests
 
 def gc_score_for_lag(indep_series: List[int],
                      dep_series: List[int], lag: int) -> float:
+    """Return the p value for Granger causality test for <indep_series>
+     and <dep_series> with <lag>.
+     """
     granger_test = grangercausalitytests(pd.DataFrame({
         "x": indep_series,
         "y": dep_series
@@ -17,6 +20,9 @@ def gc_score_for_lag(indep_series: List[int],
 
 def gc_score_for_lags(indep_series: List[int],
                       dep_series: List[int], lags: List[int]) -> List[float]:
+    """Return a list of p values for Granger causality test for <indep_series>
+    and <dep_series> with <lag>.
+    """
     granger_test = grangercausalitytests(pd.DataFrame({
         "x": indep_series,
         "y": dep_series

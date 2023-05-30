@@ -16,6 +16,9 @@ class MappingCausalityAnalysis:
         self.mapping_manager = mapping_manager
 
     def consumer_to_core_node_all(self, lags: List[int]) -> List[float]:
+        """Return a list of p values for Granger causality test with <lags>
+        for all consumers' demand and all core nodes' supply.
+        """
         # create consumer demand time series
         consumer_series = list(self.mapping_manager.get_type_demand_series(UserType.CONSUMER)[1].values())
         consumer_series = np.array(consumer_series).sum(axis=0)
@@ -28,6 +31,9 @@ class MappingCausalityAnalysis:
         return gc_score_for_lags(consumer_series, core_node_series, lags)
 
     def core_node_to_producer_all(self, lags: List[int]) -> List[float]:
+        """Return a list of p values for Granger causality test with <lags>
+        for all core nodes' demand and all producers' supply.
+        """
         # create core node demand time series
         core_node_series = list(self.mapping_manager.get_type_demand_series(UserType.CORE_NODE)[1].values())
         core_node_series = np.array(core_node_series).sum(axis=0)
@@ -41,6 +47,9 @@ class MappingCausalityAnalysis:
         return gc_score_for_lags(core_node_series, producer_series, lags)
 
     def mapping_cause_all(self, lags: List[int], sig_level: float = 0.05) -> None:
+        """Plot the p values for different <lags> by Granger Causality test
+        for the relationship between all consumers, core nodes, and producers.
+        """
         # calculate causality score
         c2c_scores = self.consumer_to_core_node_all(lags)
         c2p_scores = self.core_node_to_producer_all(lags)
@@ -56,6 +65,9 @@ class MappingCausalityAnalysis:
         plt.show()
 
     def consumer_to_core_node_type(self, lags: List[int]) -> Dict[Any, float]:
+        """Return a list of p values for Granger causality test with <lags>
+        within different ContentTypes for consumers and core nodes.
+        """
         p_dict = {}
         for content_type_repr in self.mapping_manager.get_content_type_repr():
             consumer_series = self.mapping_manager.get_type_demand_series(UserType.CONSUMER)[1][content_type_repr]
@@ -70,6 +82,9 @@ class MappingCausalityAnalysis:
         return p_dict
 
     def core_node_to_producer_type(self, lags: List[int]) -> Dict[Any, float]:
+        """Return a list of p values for Granger causality test with <lags>
+        within different ContentTypes for core nodes and producers.
+        """
         p_dict = {}
         for content_type_repr in self.mapping_manager.get_content_type_repr():
             core_node_series = self.mapping_manager.get_type_demand_series(UserType.CORE_NODE)[1][content_type_repr]
@@ -84,6 +99,10 @@ class MappingCausalityAnalysis:
         return p_dict
 
     def mapping_cause_type(self, lags: List[int], sig_level: float = 0.05) -> None:
+        """Plot the p values for different <lags> by Granger Causality test
+        for each ContentType for the relationship between consumers, core nodes,
+        and producers.
+        """
         # calculate causality score
         c2c_score_dict = self.consumer_to_core_node_type(lags)
         c2p_score_dict = self.core_node_to_producer_type(lags)
