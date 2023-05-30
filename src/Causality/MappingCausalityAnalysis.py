@@ -1,9 +1,10 @@
 from ContentMarket.ContentMappingManager import ContentMappingManager
 from User.UserType import UserType
-from Causality.CausalityAnalysis import *
-from statsmodels.tools.sm_exceptions import InfeasibleTestError
+from Causality.CausalityAnalysisTool import *
 
+from statsmodels.tools.sm_exceptions import InfeasibleTestError
 import numpy as np
+import matplotlib.pyplot as plt
 from typing import List, Dict, Any
 
 
@@ -39,6 +40,21 @@ class MappingCausalityAnalysis:
         # get granger score
         return gc_score_for_lags(core_node_series, producer_series, lags)
 
+    def mapping_cause_all(self, lags: List[int], sig_level: float = 0.05) -> None:
+        # calculate causality score
+        c2c_scores = self.consumer_to_core_node_all(lags)
+        c2p_scores = self.core_node_to_producer_all(lags)
+
+        # plot
+        plt.figure()
+        plt.plot(lags, c2c_scores, "^--", label="consumer to core node")
+        plt.plot(lags, c2p_scores, "o-.", label="core node to producer")
+        plt.axhline(y=sig_level, color="red", linestyle="--")
+        plt.legend()
+        plt.xticks(lags)
+        plt.title("Granger Score for All Users")
+        plt.show()
+
     def consumer_to_core_node_type(self, lags: List[int]) -> Dict[Any, float]:
         p_dict = {}
         for content_type_repr in self.mapping_manager.get_content_type_repr():
@@ -66,3 +82,21 @@ class MappingCausalityAnalysis:
                 print(f"ContentType {content_type_repr} has constant series")
                 p_dict[content_type_repr] = 1
         return p_dict
+
+    def mapping_cause_type(self, lags: List[int], sig_level: float = 0.05) -> None:
+        # calculate causality score
+        c2c_score_dict = self.consumer_to_core_node_type(lags)
+        c2p_score_dict = self.core_node_to_producer_type(lags)
+
+        # plot
+        plt.figure()
+        x_tick = list(c2c_score_dict.keys())
+        plt.bar(c2c_score_dict.keys(), c2c_score_dict.values(),
+                label="consumer to core node", alpha=0.5)
+        plt.bar(c2p_score_dict.keys(), c2p_score_dict.values(),
+                label="core node to producer", alpha=0.5)
+        plt.axhline(y=sig_level, color="red", linestyle="--")
+        plt.xticks(x_tick)
+        plt.legend()
+        plt.title("Granger Score for Different ContentType")
+        plt.show()

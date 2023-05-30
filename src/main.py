@@ -15,7 +15,6 @@ import pickle
 import pymongo
 from analysis import *
 from datetime import timedelta
-import matplotlib.pyplot as plt
 
 
 def build_content_market(content_market_name, config, load=False):
@@ -74,22 +73,36 @@ def build_content_market(content_market_name, config, load=False):
     # define supply and demand
     mapping_spec = {
         "consumer": {
-            "demand": ["original tweet",
-                       "quote in community",
-                       "quote out community"]
+            "demand": ["original tweet"]
         },
         "producer": {
             "supply": ["retweet in community",
                        "retweet out community"]
         },
         "core node": {
-            "demand": ["original tweet",
-                       "quote in community",
-                       "quote out community"],
+            "demand": ["original tweet"],
             "supply": ["retweet in community",
                        "retweet out community"]
         }
     }
+    # mapping_spec = {
+    #     "consumer": {
+    #         "demand": ["original tweet",
+    #                    "quote in community",
+    #                    "quote out community"]
+    #     },
+    #     "producer": {
+    #         "supply": ["retweet in community",
+    #                    "retweet out community"]
+    #     },
+    #     "core node": {
+    #         "demand": ["original tweet",
+    #                    "quote in community",
+    #                    "quote out community"],
+    #         "supply": ["retweet in community",
+    #                    "retweet out community"]
+    #     }
+    # }
 
     # Build Mapping Manager
     mapping_manager = ContentMappingManager(content_space, user_manager,
@@ -103,8 +116,7 @@ def build_content_market(content_market_name, config, load=False):
     ##########################################################
     # Write Mapping Manager to Database
     ##########################################################
-    write_db_name = "kmers_mapping"
-    # dao.write_mapping_manager(write_db_name, mapping_manager)
+    # dao.write_mapping_manager(content_market_name, mapping_manager)
 
     ##########################################################
     # Plotting
@@ -117,7 +129,7 @@ def build_content_market(content_market_name, config, load=False):
 
 if __name__ == '__main__':
     args = sys.argv[1:]
-    args = ["new_chess_content_market", "../config.json"]
+    args = ["kmers_mapping_supply_only", "../config.json"]
     content_market_name = args[0]
     config_file_path = args[1]
 
@@ -131,28 +143,10 @@ if __name__ == '__main__':
                                            load=True)
 
     # Plot causality
-    sig_level = 0.05
     mapping_causality = MappingCausalityAnalysis(mapping_manager)
     lags = list(range(1, 5))
-    c2c_scores = mapping_causality.consumer_to_core_node_all(lags)
-    c2p_scores = mapping_causality.core_node_to_producer_all(lags)
-    # plot p values
-    plt.figure()
-    plt.plot(lags, c2c_scores, label="consumer to core node")
-    plt.plot(lags, c2p_scores, label="core node to producer")
-    plt.plot([min(lags), max(lags)], [sig_level, sig_level], "r--")
-    plt.legend()
-    plt.title("Granger Score for All Users")
-    plt.show()
-
-    plt.figure()
-    c2c_score_dict = mapping_causality.consumer_to_core_node_type(lags)
-    c2p_score_dict = mapping_causality.core_node_to_producer_type(lags)
-    plt.bar(c2c_score_dict.keys(), c2c_score_dict.values(), label="consumer to core node", alpha=0.5)
-    plt.bar(c2p_score_dict.keys(), c2p_score_dict.values(), label="core node to producer", alpha=0.5)
-    plt.legend()
-    plt.title("Granger Score for Different ContentType")
-    plt.show()
+    mapping_causality.mapping_cause_all(lags)
+    mapping_causality.mapping_cause_type(lags)
 
 
     # print("Generating data plots...")
