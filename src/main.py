@@ -5,7 +5,9 @@ from User.ContentMarketUserManager import ContentMarketUserManager
 from Clustering.ContentMarketClusteringFactory import \
     ContentMarketClusteringFactory
 from ContentSpace.ContentSpace import ContentSpace
-from Visualization.KmersPlotter import *
+from Visualization.KmersPlotter import KmersPlotter
+from ContentMarket.ContentMappingManager import ContentMappingManager
+from Causality.MappingCausalityAnalysis import MappingCausalityAnalysis
 from Visualization.PCAPlotter import *
 
 import json
@@ -14,6 +16,7 @@ import pickle
 import pymongo
 from analysis import *
 from datetime import timedelta
+import matplotlib.pyplot as plt
 
 
 def build_content_market(content_market_name, config, load=False):
@@ -44,7 +47,6 @@ def build_content_market(content_market_name, config, load=False):
 
     # Build User Manager
     user_manager = ContentMarketUserManager(dao, partition, tweet_manager)
-    # pickle.dump(user_manager, open("user_manager.pkl", "wb"))
 
     ##########################################################
     # Build Content Space
@@ -52,8 +54,7 @@ def build_content_market(content_market_name, config, load=False):
     # Build/Load Clustering
     if load:
         print("=================Load Clustering=================")
-        clustering = pickle.load(open("clusters2.pkl", "rb"))
-        # print(clustering.cluster_centers[0][0])
+        clustering = pickle.load(open("kmers_clusters.pkl", "rb"))
     else:
         cluster_factory = ContentMarketClusteringFactory(
             config["clustering_method"])
@@ -62,7 +63,7 @@ def build_content_market(content_market_name, config, load=False):
             "num_bins": config["num_bins"]
         })
         clustering.generate_tweet_to_type()
-        pickle.dump(clustering, open("clusters2.pkl", "wb"))
+        pickle.dump(clustering, open("kmers_clusters.pkl", "wb"))
 
     # Build Content Space
     content_space = ContentSpace()
@@ -101,6 +102,12 @@ def build_content_market(content_market_name, config, load=False):
     mapping_manager.calculate_agg_mapping()
 
     ##########################################################
+    # Write Mapping Manager to Database
+    ##########################################################
+    write_db_name = "kmers_mapping"
+    # dao.write_mapping_manager(write_db_name, mapping_manager)
+
+    ##########################################################
     # Plotting
     ##########################################################
     # KMers Plotting
@@ -132,6 +139,31 @@ if __name__ == '__main__':
 
     mapping_manager = build_content_market(content_market_name, config,
                                            load=True)
+
+    # Plot causality
+    sig_level = 0.05
+    mapping_causality = MappingCausalityAnalysis(mapping_manager)
+    lags = list(range(1, 5))
+    c2c_scores = mapping_causality.consumer_to_core_node_all(lags)
+    c2p_scores = mapping_causality.core_node_to_producer_all(lags)
+    # plot p values
+    plt.figure()
+    plt.plot(lags, c2c_scores, label="consumer to core node")
+    plt.plot(lags, c2p_scores, label="core node to producer")
+    plt.plot([min(lags), max(lags)], [sig_level, sig_level], "r--")
+    plt.legend()
+    plt.title("Granger Score for All Users")
+    plt.show()
+
+    plt.figure()
+    c2c_score_dict = mapping_causality.consumer_to_core_node_type(lags)
+    c2p_score_dict = mapping_causality.core_node_to_producer_type(lags)
+    plt.bar(c2c_score_dict.keys(), c2c_score_dict.values(), label="consumer to core node", alpha=0.5)
+    plt.bar(c2p_score_dict.keys(), c2p_score_dict.values(), label="core node to producer", alpha=0.5)
+    plt.legend()
+    plt.title("Granger Score for Different ContentType")
+    plt.show()
+
 
     # print("Generating data plots...")
 

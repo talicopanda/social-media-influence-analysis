@@ -1,12 +1,12 @@
 from Clustering.ContentMarketClustering import ContentMarketClustering
 from DAO.ContentMarketDAO import ContentMarketDAO
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 
 class CreatorClustering(ContentMarketClustering):
 
-    dao: ContentMarketDAO
+    dao: Optional[ContentMarketDAO]
 
     def __init__(self, args: Dict[str, Any]):
         super().__init__(args)
@@ -31,3 +31,4 @@ class CreatorClustering(ContentMarketClustering):
                 self.tweet_to_type[tweet_id] = self._populate_content_type(
                     int(user_id), content_type_set)
         print("===============Successfully Classify Content===============")
+        self.dao = None # so that pickle.dump can store this object
