@@ -101,7 +101,7 @@ user_manager = ContentMarketUserManager(dao, partition, tweet_manager)
 # Build Clustering
 if LOAD_CLUSTER:
     print("=================Load Clustering=================")
-    clustering = pickle.load(open("kmers_clusters_supply_only.pkl", "rb"))
+    clustering = pickle.load(open("kmers_clusters.pkl", "rb"))
 else:
     cluster_factory = ContentMarketClusteringFactory(
         config["clustering_method"])
@@ -110,7 +110,7 @@ else:
         "num_bins": config["num_bins"]
     })
     clustering.generate_tweet_to_type()
-    pickle.dump(clustering, open("kmers_clusters_supply_only.pkl", "wb"))
+    pickle.dump(clustering, open("kmers_clusters.pkl", "wb"))
 
 # Build Content Space
 content_space = ContentSpace()
@@ -122,13 +122,14 @@ content_space.create_content_space(clustering)
 ##########################################################
 # Build Mapping Manager
 full_mapping_manager = ContentMappingManager(content_space, user_manager,
-                                        timedelta(days=30), full_mapping_spec)
+                                        timedelta(days=7), full_mapping_spec)
 plotting_mapping_manager = ContentMappingManager(content_space, user_manager,
                                         timedelta(days=30), plotting_mapping_spec)
 
 # Calculate Aggregate Supply and Demand
 full_mapping_manager.calculate_type_demand()
 full_mapping_manager.calculate_type_supply()
+full_mapping_manager.clear_trailing_zero()
 full_mapping_manager.calculate_agg_mapping()
 
 plotting_mapping_manager.calculate_type_demand()

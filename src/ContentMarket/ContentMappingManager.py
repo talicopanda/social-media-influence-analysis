@@ -141,6 +141,48 @@ class ContentMappingManager:
                                      self.supply_spec[UserType.CORE_NODE])
         print("=============Successfully Calculate Type Supply=============")
 
+    def clear_trailing_zero(self) -> None:
+        i = len(self.time_stamps)
+        while i > 0:
+            i -= 1 # current time stamp index
+            remove_last = True
+            # check if the last element in demand are all 0
+            for user_type in self.demand_spec.keys():
+                if not remove_last:
+                    break
+                for content_type_repr in self.type_demand[user_type].keys():
+                    if self.type_demand[user_type][content_type_repr][-1] != 0:
+                        remove_last = False
+                        break
+
+            # check if the last element in demand are all 0
+            for user_type in self.supply_spec.keys():
+                if not remove_last:
+                    break
+                # check if the last element in demand is 0
+                for content_type_repr in self.type_supply[user_type].keys():
+                    if self.type_supply[user_type][content_type_repr][-1] != 0:
+                        remove_last = False
+                        break
+
+            # if <remove_last> is True, remove last element in all list and
+            # remove the last time stamp
+            if remove_last:
+                # remove demand
+                for user_type in self.demand_spec.keys():
+                    for content_type_repr in self.type_demand[user_type].keys():
+                        self.type_demand[user_type][content_type_repr].pop()
+                # remove supply
+                for user_type in self.supply_spec.keys():
+                    for content_type_repr in self.type_supply[user_type].keys():
+                        self.type_supply[user_type][content_type_repr].pop()
+                # remove time stamp
+                self.time_stamps.pop()
+            # else, there are some list that contains non-zero element, and the
+            # removal function will stop
+            else:
+                return
+
     def calculate_agg_mapping(self):
         """Aggregate information in self.type_demand and self.type_supply,
         then store the results in self.agg_demand and self.agg_supply.
