@@ -18,12 +18,14 @@ import pickle
 import pymongo
 from analysis import *
 from datetime import timedelta
+import time
 
 
 ##########################################################
 # Parameter Setup
 ##########################################################
 # retrieve configuration
+start = time.time()
 args = sys.argv[1:]
 args = ["kmers_mapping_supply_only", "../config.json"]
 content_market_name = args[0]
@@ -151,7 +153,7 @@ else:
 # Build Content Space
 content_space = ContentSpace()
 content_space.create_content_space(clustering)
-
+user_manager.calculate_mapping(clustering)
 
 ##########################################################
 # Calculate Supply and Demand
@@ -163,14 +165,18 @@ full_mapping_manager = ContentMappingManager(content_space, user_manager,
 #                                         timedelta(days=30), plotting_mapping_spec)
 
 # Calculate Aggregate Supply and Demand
-full_mapping_manager.calculate_type_demand()
-full_mapping_manager.calculate_type_supply()
-full_mapping_manager.clear_trailing_zero()
-full_mapping_manager.calculate_agg_mapping()
+# full_mapping_manager.calculate_type_demand()
+# full_mapping_manager.calculate_type_supply()
+# full_mapping_manager.clear_trailing_zero()
+# full_mapping_manager.calculate_agg_mapping()
 
 # plotting_mapping_manager.calculate_type_demand()
 # plotting_mapping_manager.calculate_type_supply()
 # plotting_mapping_manager.calculate_agg_mapping()
+
+full_mapping_manager.calculate_user_demand()
+full_mapping_manager.calculate_user_supply()
+full_mapping_manager.calculate_user_agg_mapping()
 
 
 ##########################################################
@@ -216,3 +222,6 @@ if WRITE_TO_DATABASE:
 # lags = list(range(1, 10))
 # # mapping_causality.mapping_cause_all(lags)
 # mapping_causality.mapping_cause_type(lags)
+
+end = time.time()
+print(f"elapsed {round(end - start, 3)} seconds")

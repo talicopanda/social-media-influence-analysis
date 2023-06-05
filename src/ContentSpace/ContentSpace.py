@@ -27,7 +27,7 @@ class ContentSpace:
         self.clustering = clustering
         print("=============Successfully Build Content Space=============")
 
-    def get_tweet_content_type_repr(self, tweet_id: int) -> ContentType:
+    def get_tweet_content_type_repr(self, tweet_id: int) -> Any:
         """Return ContentType for a Tweet with <tweet_id>.
         """
         return self.clustering.get_content_type(tweet_id).get_representation()
