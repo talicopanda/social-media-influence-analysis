@@ -40,39 +40,39 @@ LOAD_CLUSTER = True
 WRITE_TO_DATABASE = False
 
 # define supply and demand
-full_mapping_spec = {
-    "consumer": {
-        "demand": ["retweet in community",
-                   "retweet out community"]
-    },
-    "producer": {
-        "supply": ["original tweet",
-                   "quote in community",
-                   "quote out community"]
-    },
-    "core node": {
-        "demand": ["retweet in community",
-                   "retweet out community"],
-        "supply": ["original tweet",
-                   "quote in community",
-                   "quote out community"]
-    }
-}
-
 # full_mapping_spec = {
 #     "consumer": {
 #         "demand": ["retweet in community",
 #                    "retweet out community"]
 #     },
 #     "producer": {
-#         "supply": ["original tweet"]
+#         "supply": ["original tweet",
+#                    "quote in community",
+#                    "quote out community"]
 #     },
 #     "core node": {
 #         "demand": ["retweet in community",
 #                    "retweet out community"],
-#         "supply": ["original tweet"]
+#         "supply": ["original tweet",
+#                    "quote in community",
+#                    "quote out community"]
 #     }
 # }
+
+full_mapping_spec = {
+    "consumer": {
+        "demand": ["retweet in community",
+                   "retweet out community"]
+    },
+    "producer": {
+        "supply": ["original tweet"]
+    },
+    "core node": {
+        "demand": ["retweet in community",
+                   "retweet out community"],
+        "supply": ["original tweet"]
+    }
+}
 
 # full_mapping_spec = {
 #     "consumer": {
@@ -153,7 +153,6 @@ else:
 # Build Content Space
 content_space = ContentSpace()
 content_space.create_content_space(clustering)
-user_manager.calculate_mapping(clustering)
 
 ##########################################################
 # Calculate Supply and Demand
