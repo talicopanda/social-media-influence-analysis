@@ -19,9 +19,7 @@ class CreatorClustering(ContentMarketClustering):
         content_type_set = set()
         for tweet_group in [self.dao.load_original_tweets(),
                             self.dao.load_quotes_of_in_community(),
-                            self.dao.load_quotes_of_out_community(),
-                            self.dao.load_retweets_of_in_community(),
-                            self.dao.load_retweets_of_out_community()]:
+                            self.dao.load_retweets_of_in_community(),]:
             for tweet in tweet_group:
                 # extract information
                 tweet_id = tweet["id"]
@@ -30,5 +28,23 @@ class CreatorClustering(ContentMarketClustering):
                 # store into class variable
                 self.tweet_to_type[tweet_id] = self._populate_content_type(
                     int(user_id), content_type_set)
+
+        for tweet in self.dao.load_quotes_of_out_community():
+            # extract information
+            tweet_id = tweet["id"]
+            user_id = tweet["quote_user_id"]
+
+            # store into class variable
+            self.tweet_to_type[tweet_id] = self._populate_content_type(
+                int(user_id), content_type_set)
+
+        for tweet in self.dao.load_retweets_of_out_community():
+            # extract information
+            tweet_id = tweet["id"]
+            user_id = tweet["retweet_user_id"]
+
+            # store into class variable
+            self.tweet_to_type[tweet_id] = self._populate_content_type(
+                int(user_id), content_type_set)
         print("===============Successfully Classify Content===============")
-        self.dao = None # so that pickle.dump can store this object
+        self.dao = None  # so that pickle.dump don't store this object

@@ -112,7 +112,7 @@ class ContentMarketUserManager:
                 TweetType.RETWEET_OF_OUT_COMM):
             self.get_user(int(tweet.retweet_user_id)). \
                 retweets_of_out_community.add(tweet)
-        
+
         # For Replies
         # TODO: Remove later
         for tweet in tweet_manager.get_type_tweets(
