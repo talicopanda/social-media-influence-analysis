@@ -22,10 +22,14 @@ class MappingCausalityAnalysis:
         # create consumer demand time series
         consumer_series = list(self.mapping_manager.get_type_demand_series(UserType.CONSUMER)[1].values())
         consumer_series = np.array(consumer_series).sum(axis=0)
+        if not is_stationary(consumer_series):
+            print("Consumer demand series is not stationary")
 
         # create core node supply time series
         core_node_series = list(self.mapping_manager.get_type_supply_series(UserType.CORE_NODE)[1].values())
         core_node_series = np.array(core_node_series).sum(axis=0)
+        if not is_stationary(core_node_series):
+            print("Core Node supply series is not stationary")
 
         # get granger score
         return gc_score_for_lags(consumer_series, core_node_series, lags)
@@ -37,11 +41,15 @@ class MappingCausalityAnalysis:
         # create core node demand time series
         core_node_series = list(self.mapping_manager.get_type_demand_series(UserType.CORE_NODE)[1].values())
         core_node_series = np.array(core_node_series).sum(axis=0)
+        if not is_stationary(core_node_series):
+            print("Core Node demand series is not stationary")
 
         # create producer supply time series
         # create core node supply time series
         producer_series = list(self.mapping_manager.get_type_supply_series(UserType.PRODUCER)[1].values())
         producer_series = np.array(producer_series).sum(axis=0)
+        if not is_stationary(producer_series):
+            print("Producer supply series is not stationary")
 
         # get granger score
         return gc_score_for_lags(core_node_series, producer_series, lags)

@@ -3,7 +3,7 @@ import warnings
 import pandas as pd
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
-from statsmodels.tsa.stattools import grangercausalitytests
+from statsmodels.tsa.stattools import grangercausalitytests, adfuller
 
 
 def gc_score_for_lag(indep_series: List[int],
@@ -31,3 +31,9 @@ def gc_score_for_lags(indep_series: List[int],
     }), maxlag=lags, verbose=verbose)
     p_value_list = [granger_test[lag][0][test][1] for lag in lags]
     return p_value_list
+
+
+def is_stationary(x: List[int], sig_level: float = 0.05) -> bool:
+    test_result = adfuller(x)
+    p_val = test_result[1]
+    return p_val < sig_level
