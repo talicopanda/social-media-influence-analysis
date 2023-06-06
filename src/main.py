@@ -139,7 +139,7 @@ user_manager = ContentMarketUserManager(dao, partition, tweet_manager)
 # Build Clustering
 if LOAD_CLUSTER:
     print("=================Load Clustering=================")
-    clustering = pickle.load(open("creator_clusters.pkl", "rb"))
+    clustering = pickle.load(open("kmers_clusters.pkl", "rb"))
 else:
     cluster_factory = ContentMarketClusteringFactory(
         config["clustering_method"])
@@ -159,23 +159,23 @@ content_space.create_content_space(clustering)
 ##########################################################
 # Build Mapping Manager
 full_mapping_manager = ContentMappingManager(content_space, user_manager,
-                                        timedelta(days=30), full_mapping_spec)
+                                        timedelta(days=14), full_mapping_spec)
 # plotting_mapping_manager = ContentMappingManager(content_space, user_manager,
 #                                         timedelta(days=30), plotting_mapping_spec)
 
 # Calculate Aggregate Supply and Demand
-# full_mapping_manager.calculate_type_demand()
-# full_mapping_manager.calculate_type_supply()
-# full_mapping_manager.clear_trailing_zero()
-# full_mapping_manager.calculate_agg_mapping()
+full_mapping_manager.calculate_type_demand()
+full_mapping_manager.calculate_type_supply()
+full_mapping_manager.clear_trailing_zero()
+full_mapping_manager.calculate_agg_mapping()
 
 # plotting_mapping_manager.calculate_type_demand()
 # plotting_mapping_manager.calculate_type_supply()
 # plotting_mapping_manager.calculate_agg_mapping()
 
-full_mapping_manager.calculate_user_demand()
-full_mapping_manager.calculate_user_supply()
-full_mapping_manager.calculate_user_agg_mapping()
+# full_mapping_manager.calculate_user_demand()
+# full_mapping_manager.calculate_user_supply()
+# full_mapping_manager.calculate_user_agg_mapping()
 
 
 ##########################################################
@@ -216,10 +216,10 @@ if WRITE_TO_DATABASE:
 # Causality Analysis
 ##########################################################
 # Plot causality
-# mapping_causality = MappingCausalityAnalysis(full_mapping_manager)
+mapping_causality = MappingCausalityAnalysis(full_mapping_manager)
 # mapping_causality = CreatorCausalityAnalysis(full_mapping_manager)
-# lags = list(range(1, 10))
-# # mapping_causality.mapping_cause_all(lags)
+lags = list(range(1, 10))
+mapping_causality.mapping_cause_all(lags)
 # mapping_causality.mapping_cause_type(lags)
 
 end = time.time()

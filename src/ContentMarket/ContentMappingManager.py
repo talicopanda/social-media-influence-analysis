@@ -262,8 +262,8 @@ class ContentMappingManager:
                                     storage: Dict[int, Dict[Any, List[int]]],
                                     tweet_types: List[TweetType]) -> None:
         for user in tqdm(self.user_manager.get_type_users(user_type)):
-            freq_dict = self.user_manager.calculate_time_mapping(user, self.time_stamps,
-                                                                 self.content_space, tweet_types)
+            freq_dict = self.user_manager.calculate_user_time_mapping(user, self.time_stamps,
+                                                                      self.content_space, tweet_types)
             storage[user.user_id] = freq_dict
 
     def calculate_user_demand(self):

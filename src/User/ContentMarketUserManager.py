@@ -183,17 +183,46 @@ class ContentMarketUserManager:
             core_node.calculate_demand(clustering)
             core_node.calculate_supply(clustering)
 
-    def calculate_time_mapping(self, user: ContentMarketUser,
+    def calculate_time_mapping(self, user_type: UserType,
                                time_stamps: List[datetime],
                                content_space: ContentSpace,
                                tweet_types: List[TweetType]) -> \
             Dict[Any, List[int]]:
         len_time = len(time_stamps)
         # initialize dictionary storage
+        freq_dict = {}
+        for content_type in content_space.get_all_content_types():
+            freq_dict[content_type.get_representation()] = \
+                [0 for _ in range(len_time)]
+
+        # accumulate time series (user has own ContentMarketTweet)
+        for user in self.get_type_users(user_type):
+            for tweet_type in tweet_types:
+                for tweet in self._get_user_tweets(user, tweet_type):
+                    create_time = tweet.created_at
+                    representation = content_space.get_tweet_content_type_repr(
+                        int(tweet.id))
+                    index = self._find_time_index(create_time, time_stamps,
+                                                  len_time)
+                    freq_dict[representation][index] += 1
+
+        # return dictionary
+        return freq_dict
+
+    def _find_time_index(self, create_time: datetime,
+                         time_stamps: List[datetime], len_time: int) -> int:
+        for i in range(len_time):
+            if create_time < time_stamps[i]:
+                return i - 1
+
+    def calculate_user_time_mapping(self, user: ContentMarketUser,
+                                   time_stamps: List[datetime],
+                                   content_space: ContentSpace,
+                                   tweet_types: List[TweetType]) -> \
+                Dict[Any, List[int]]:
+        len_time = len(time_stamps)
+        # initialize dictionary storage
         freq_dict = defaultdict(lambda: [0 for _ in range(len_time)])
-        # for content_type in content_space.get_all_content_types():
-        #     freq_dict[content_type.get_representation()] = \
-        #         [0 for _ in range(len_time)]
 
         # accumulate time series (user has own ContentMarketTweet)
         for tweet_type in tweet_types:
@@ -205,9 +234,3 @@ class ContentMarketUserManager:
 
         # return dictionary
         return freq_dict
-
-    def _find_time_index(self, create_time: datetime,
-                         time_stamps: List[datetime], len_time: int) -> int:
-        for i in range(len_time):
-            if create_time < time_stamps[i]:
-                return i - 1
