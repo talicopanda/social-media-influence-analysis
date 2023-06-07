@@ -19,6 +19,7 @@ import pymongo
 from analysis import *
 from datetime import timedelta
 import time
+import matplotlib.pyplot as plt
 
 
 ##########################################################
@@ -26,7 +27,6 @@ import time
 ##########################################################
 # retrieve configuration
 start = time.time()
-args = sys.argv[1:]
 args = ["kmers_mapping_supply_only", "../config.json"]
 content_market_name = args[0]
 config_file_path = args[1]
@@ -40,25 +40,6 @@ LOAD_CLUSTER = True
 WRITE_TO_DATABASE = False
 
 # define supply and demand
-# full_mapping_spec = {
-#     "consumer": {
-#         "demand": ["retweet in community",
-#                    "retweet out community"]
-#     },
-#     "producer": {
-#         "supply": ["original tweet",
-#                    "quote in community",
-#                    "quote out community"]
-#     },
-#     "core node": {
-#         "demand": ["retweet in community",
-#                    "retweet out community"],
-#         "supply": ["original tweet",
-#                    "quote in community",
-#                    "quote out community"]
-#     }
-# }
-
 full_mapping_spec = {
     "consumer": {
         "demand": ["retweet in community",
@@ -73,21 +54,6 @@ full_mapping_spec = {
         "supply": ["original tweet"]
     }
 }
-
-# full_mapping_spec = {
-#     "consumer": {
-#         "demand": ["retweet in community"]
-#     },
-#     "producer": {
-#         "supply": ["original tweet",
-#                    "quote in community"]
-#     },
-#     "core node": {
-#         "demand": ["retweet in community"],
-#         "supply": ["original tweet",
-#                    "quote in community"]
-#     }
-# }
 
 # plotting_mapping_spec = {
 #     "consumer": {
@@ -169,15 +135,6 @@ full_mapping_manager.calculate_type_supply()
 full_mapping_manager.clear_trailing_zero()
 full_mapping_manager.calculate_agg_mapping()
 
-# plotting_mapping_manager.calculate_type_demand()
-# plotting_mapping_manager.calculate_type_supply()
-# plotting_mapping_manager.calculate_agg_mapping()
-
-# full_mapping_manager.calculate_user_demand()
-# full_mapping_manager.calculate_user_supply()
-# full_mapping_manager.calculate_user_agg_mapping()
-
-
 ##########################################################
 # Write Mapping Manager to Database
 ##########################################################
@@ -192,35 +149,30 @@ if WRITE_TO_DATABASE:
 # kmers_plotter = KmersPlotter()
 # kmers_plotter.create_mapping_curves(full_mapping_manager, True)
 
-# # PCA 2D Plotting
-# pca_plotter = PCAPlotter(2, full_mapping_manager, plotting_mapping_manager)
-# # pca_plotter.compute_correlation_matrix()
-# pca_plotter.create_demand_curves(is_core_node=False, mapping_manager=plotting_mapping_manager,
-#                                  save=True)
-# pca_plotter.create_demand_curves(is_core_node=True, mapping_manager=plotting_mapping_manager,
-#                                  save=True)
-# pca_plotter.create_supply_curves(is_core_node=False, mapping_manager=plotting_mapping_manager,
-#                                  save=True)
-# pca_plotter.create_supply_curves(is_core_node=True, mapping_manager=plotting_mapping_manager,
-#                                  save=True)
-# pca_plotter.create_mapping_curves(plotting_mapping_manager, save=True)
-#
-# # Retweet Ratios
-# plot_tweet_to_retweet_ratios({UserType.CORE_NODE}, full_mapping_manager, "in_community", True)
-# print(calculate_mean_tweet_to_retweet_ratios({UserType.CORE_NODE}, full_mapping_manager, "in_community"))
-# plot_tweet_to_retweet_ratios({UserType.PRODUCER, UserType.CONSUMER}, full_mapping_manager, "in_community", True)
-# print(calculate_mean_tweet_to_retweet_ratios({UserType.PRODUCER, UserType.CONSUMER}, full_mapping_manager, "in_community"))
-
-
 ##########################################################
 # Causality Analysis
 ##########################################################
 # Plot causality
-mapping_causality = MappingCausalityAnalysis(full_mapping_manager)
-# mapping_causality = CreatorCausalityAnalysis(full_mapping_manager)
-lags = list(range(1, 10))
-mapping_causality.mapping_cause_all(lags)
-# mapping_causality.mapping_cause_type(lags)
+# mapping_causality = MappingCausalityAnalysis(full_mapping_manager)
+# # mapping_causality = CreatorCausalityAnalysis(full_mapping_manager)
+# lags = list(range(1, 10))
+# mapping_causality.mapping_cause_all(lags)
+# # mapping_causality.mapping_cause_type(lags)
 
 end = time.time()
 print(f"elapsed {round(end - start, 3)} seconds")
+
+consumer_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CONSUMER)
+core_node_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CORE_NODE)
+core_node_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.CORE_NODE)
+producer_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.PRODUCER)
+time_stamps = full_mapping_manager.time_stamps
+
+plt.figure()
+plt.plot(time_stamps, consumer_demand_series, label="consumer demand")
+plt.plot(time_stamps, core_node_demand_series, label="core node demand")
+plt.plot(time_stamps, core_node_supply_series, label="core node supply")
+plt.plot(time_stamps, producer_supply_series, label="producer supply")
+plt.legend()
+plt.title("Aggregate Supply and Demand Time Series")
+plt.show()

@@ -5,6 +5,7 @@ from Tweet.TweetType import TweetType, get_tweet_type
 
 from typing import Dict, List, Any
 from datetime import datetime, timedelta
+import numpy as np
 from tqdm import tqdm
 
 
@@ -250,6 +251,14 @@ class ContentMappingManager:
         """Return the aggregate supply dictionary for <user_type>.
         """
         return self.agg_supply[user_type]
+
+    def get_agg_type_demand_series(self, user_type: UserType) -> np.array:
+        demand_series = list(self.get_type_demand_series(user_type)[1].values())
+        return np.array(demand_series).sum(axis=0)
+
+    def get_agg_type_supply_series(self, user_type: UserType) -> np.array:
+        supply_series = list(self.get_type_supply_series(user_type)[1].values())
+        return np.array(supply_series).sum(axis=0)
 
     def get_content_type_repr(self) -> List:
         return [content_type.get_representation() for content_type
