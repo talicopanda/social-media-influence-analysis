@@ -16,7 +16,6 @@ import json
 import sys
 import pickle
 import pymongo
-from analysis import *
 from datetime import timedelta
 import time
 import matplotlib.pyplot as plt

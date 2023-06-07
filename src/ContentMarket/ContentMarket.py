@@ -2,7 +2,7 @@ from typing import List
 from User.ContentMarketConsumer import ContentMarketConsumer
 from User.ContentMarketProducer import ContentMarketProducer
 from User.ContentMarketCoreNode import ContentMarketCoreNode
-from ContentMarket.ContentMarketClustering import ContentMarketClustering
+from Clustering.ContentMarketClustering import ContentMarketClustering
 
 
 class ContentMarket:

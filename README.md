@@ -313,7 +313,7 @@ It holds the following information:
 - producers: the producers within the community
 - core_node: the core node of the community
 - name: the user-defined name of the market
-- clustering: the [`ContentMarketClustering`](/src/ContentMarket/ContentMarketClustering.py) object, containing information about the tweet to cluster mappings for this community
+- clustering: the [`ContentMarketClustering`](/src/Clustering/ContentMarketClustering.py) object, containing information about the tweet to cluster mappings for this community
 
 ## Content Market User
 
