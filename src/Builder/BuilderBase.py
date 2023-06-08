@@ -14,9 +14,9 @@ class BuilderBase(ABC):
 
     def store(self, aggregation: AggregationBase) -> None:
         # store users
-        self._store_users(aggregation.consumers)
-        self._store_users(aggregation.producers)
-        self._store_users(aggregation.core_nodes)
+        self._store_users(
+            aggregation.consumers | aggregation.producers | aggregation.core_nodes
+        )
 
         # store tweets
         self._store_tweets(aggregation.original_tweets)

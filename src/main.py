@@ -27,7 +27,7 @@ config = json.load(config_file)
 config_file.close()
 
 # Loading mapping/to database
-MARKET_LOAD = False
+MARKET_LOAD = True
 SPACE_LOAD = False
 DEMAND_SUPPLY_LOAD = False
 
