@@ -1,10 +1,10 @@
-from Clustering.ContentMarketClustering import ContentMarketClustering
+from Mapping.ContentTypeMapping import ContentTypeMapping
 
 from typing import Dict, Any
 import numpy as np
 
 
-class EmbeddingClustering(ContentMarketClustering):
+class EmbeddingMapping(ContentTypeMapping):
 
     embeddings: Dict[float, np.array]
 

@@ -1,113 +1,68 @@
-from DAO.ContentMarketDAO import ContentMarketDAO
+from DAO.MongoDAOBase import MongoDAOBase
+from Aggregation.ContentDemandSupply import ContentDemandSupply
+from Tweet.ContentMarketTweet import ContentMarketTweet
 from User.ContentMarketUser import ContentMarketUser
-from ContentMarket.ContentMappingManager import ContentMappingManager
-from User.UserType import UserType
 
-from typing import List, Dict, Any
+from typing import Dict, Any, Set
 import pymongo
 
 
-class ContentMarketMongoDAO(ContentMarketDAO):
-    db_type: str
-    connection_url: str
-    community_db_name: str
-    community_info_collection: str
-    user_info_collection: str
-    original_tweets_collection: str
-    quotes_of_in_community_collection: str
-    quotes_of_out_community_collection: str
-    retweets_of_in_community_collection: str
-    retweets_of_out_community_collection: str
-    content_market_db_name: str
-    clean_original_tweets_collection: str
-    clean_replies_collection: str
-    clean_quotes_of_in_community_collection: str
-    clean_quotes_of_out_community_collection: str
-    clean_retweets_of_in_community_collection: str
-    clean_retweets_of_out_community_collection: str
-    tweet_embeddings_collection: str
-    failed_to_load: int
-    community_db: any
-    content_market_db: any
-
-    def __init__(self, db_type, connection_url, community_db_name, community_info_collection, user_info_collection,
-                 original_tweets_collection, quotes_of_in_community_collection, quotes_of_out_community_collection,
-                 retweets_of_in_community_collection, retweets_of_out_community_collection, content_market_db_name,
-                 clean_original_tweets_collection, clean_replies_collection,
-                 clean_quotes_of_in_community_collection, clean_quotes_of_out_community_collection,
-                 clean_retweets_of_in_community_collection, clean_retweets_of_out_community_collection,
-                 tweet_embeddings_collection):
-        self.db_type = db_type
-        self.connection_url = connection_url
-        self.community_db_name = community_db_name
-        self.community_info_collection = community_info_collection
-        self.user_info_collection = user_info_collection
-        self.original_tweets_collection = original_tweets_collection
-        self.quotes_of_in_community_collection = quotes_of_in_community_collection
-        self.quotes_of_out_community_collection = quotes_of_out_community_collection
-        self.retweets_of_in_community_collection = retweets_of_in_community_collection
-        self.retweets_of_out_community_collection = retweets_of_out_community_collection
-        self.content_market_db_name = content_market_db_name
-        self.clean_original_tweets_collection = clean_original_tweets_collection
-        self.clean_replies_collection = clean_replies_collection
-        self.clean_quotes_of_in_community_collection = clean_quotes_of_in_community_collection
-        self.clean_quotes_of_out_community_collection = clean_quotes_of_out_community_collection
-        self.clean_retweets_of_in_community_collection = clean_retweets_of_in_community_collection
-        self.clean_retweets_of_out_community_collection = clean_retweets_of_out_community_collection
-        self.tweet_embeddings_collection = tweet_embeddings_collection
-
-        client = pymongo.MongoClient(self.connection_url)
-        self.community_db = client[self.community_db_name]
-        self.content_market_db = client[self.content_market_db_name]
-        self.failed_to_load = 0
-
-    def load_tweet_embedding(self, tweet_id: int):
-        embedding = self.content_market_db[self.tweet_embeddings_collection].find_one({
-                                                                          'id': tweet_id})
-        if embedding:
-            return embedding
-        self.failed_to_load += 1
-
-    def load_community_users(self):
-        users = self.community_db[self.community_info_collection].find()
+class ContentMarketMongoDAO(MongoDAOBase):
+    def load_users(self) -> Set[ContentMarketUser]:
+        users = set()
+        for user in self.content_market_db[self.market_user_info_collection].find():
+            user_dict = {
+                "user_id": user["userid"],
+                "rank": user["rank"],
+                "username": user["username"],
+                "influence_one": user["influence one"],
+                "influence_two": user["influence two"],
+                "production_utility": user["production utility"],
+                "consumption_utility": user["consumption utility"],
+                "local_follower_count": user["local follower"],
+                "local_following_count": user["local following"],
+                "local_followers": user["local follower list"],
+                "local_following": user["local following list"],
+                "global_follower_count": user["global follower"],
+                "global_following_count": user["global following"],
+                "is_new_user": user["is new user"]
+            }
+            new_user = ContentMarketUser(**user_dict)
+            users.add(new_user)
         return users
 
-    def load_tweet_embeddings(self):
-        projection = self.content_market_db[self.tweet_embeddings_collection].find({}, { "id": 1, "embedding": 1, "_id": 0 })
-        embeddings = {}
-        for p in projection:
-            embeddings[p["id"]] = p["embedding"]
-        return embeddings
-
-    def load_users(self) -> List[ContentMarketUser]:
-        print("This function is never used")
-        users = self.db[self.content_market_users_collection_name].find()
+    def create_users(self) -> Set[ContentMarketUser]:
+        users = set()
+        for user in self.community_db[self.community_info_collection].find():
+            user_dict = {
+                "user_id": user["userid"],
+                "rank": user["rank"],
+                "username": user["username"],
+                "influence_one": user["influence one"],
+                "influence_two": user["influence two"],
+                "production_utility": user["production utility"],
+                "consumption_utility": user["consumption utility"],
+                "local_follower_count": user["local follower"],
+                "local_following_count": user["local following"],
+                "local_followers": user["local follower list"],
+                "local_following": user["local following list"],
+                "global_follower_count": user["global follower"],
+                "global_following_count": user["global following"],
+                "is_new_user": user["is new user"]
+            }
+            new_user = ContentMarketUser(**user_dict)
+            users.add(new_user)
         return users
 
-    def load_original_tweets(self) -> pymongo.cursor.Cursor:
-        tweets = self.content_market_db[self.clean_original_tweets_collection].find()
+    def _load_tweets(self, db_name: str) -> Set[ContentMarketTweet]:
+        tweets = set()
+        for tweet in self.content_market_db[db_name].find():
+            del tweet["_id"]
+            tweets.add(ContentMarketTweet(**tweet))
         return tweets
 
-    def load_quotes_of_in_community(self) -> pymongo.cursor.Cursor:
-        return self.content_market_db[self.clean_quotes_of_in_community_collection].find()
-
-    def load_quotes_of_out_community(self) -> pymongo.cursor.Cursor:
-        return self.content_market_db[self.clean_quotes_of_out_community_collection].find()
-
-    def load_retweets_of_in_community(self) -> pymongo.cursor.Cursor:
-        return self.content_market_db[self.clean_retweets_of_in_community_collection].find()
-
-    def load_retweets_of_out_community(self) -> pymongo.cursor.Cursor:
-        return self.content_market_db[self.clean_retweets_of_out_community_collection].find()
-    
-    def load_replies(self) -> pymongo.cursor.Cursor:
-        return self.content_market_db[self.clean_replies_collection].find()
-
-    def load_content_market(self, content_market_name):
-        return self.content_market_db[self.content_market_output_db].find_one({"name": content_market_name})
-
     def write_mapping_manager(self, name: str,
-                              mapping_manager: ContentMappingManager) -> None:
+                              mapping_manager: ContentDemandSupply) -> None:
         """Write supply and demand to database.
         """
         # initialize database connection
@@ -181,3 +136,11 @@ class ContentMarketMongoDAO(ContentMarketDAO):
         for k, v in raw_dict.items():
             if v == value:
                 return k
+
+    def store_users(self, users: Set[ContentMarketUser]) -> None:
+        # TODO
+        pass
+
+    def store_tweets(self, tweets: Set[ContentMarketTweet]) -> None:
+        # TODO
+        pass

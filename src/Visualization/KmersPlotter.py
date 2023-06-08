@@ -1,5 +1,5 @@
 from User.UserType import UserType
-from ContentMarket.ContentMappingManager import ContentMappingManager
+from Aggregation.ContentDemandSupply import ContentDemandSupply
 from Visualization.MappingPlotter import MappingPlotter
 
 import matplotlib.pyplot as plt
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 class KmersPlotter(MappingPlotter):
     def create_demand_curves(self, is_core_node: bool,
-                             mapping_manager: ContentMappingManager,
+                             mapping_manager: ContentDemandSupply,
                              save: bool) -> None:
         """Create demand bar plot for each ContentType, where the users are
         determined by <is_core_node>.
@@ -22,7 +22,7 @@ class KmersPlotter(MappingPlotter):
 
 
     def create_supply_curves(self, is_core_node: bool,
-                             mapping_manager: ContentMappingManager,
+                             mapping_manager: ContentDemandSupply,
                              save: bool) -> None:
         """Create supply bar plot for each ContentType, where the users are
         determined by <is_core_node>.
@@ -36,7 +36,7 @@ class KmersPlotter(MappingPlotter):
             plt.savefig(f'../results/kmers_' + 'supply_for_' + user_type.value)
 
 
-    def create_mapping_curves(self, mapping_manager: ContentMappingManager,
+    def create_mapping_curves(self, mapping_manager: ContentDemandSupply,
                               save: bool) -> None:
         """Create both supply and demand bar plots for core node and ordinary user.
         """
@@ -58,8 +58,8 @@ class KmersPlotter(MappingPlotter):
 
 
     def create_demand_time_series(self, is_core_node: bool,
-                                 mapping_manager: ContentMappingManager,
-                                 save: bool) -> None:
+                                  mapping_manager: ContentDemandSupply,
+                                  save: bool) -> None:
         """Create demand time series for each ContentType, where the users are
         determined by <is_core_node>.
         """
@@ -78,7 +78,7 @@ class KmersPlotter(MappingPlotter):
 
 
     def create_supply_time_series(self, is_core_node: bool,
-                                  mapping_manager: ContentMappingManager,
+                                  mapping_manager: ContentDemandSupply,
                                   save: bool) -> None:
         """Create demand time series for each ContentType, where the users are
         determined by <is_core_node>.

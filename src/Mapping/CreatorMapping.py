@@ -1,12 +1,12 @@
-from Clustering.ContentMarketClustering import ContentMarketClustering
-from DAO.ContentMarketDAO import ContentMarketDAO
+from Mapping.ContentTypeMapping import ContentTypeMapping
+from DAO.ContentMarketMongoDAO import ContentMarketMongoDAO
 
 from typing import Dict, Any, Optional
 
 
-class CreatorClustering(ContentMarketClustering):
+class CreatorMapping(ContentTypeMapping):
 
-    dao: Optional[ContentMarketDAO]
+    dao: Optional[ContentMarketMongoDAO]
 
     def __init__(self, args: Dict[str, Any]):
         super().__init__(args)
@@ -18,30 +18,20 @@ class CreatorClustering(ContentMarketClustering):
         """
         content_type_set = set()
         for tweet_group in [self.dao.load_original_tweets(),
-                            self.dao.load_quotes_of_in_community(),
-                            self.dao.load_retweets_of_in_community(),]:
+                            self.dao.load_retweets_of_in_community()]:
             for tweet in tweet_group:
                 # extract information
-                tweet_id = tweet["id"]
-                user_id = tweet["user_id"]
+                tweet_id = tweet.id
+                user_id = tweet.user_id
 
                 # store into class variable
                 self.tweet_to_type[tweet_id] = self._populate_content_type(
                     int(user_id), content_type_set)
 
-        for tweet in self.dao.load_quotes_of_out_community():
-            # extract information
-            tweet_id = tweet["id"]
-            user_id = tweet["quote_user_id"]
-
-            # store into class variable
-            self.tweet_to_type[tweet_id] = self._populate_content_type(
-                int(user_id), content_type_set)
-
         for tweet in self.dao.load_retweets_of_out_community():
             # extract information
-            tweet_id = tweet["id"]
-            user_id = tweet["retweet_user_id"]
+            tweet_id = tweet.id
+            user_id = tweet.retweet_user_id
 
             # store into class variable
             self.tweet_to_type[tweet_id] = self._populate_content_type(

@@ -1,4 +1,4 @@
-from ContentMarket.ContentMappingManager import ContentMappingManager
+from Aggregation.ContentDemandSupply import ContentDemandSupply
 from User.UserType import UserType
 from Causality.CausalityAnalysisTool import *
 
@@ -10,9 +10,9 @@ from typing import List, Dict, Any
 
 class MappingCausalityAnalysis:
     # Attributes
-    mapping_manager: ContentMappingManager
+    mapping_manager: ContentDemandSupply
 
-    def __init__(self, mapping_manager: ContentMappingManager):
+    def __init__(self, mapping_manager: ContentDemandSupply):
         self.mapping_manager = mapping_manager
 
     def consumer_to_core_node_all(self, lags: List[int]) -> List[float]:

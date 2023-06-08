@@ -1,19 +1,11 @@
-from DAO.ContentMarketFactory import ContentMarketFactory
+from DAO.DAOFactory import DAOFactory
 from UserPartitioning import UserPartitioningStrategyFactory
-from Tweet.ContentMarketTweetManager import ContentMarketTweetManager
-from User.ContentMarketUserManager import ContentMarketUserManager
-from Clustering.ContentMarketClusteringFactory import \
-    ContentMarketClusteringFactory
-from ContentSpace.ContentSpace import ContentSpace
-from Visualization.KmersPlotter import KmersPlotter
-from ContentMarket.ContentMappingManager import ContentMappingManager
-from Causality.MappingCausalityAnalysis import MappingCausalityAnalysis
-from Causality.CreatorCausalityAnalysis import CreatorCausalityAnalysis
-from Visualization.PCAPlotter import *
-from Visualization.TweetToRetweetRatio import *
+from Mapping.MappingFactory import MappingFactory
+from Builder.ContentMarketBuilder import ContentMarketBuilder
+from Builder.ContentSpaceBuilder import ContentSpaceBuilder
+from Builder.ContentDemandSupplyBuilder import ContentDemandSupplyBuilder
 
 import json
-import sys
 import pickle
 import pymongo
 from datetime import timedelta
@@ -34,38 +26,10 @@ config_file = open(config_file_path)
 config = json.load(config_file)
 config_file.close()
 
-# Loading clustering/to database
-LOAD_CLUSTER = True
-WRITE_TO_DATABASE = False
-
-# define supply and demand
-full_mapping_spec = {
-    "consumer": {
-        "demand": ["retweet in community",
-                   "retweet out community"]
-    },
-    "producer": {
-        "supply": ["original tweet"]
-    },
-    "core node": {
-        "demand": ["retweet in community",
-                   "retweet out community"],
-        "supply": ["original tweet"]
-    }
-}
-
-# plotting_mapping_spec = {
-#     "consumer": {
-#         "demand": ["retweet in community"]
-#     },
-#     "producer": {
-#         "supply": ["original tweet"]
-#     },
-#     "core node": {
-#         "demand": ["retweet in community"],
-#         "supply": ["original tweet"]
-#     }
-# }
+# Loading mapping/to database
+MARKET_LOAD = False
+SPACE_LOAD = False
+DEMAND_SUPPLY_LOAD = False
 
 
 ##########################################################
@@ -84,62 +48,59 @@ if content_market_name in database_names != -1 and False:
 
 
 ##########################################################
-# Build Managers
+# Build Content Market
 ##########################################################
-# build DAO and Partition Strategy
-dao = ContentMarketFactory.get_content_market_dao(config['database'])
+dao_factory = DAOFactory()
+market_dao = dao_factory.get_content_market_dao(config["database"])
 partition = UserPartitioningStrategyFactory.get_user_type_strategy(
-    config['partitioning_strategy'])
-
-# Build Tweet Manager
-tweet_manager = ContentMarketTweetManager(dao)
-
-# Build User Manager
-user_manager = ContentMarketUserManager(dao, partition, tweet_manager)
-
-
-##########################################################
-# Build Content Space
-##########################################################
-# Build Clustering
-if LOAD_CLUSTER:
-    print("=================Load Clustering=================")
-    clustering = pickle.load(open("kmers_clusters.pkl", "rb"))
+    config["partitioning_strategy"])
+market_builder = ContentMarketBuilder(config["database"]["content_market_db_name"],
+                                      market_dao, partition)
+if MARKET_LOAD:
+    market = market_builder.load()
 else:
-    cluster_factory = ContentMarketClusteringFactory(
-        config["clustering_method"])
-    clustering = cluster_factory.get_cluster({
-        "embeddings": dao.load_tweet_embeddings(),
-        "num_bins": config["num_bins"],
-    })
-    clustering.generate_tweet_to_type()
-    pickle.dump(clustering, open("creator_clusters.pkl", "wb"))
+    market = market_builder.create()
+    market_builder.store(market)
+
+
+##########################################################
+# Build Content Space
+##########################################################
+# Build Mapping
+space_dao = dao_factory.get_content_space_dao(config["database"])
+mapping = None
+if not SPACE_LOAD:
+    print("=================Load Mapping=================")
+    # mapping_factory = MappingFactory(config["clustering_method"])
+    # mapping = mapping_factory.get_cluster({
+    #     # "embeddings": space_dao.load_tweet_embeddings(),
+    #     "num_bins": config["num_bins"],
+    #     "dao": market_dao
+    # })
+    # mapping.generate_tweet_to_type()
+    # pickle.dump(mapping, open("creator_mapping.pkl", "wb"))
+    mapping = pickle.load(open("creator_mapping.pkl", "rb"))
 
 # Build Content Space
-content_space = ContentSpace()
-content_space.create_content_space(clustering)
+space_builder = ContentSpaceBuilder(config["database"]["content_space_db_name"],
+                                    space_dao, partition, market, mapping)
+if SPACE_LOAD:
+    space = space_builder.load()
+else:
+    space = space_builder.create()
+    space_builder.store(space)
 
 ##########################################################
-# Calculate Supply and Demand
+# Build Demand and Supply
 ##########################################################
-# Build Mapping Manager
-full_mapping_manager = ContentMappingManager(content_space, user_manager,
-                                        timedelta(days=14), full_mapping_spec)
-# plotting_mapping_manager = ContentMappingManager(content_space, user_manager,
-#                                         timedelta(days=30), plotting_mapping_spec)
-
-# Calculate Aggregate Supply and Demand
-full_mapping_manager.calculate_type_demand()
-full_mapping_manager.calculate_type_supply()
-full_mapping_manager.clear_trailing_zero()
-full_mapping_manager.calculate_agg_mapping()
-
-##########################################################
-# Write Mapping Manager to Database
-##########################################################
-if WRITE_TO_DATABASE:
-    dao.write_mapping_manager(content_market_name, full_mapping_manager)
-
+ds_dao = dao_factory.get_supply_demand_dao(config["database"])
+ds_builder = ContentDemandSupplyBuilder(config["database"]["content_demand_supply_db_name"],
+                                        ds_dao, space, timedelta(days=14))
+if DEMAND_SUPPLY_LOAD:
+    ds = ds_builder.load()
+else:
+    ds = ds_builder.create()
+    ds_builder.store(ds)
 
 ##########################################################
 # Plotting
@@ -158,20 +119,20 @@ if WRITE_TO_DATABASE:
 # mapping_causality.mapping_cause_all(lags)
 # # mapping_causality.mapping_cause_type(lags)
 
-end = time.time()
-print(f"elapsed {round(end - start, 3)} seconds")
-
-consumer_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CONSUMER)
-core_node_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CORE_NODE)
-core_node_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.CORE_NODE)
-producer_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.PRODUCER)
-time_stamps = full_mapping_manager.time_stamps
-
-plt.figure()
-plt.plot(time_stamps, consumer_demand_series, label="consumer demand")
-plt.plot(time_stamps, core_node_demand_series, label="core node demand")
-plt.plot(time_stamps, core_node_supply_series, label="core node supply")
-plt.plot(time_stamps, producer_supply_series, label="producer supply")
-plt.legend()
-plt.title("Aggregate Supply and Demand Time Series")
-plt.show()
+# end = time.time()
+# print(f"elapsed {round(end - start, 3)} seconds")
+#
+# consumer_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CONSUMER)
+# core_node_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CORE_NODE)
+# core_node_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.CORE_NODE)
+# producer_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.PRODUCER)
+# time_stamps = full_mapping_manager.time_stamps
+#
+# plt.figure()
+# plt.plot(time_stamps, consumer_demand_series, label="consumer demand")
+# plt.plot(time_stamps, core_node_demand_series, label="core node demand")
+# plt.plot(time_stamps, core_node_supply_series, label="core node supply")
+# plt.plot(time_stamps, producer_supply_series, label="producer supply")
+# plt.legend()
+# plt.title("Aggregate Supply and Demand Time Series")
+# plt.show()

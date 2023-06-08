@@ -17,7 +17,10 @@
     "clean_quotes_of_out_community_collection": "clean_quotes_of_out_community",
     "clean_retweets_of_in_community_collection": "clean_retweets_of_in_community",
     "clean_retweets_of_out_community_collection": "clean_retweets_of_out_community",
-    "tweet_embeddings_collection": "tweet_embeddings"
+    "tweet_embeddings_collection": "tweet_embeddings_supply_only",
+    "market_user_info_collection": "market_user_info",
+    "content_space_db_name": "chess_content_space",
+    "content_demand_supply_db_name": "chess_content_supply_demand"
   },
   "num_bins": 20,
   "partitioning_strategy": "users",

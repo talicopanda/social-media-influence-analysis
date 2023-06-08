@@ -9,7 +9,7 @@ import sys
 def kmer(X: np.array, k: int, radius_tol=0.1, max_iters=100) -> Tuple[np.array, np.array, float]:
     """
     We implement a modified version of the k-means algorithm, called the k-means with equal radius (KMER).
-    The KMER algorithm modifies the traditional k-means algorithm by enforcing the radius constraint during the clustering process.
+    The KMER algorithm modifies the traditional k-means algorithm by enforcing the radius constraint during the mapping process.
 
     The KMER algorithm is as follows:
 
@@ -31,7 +31,7 @@ def kmer(X: np.array, k: int, radius_tol=0.1, max_iters=100) -> Tuple[np.array, 
     # Step 1: Initialize cluster centers randomly
 
     # np.random.choice generates an array of k unique integers between 0 and n-1,
-    # which are used as indices to select the random vectors from X 
+    # which are used as indices to select the random vectors from X
     centers = X[np.random.choice(X.shape[0], k, replace=False), :]
     radius = 0
     for iter in range(max_iters):

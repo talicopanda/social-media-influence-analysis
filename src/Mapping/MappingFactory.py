@@ -1,26 +1,26 @@
-from Clustering.ContentMarketClustering import ContentMarketClustering
-from Clustering.CreatorClustering import CreatorClustering
-from Clustering.KmersClustering import KmersClustering
-from Clustering.EmbeddingClustering import EmbeddingClustering
+from Mapping.ContentTypeMapping import ContentTypeMapping
+from Mapping.CreatorMapping import CreatorMapping
+from Mapping.KmersMapping import KmersMapping
+from Mapping.EmbeddingMapping import EmbeddingMapping
 
 from typing import Dict, Any
 
 
-class ContentMarketClusteringFactory:
+class MappingFactory:
 
     division_type: str
 
     def __init__(self, division_type: str):
         self.division_type = division_type
 
-    def get_cluster(self, args: Dict[str, Any]) -> ContentMarketClustering:
+    def get_cluster(self, args: Dict[str, Any]) -> ContentTypeMapping:
         try:
             if self.division_type == "kmers":
-                return KmersClustering(args)
+                return KmersMapping(args)
             elif self.division_type == "embedding":
-                return EmbeddingClustering(args)
+                return EmbeddingMapping(args)
             elif self.division_type == "creator":
-                return CreatorClustering(args)
+                return CreatorMapping(args)
             else:
                 raise ValueError
         except KeyError:

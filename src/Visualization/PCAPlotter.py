@@ -1,5 +1,5 @@
 from User.UserType import UserType
-from ContentMarket.ContentMappingManager import ContentMappingManager
+from Aggregation.ContentDemandSupply import ContentDemandSupply
 from Visualization.MappingPlotter import MappingPlotter
 
 from typing import List
@@ -18,8 +18,8 @@ class PCAPlotter(MappingPlotter):
     core_node_supply_idxs: List[int]
     core_node_demand_idxs: List[int]
 
-    def __init__(self, num_dimensions: int, full_mapping_manager: ContentMappingManager, 
-                 plotting_mapping_manager: ContentMappingManager) -> None:
+    def __init__(self, num_dimensions: int, full_mapping_manager: ContentDemandSupply,
+                 plotting_mapping_manager: ContentDemandSupply) -> None:
         super().__init__()
         self.num_dimensions = num_dimensions
         self.X = self._calculate_X(full_mapping_manager)
@@ -29,7 +29,7 @@ class PCAPlotter(MappingPlotter):
 
 
     def create_demand_curves(self, is_core_node: bool,
-                             mapping_manager: ContentMappingManager,
+                             mapping_manager: ContentDemandSupply,
                              save: bool) -> None:
         """Create demand bar plot for each ContentType, where the users are
         determined by <is_core_node>.
@@ -51,12 +51,12 @@ class PCAPlotter(MappingPlotter):
                 ax.containers[0].remove()  # remove the bars
         elif self.num_dimensions == 2:
             if user_type == UserType.CORE_NODE:
-                plt.scatter(pca.components_[0][self.core_node_demand_idxs], pca.components_[1][self.core_node_demand_idxs], 
+                plt.scatter(pca.components_[0][self.core_node_demand_idxs], pca.components_[1][self.core_node_demand_idxs],
                             color="green", marker="x", alpha=0.05, label=user_type.value + " demand")
                 plt.ylim((-0.01173576866741382, 0.013412482077072655))
                 plt.xlim((-0.0015774123311422977, 0.006602585335744285))
             else:
-                plt.scatter(pca.components_[0][self.consumer_demand_idxs], pca.components_[1][self.consumer_demand_idxs], 
+                plt.scatter(pca.components_[0][self.consumer_demand_idxs], pca.components_[1][self.consumer_demand_idxs],
                             color="blue", marker="o", alpha=0.05, label=user_type.value + " demand")
                 plt.ylim((-0.01173576866741382, 0.013412482077072655))
                 plt.xlim((-0.0015774123311422977, 0.006602585335744285))
@@ -65,7 +65,7 @@ class PCAPlotter(MappingPlotter):
             plt.clf()
 
     def create_supply_curves(self, is_core_node: bool,
-                             mapping_manager: ContentMappingManager,
+                             mapping_manager: ContentDemandSupply,
                              save: bool) -> None:
         """Create supply bar plot for each ContentType, where the users are
         determined by <is_core_node>.
@@ -86,12 +86,12 @@ class PCAPlotter(MappingPlotter):
                 ax.containers[0].remove()  # remove the bars
         elif self.num_dimensions == 2:
             if user_type == UserType.CORE_NODE:
-                plt.scatter(pca.components_[0][self.core_node_supply_idxs], pca.components_[1][self.core_node_supply_idxs], 
+                plt.scatter(pca.components_[0][self.core_node_supply_idxs], pca.components_[1][self.core_node_supply_idxs],
                             color="yellow", marker="x", alpha=0.05, label=user_type.value + " supply")
                 plt.ylim((-0.01173576866741382, 0.013412482077072655))
                 plt.xlim((-0.0015774123311422977, 0.006602585335744285))
             else:
-                plt.scatter(pca.components_[0][self.producer_supply_idxs], pca.components_[1][self.producer_supply_idxs], 
+                plt.scatter(pca.components_[0][self.producer_supply_idxs], pca.components_[1][self.producer_supply_idxs],
                             color="red", marker="o", alpha=0.05, label=user_type.value + " supply")
                 plt.ylim((-0.01173576866741382, 0.013412482077072655))
                 plt.xlim((-0.0015774123311422977, 0.006602585335744285))
@@ -99,7 +99,7 @@ class PCAPlotter(MappingPlotter):
             plt.savefig(f'../results/pca' + str(self.num_dimensions) + 'd_' + 'supply_for_' + user_type.value)
             plt.clf()
 
-    def create_mapping_curves(self, mapping_manager: ContentMappingManager,
+    def create_mapping_curves(self, mapping_manager: ContentDemandSupply,
                               save: bool) -> None:
         """Create both supply and demand bar plots for core node and ordinary user.
         """
@@ -115,7 +115,7 @@ class PCAPlotter(MappingPlotter):
         if save:
             plt.savefig(f'../results/pca' + str(self.num_dimensions) + 'd_' + 'supply_and_demand')
             plt.clf()
-    
+
     # def compute_correlation_matrix(self):
     #     assert self.num_dimensions == 1  # this function only works for the 1D case
     #     pca = PCA(n_components=self.num_dimensions)
@@ -130,8 +130,8 @@ class PCAPlotter(MappingPlotter):
 
 
     def create_demand_time_series(self, is_core_node: bool,
-                                 mapping_manager: ContentMappingManager,
-                                 save: bool) -> None:
+                                  mapping_manager: ContentDemandSupply,
+                                  save: bool) -> None:
         """Create demand time series for each ContentType, where the users are
         determined by <is_core_node>.
         """
@@ -151,7 +151,7 @@ class PCAPlotter(MappingPlotter):
 
 
     def create_supply_time_series(self, is_core_node: bool,
-                                  mapping_manager: ContentMappingManager,
+                                  mapping_manager: ContentDemandSupply,
                                   save: bool) -> None:
         """Create demand time series for each ContentType, where the users are
         determined by <is_core_node>.
@@ -170,13 +170,13 @@ class PCAPlotter(MappingPlotter):
         if save:
             plt.savefig(f'../results/kmers_' + 'supply_time_series')
 
-    def _calculate_X(self, full_mapping_manager: ContentMappingManager):
+    def _calculate_X(self, full_mapping_manager: ContentDemandSupply):
         """Calculate X, which is the original embedding before PCA is performed."""
         full_producer_supply = full_mapping_manager.get_agg_supply(UserType.PRODUCER)
         full_consumer_demand = full_mapping_manager.get_agg_demand(UserType.CONSUMER)
         full_core_node_supply = full_mapping_manager.get_agg_supply(UserType.CORE_NODE)
         full_core_node_demand = full_mapping_manager.get_agg_demand(UserType.CORE_NODE)
-        
+
         X = []
         for embedding in full_producer_supply:
             for _ in range(full_producer_supply[embedding]):
@@ -190,14 +190,14 @@ class PCAPlotter(MappingPlotter):
         for embedding in full_core_node_demand:
             for _ in range(full_core_node_demand[embedding]):
                 X.append(embedding)
-        
+
         # print(len(X))
         # print(sum(full_producer_supply[e] for e in full_producer_supply) + sum(full_consumer_demand[e] for e in full_consumer_demand) + sum(full_core_node_supply[e] for e in full_core_node_supply) + sum(full_core_node_demand[e] for e in full_core_node_demand))
         return X
-    
-    def _calculate_idx_lists(self, full_mapping_manager: ContentMappingManager,
-                             plotting_mapping_manager: ContentMappingManager):
-        
+
+    def _calculate_idx_lists(self, full_mapping_manager: ContentDemandSupply,
+                             plotting_mapping_manager: ContentDemandSupply):
+
         full_producer_supply = full_mapping_manager.get_agg_supply(UserType.PRODUCER)
         full_consumer_demand = full_mapping_manager.get_agg_demand(UserType.CONSUMER)
         full_core_node_supply = full_mapping_manager.get_agg_supply(UserType.CORE_NODE)
@@ -209,7 +209,7 @@ class PCAPlotter(MappingPlotter):
 
         producer_supply_idxs, consumer_demand_idxs, core_node_supply_idxs, core_node_demand_idxs \
             = [], [], [], []
-        
+
         i = 0
 
         for embedding in full_producer_supply:
@@ -258,7 +258,7 @@ class PCAPlotter(MappingPlotter):
         # print(len(core_node_supply_idxs))
         # print(len(consumer_demand_idxs))
         # print(len(producer_supply_idxs))
-        
+
         return producer_supply_idxs, consumer_demand_idxs, \
             core_node_supply_idxs, core_node_demand_idxs
 

@@ -1,10 +1,11 @@
-from Clustering.ContentMarketClustering import ContentMarketClustering
+from Mapping.ContentTypeMapping import ContentTypeMapping
+
 import numpy as np
 from kmeans import kmer
 from typing import Dict, Any, List
 
 
-class KmersClustering(ContentMarketClustering):
+class KmersMapping(ContentTypeMapping):
 
     cluster_centers: Dict[str, np.array]  # cluster id to center vector
     radius: float

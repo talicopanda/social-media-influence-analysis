@@ -313,7 +313,7 @@ It holds the following information:
 - producers: the producers within the community
 - core_node: the core node of the community
 - name: the user-defined name of the market
-- clustering: the [`ContentMarketClustering`](/src/Clustering/ContentMarketClustering.py) object, containing information about the tweet to cluster mappings for this community
+- clustering: the [`ContentTypeMapping`](/Mapping/ContentTypeMapping.py) object, containing information about the tweet to cluster mappings for this community
 
 ## Content Market User
 
@@ -361,7 +361,7 @@ Additionally, it holds functionality to compute the demand and supply.
 
 ## Content Market Clustering
 
-`ContentMarketClustering` is an object that holds information about the clustering of tweets in the latent space. It has the following fields:
+`ContentTypeMapping` is an object that holds information about the clustering of tweets in the latent space. It has the following fields:
 
 - tweet_to_cluster: a mapping of tweet ids from the community to the cluster they are assigned to
 - cluster_centers: the n-dimensional centerpoint of each cluster

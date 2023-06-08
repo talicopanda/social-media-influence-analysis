@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from ContentSpace.ContentType import ContentType
+from Mapping.ContentType import ContentType
 
 from typing import Dict, Any, Set
 
 
-class ContentMarketClustering(ABC):
+class ContentTypeMapping(ABC):
 
     tweet_to_type: Dict[int, ContentType]  # tweet id to ContentType
 
