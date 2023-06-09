@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from Tweet.TweetBase import TweetBase
 from User.UserBase import UserBase
+from Tweet.TweetType import TweetType
 
 from typing import Set
 
@@ -47,5 +48,6 @@ class DAOBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def store_tweets(self, tweets: Set[TweetBase]) -> None:
+    def store_tweets(self, tweets: Set[TweetBase],
+                     tweet_type: TweetType) -> None:
         raise NotImplementedError

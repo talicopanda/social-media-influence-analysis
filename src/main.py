@@ -28,7 +28,7 @@ config_file.close()
 
 # Loading mapping/to database
 MARKET_LOAD = True
-SPACE_LOAD = False
+SPACE_LOAD = True
 DEMAND_SUPPLY_LOAD = False
 
 

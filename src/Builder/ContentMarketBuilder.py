@@ -42,8 +42,9 @@ class ContentMarketBuilder(BuilderBase):
     def _store_users(self, users: Set[ContentMarketUser]) -> None:
         self.dao.store_users(users)
 
-    def _store_tweets(self, tweets: Set[ContentMarketTweet]) -> None:
-        self.dao.store_tweets(tweets)
+    def _store_tweets(self, tweets: Set[ContentMarketTweet],
+                      tweet_type: TweetType) -> None:
+        self.dao.store_tweets(tweets, tweet_type)
 
     def load(self) -> ContentMarket:
         # Build Tweet Manager

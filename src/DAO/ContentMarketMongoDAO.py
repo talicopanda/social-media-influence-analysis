@@ -1,14 +1,13 @@
 from DAO.MongoDAOBase import MongoDAOBase
-from Aggregation.ContentDemandSupply import ContentDemandSupply
 from Tweet.ContentMarketTweet import ContentMarketTweet
 from User.ContentMarketUser import ContentMarketUser
+from Tweet.TweetType import TweetType
 
 from typing import Dict, Any, Set, List
-import pymongo
 
 
-def _serialize_market_tweet(
-        tweets: Set[ContentMarketTweet]) -> List[Dict[str, Any]]:
+def _serialize_market_tweet(tweets: Set[ContentMarketTweet]) \
+        -> List[Dict[str, Any]]:
     return [vars(tweet) for tweet in tweets]
 
 
@@ -66,6 +65,24 @@ class ContentMarketMongoDAO(MongoDAOBase):
             tweets.add(ContentMarketTweet(**tweet))
         return tweets
 
+    def load_original_tweets(self) -> Set[ContentMarketTweet]:
+        return self._load_tweets(self.clean_original_tweets_collection)
+
+    def load_quotes_of_in_community(self) -> Set[ContentMarketTweet]:
+        return self._load_tweets(self.clean_quotes_of_in_community_collection)
+
+    def load_quotes_of_out_community(self) -> Set[ContentMarketTweet]:
+        return self._load_tweets(self.clean_quotes_of_out_community_collection)
+
+    def load_retweets_of_in_community(self) -> Set[ContentMarketTweet]:
+        return self._load_tweets(self.clean_retweets_of_in_community_collection)
+
+    def load_retweets_of_out_community(self) -> Set[ContentMarketTweet]:
+        return self._load_tweets(self.clean_retweets_of_out_community_collection)
+
+    def load_replies(self) -> Set[ContentMarketTweet]:
+        return self._load_tweets(self.clean_replies_collection)
+
     def store_users(self, users: Set[ContentMarketUser]) -> None:
         user_dict_list = []
         for user in users:
@@ -86,5 +103,6 @@ class ContentMarketMongoDAO(MongoDAOBase):
         self.content_market_db[self.market_user_info_collection].insert_many(
             user_dict_list)
 
-    def store_tweets(self, tweets: Set[ContentMarketTweet]) -> None:
+    def store_tweets(self, tweets: Set[ContentMarketTweet],
+                     tweet_type: TweetType) -> None:
         pass
