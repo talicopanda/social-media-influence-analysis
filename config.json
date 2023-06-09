@@ -2,6 +2,7 @@
   "database": {
     "db_type": "Mongo",
     "connection_url": "mongodb://localhost:27017/",
+
     "community_db_name": "chess_community",
     "community_info_collection": "community_info",
     "user_info_collection": "user_info",
@@ -10,6 +11,7 @@
     "quotes_of_out_community_collection": "quotes_of_out_community",
     "retweets_of_in_community_collection": "retweets_of_in_community",
     "retweets_of_out_community_collection": "retweets_of_out_community",
+
     "content_market_db_name": "chess_content_market",
     "clean_original_tweets_collection": "clean_original_tweets",
     "clean_replies_collection": "clean_replies",
@@ -19,13 +21,20 @@
     "clean_retweets_of_out_community_collection": "clean_retweets_of_out_community",
     "tweet_embeddings_collection": "tweet_embeddings_supply_only",
     "market_user_info_collection": "user_info",
+
     "content_space_db_name": "chess_content_space",
     "content_space_original_tweets_collection": "original_tweets",
     "content_space_retweets_of_in_community_collection": "retweets_of_in_community",
     "content_space_retweets_of_out_community_collection": "retweets_of_out_community",
     "content_space_user_info": "user_info",
     "content_space_collection": "content_space",
-    "content_demand_supply_db_name": "chess_content_supply_demand"
+
+    "content_demand_supply_db_name": "chess_content_supply_demand",
+    "content_ds_original_tweets_collection": "original_tweets",
+    "content_ds_retweets_of_in_community_collection": "retweets_of_in_community",
+    "content_ds_retweets_of_out_community_collection": "retweets_of_out_community",
+    "content_ds_user_info": "user_info",
+    "content_ds_curves": "curves"
   },
   "num_bins": 20,
   "partitioning_strategy": "users",

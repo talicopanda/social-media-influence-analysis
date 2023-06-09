@@ -59,7 +59,7 @@ class ContentSpaceBuilder(BuilderBase):
         content_space = ContentSpace(self.name, user_manager, tweet_manager)
         return content_space
 
-    def store(self, aggregation: ContentSpace):
+    def store(self, aggregation: ContentSpace) -> None:
         super().store(aggregation)
         self.dao.store_content_space(aggregation.content_space)
 

@@ -5,6 +5,7 @@ from DAO.DAOBase import DAOBase
 
 from typing import Set, List, Dict
 import pymongo
+from pymongo.database import Database
 
 
 class MongoDAOBase(DAOBase, ABC):
@@ -41,10 +42,16 @@ class MongoDAOBase(DAOBase, ABC):
     content_space_collection: str
 
     content_demand_supply_db_name: str
+    content_ds_original_tweets_collection: str
+    content_ds_retweets_of_in_community_collection: str
+    content_ds_retweets_of_out_community_collection: str
+    content_ds_user_info: str
+    content_ds_curves: str
 
-    community_db: any
-    content_market_db: any
-    content_space_db: any # TODO: change later
+    community_db: Database
+    content_market_db: Database
+    content_space_db: Database
+    content_demand_supply_db: Database
 
     def __init__(self, db_type, connection_url, community_db_name,
                  community_info_collection, user_info_collection,
@@ -61,8 +68,12 @@ class MongoDAOBase(DAOBase, ABC):
                  content_space_db_name, content_space_original_tweets_collection,
                  content_space_retweets_of_in_community_collection,
                  content_space_retweets_of_out_community_collection,
-                 content_space_user_info, content_demand_supply_db_name,
-                 content_space_collection):
+                 content_space_user_info, content_space_collection,
+                 content_demand_supply_db_name,
+                 content_ds_original_tweets_collection,
+                 content_ds_retweets_of_in_community_collection,
+                 content_ds_retweets_of_out_community_collection,
+                 content_ds_user_info, content_ds_curves):
         self.db_type = db_type
         self.connection_url = connection_url
         # Community
@@ -96,11 +107,18 @@ class MongoDAOBase(DAOBase, ABC):
 
         # Content Demand Supply
         self.content_demand_supply_db_name = content_demand_supply_db_name
+        self.content_ds_original_tweets_collection = content_ds_original_tweets_collection
+        self.content_ds_retweets_of_in_community_collection = content_ds_retweets_of_in_community_collection
+        self.content_ds_retweets_of_out_community_collection = content_ds_retweets_of_out_community_collection
+        self.content_ds_user_info = content_ds_user_info
+        self.content_ds_curves = content_ds_curves
 
+        # Create Databases
         client = pymongo.MongoClient(self.connection_url)
         self.community_db = client[self.community_db_name]
         self.content_market_db = client[self.content_market_db_name]
         self.content_space_db = client[self.content_space_db_name]
+        self.content_demand_supply_db = client[self.content_demand_supply_db_name]
 
     @abstractmethod
     def load_original_tweets(self) -> Set[TweetBase]:

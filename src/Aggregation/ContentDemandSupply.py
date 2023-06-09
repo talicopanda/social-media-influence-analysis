@@ -19,40 +19,49 @@ class ContentDemandSupply(AggregationBase):
     period: timedelta
 
     time_stamps: List[datetime]
-    demand_spec: Dict[UserType, List[TweetType]]
-    supply_spec: Dict[UserType, List[TweetType]]
 
     user_demand: Dict[int, Dict[Any, List[int]]]
     user_supply: Dict[int, Dict[Any, List[int]]]
     user_agg_demand: Dict[int, Dict[Any, int]]
     user_agg_supply: Dict[int, Dict[Any, int]]
 
-    def __init__(self, name: str, content_space: Set[ContentType],
-                 user_manager: UserManager, tweet_manager: TweetManager,
-                 period: timedelta):
-        super().__init__(name, user_manager, tweet_manager)
-        # load from arguments
-        self.name = name
-        self.content_space = content_space
-        self.user_manager = user_manager
-        self.period = period
-        self.time_stamps = []
+    def __init__(self, *args):
+        # param: str, Set[ContentType], UserManager, TweetManager, timedelta
+        if len(args) == 5:
+            super().__init__(args[0], args[2], args[3])
+            # load from arguments
+            self.content_space = args[1]
+            self.user_manager = args[2]
+            self.period = args[4]
+            self.time_stamps = []
 
-        # create time stamps
-        self._create_time_stamps()
+            # create time stamps
+            self._create_time_stamps()
 
-        # initialize user demand and supply
-        self.user_demand = {}
-        self.user_supply = {}
-        self.user_agg_demand = {}
-        self.user_agg_supply = {}
+            # initialize user demand and supply
+            self.user_demand = {}
+            self.user_supply = {}
+            self.user_agg_demand = {}
+            self.user_agg_supply = {}
 
-        for user in self.user_manager.users:
-            userid = user.user_id
-            self.user_demand[userid] = {}
-            self.user_supply[userid] = {}
-            self.user_agg_demand[userid] = {}
-            self.user_agg_supply[userid] = {}
+            for user in self.user_manager.users:
+                userid = user.user_id
+                self.user_demand[userid] = {}
+                self.user_supply[userid] = {}
+                self.user_agg_demand[userid] = {}
+                self.user_agg_supply[userid] = {}
+        # param: str, UserManager, TweetManager, List[datetime],
+        # Dict[int, Dict[Any, List[int]]], Dict[int, Dict[Any, List[int]]],
+        # Dict[int, Dict[Any, int]], Dict[int, Dict[Any, int]]
+        elif len(args) == 8:
+            self.user_manager = args[1]
+            super().__init__(args[0], args[1], args[2])
+            self.time_stamps = args[3]
+            self.user_demand = args[4]
+            self.user_supply = args[5]
+            self.user_agg_demand = args[6]
+            self.user_agg_supply = args[7]
+            self._create_content_space_from_tweet()
 
     def _create_time_stamps(self) -> None:
         """Create a list of time stamps for partitioning the Tweet, and
@@ -65,6 +74,13 @@ class ContentDemandSupply(AggregationBase):
         while curr_time <= end_time:
             self.time_stamps.append(curr_time)
             curr_time += self.period
+
+    def _create_content_space_from_tweet(self) -> None:
+        content_space = []
+        content_space.extend([tweet.content for tweet in self.original_tweets])
+        content_space.extend([tweet.content for tweet in self.retweets_of_in_comm])
+        content_space.extend([tweet.content for tweet in self.retweets_of_out_comm])
+        self.content_space = set(content_space)
 
     def clear_trailing_zero(self) -> None:
         # TODO: adapt new

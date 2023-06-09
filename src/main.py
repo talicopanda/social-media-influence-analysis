@@ -29,7 +29,7 @@ config_file.close()
 # Loading mapping/to database
 MARKET_LOAD = True
 SPACE_LOAD = True
-DEMAND_SUPPLY_LOAD = False
+DEMAND_SUPPLY_LOAD = True
 
 
 ##########################################################
@@ -66,7 +66,7 @@ else:
 ##########################################################
 # Build Content Space
 ##########################################################
-# Build Mapping
+# Build ContentType Mapping
 space_dao = dao_factory.get_content_space_dao(config["database"])
 mapping = None
 if not SPACE_LOAD:
@@ -82,11 +82,15 @@ if not SPACE_LOAD:
     mapping = pickle.load(open("creator_mapping.pkl", "rb"))
 
 # Build Content Space
-space_builder = ContentSpaceBuilder(config["database"]["content_space_db_name"],
-                                    space_dao, partition, market, mapping)
 if SPACE_LOAD:
+    space_builder = ContentSpaceBuilder(
+        config["database"]["content_space_db_name"],
+        space_dao, partition)
     space = space_builder.load()
 else:
+    space_builder = ContentSpaceBuilder(
+        config["database"]["content_space_db_name"],
+        space_dao, partition, market, mapping)
     space = space_builder.create()
     space_builder.store(space)
 
@@ -94,11 +98,15 @@ else:
 # Build Demand and Supply
 ##########################################################
 ds_dao = dao_factory.get_supply_demand_dao(config["database"])
-ds_builder = ContentDemandSupplyBuilder(config["database"]["content_demand_supply_db_name"],
-                                        ds_dao, space, timedelta(days=14))
 if DEMAND_SUPPLY_LOAD:
+    ds_builder = ContentDemandSupplyBuilder(
+        config["database"]["content_demand_supply_db_name"],
+        ds_dao, partition)
     ds = ds_builder.load()
 else:
+    ds_builder = ContentDemandSupplyBuilder(
+        config["database"]["content_demand_supply_db_name"],
+        ds_dao, space, timedelta(days=14))
     ds = ds_builder.create()
     ds_builder.store(ds)
 
