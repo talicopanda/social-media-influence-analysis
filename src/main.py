@@ -46,14 +46,17 @@ if content_market_name in database_names != -1 and False:
                     "in the database. Either drop this database "
                     "or choose a different name")
 
+##########################################################
+# Build DAO Factory and Partitioning
+##########################################################
+dao_factory = DAOFactory()
+partition = UserPartitioningStrategyFactory.get_user_type_strategy(
+    config["partitioning_strategy"])
 
 ##########################################################
 # Build Content Market
 ##########################################################
-dao_factory = DAOFactory()
 market_dao = dao_factory.get_content_market_dao(config["database"])
-partition = UserPartitioningStrategyFactory.get_user_type_strategy(
-    config["partitioning_strategy"])
 market_builder = ContentMarketBuilder(config["database"]["content_market_db_name"],
                                       market_dao, partition)
 if MARKET_LOAD:
@@ -110,6 +113,9 @@ else:
     ds = ds_builder.create()
     ds_builder.store(ds)
 
+end = time.time()
+print(f"elapsed {round(end - start, 3)} seconds")
+
 ##########################################################
 # Plotting
 ##########################################################
@@ -127,9 +133,6 @@ else:
 # mapping_causality.mapping_cause_all(lags)
 # # mapping_causality.mapping_cause_type(lags)
 
-# end = time.time()
-# print(f"elapsed {round(end - start, 3)} seconds")
-#
 # consumer_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CONSUMER)
 # core_node_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CORE_NODE)
 # core_node_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.CORE_NODE)
