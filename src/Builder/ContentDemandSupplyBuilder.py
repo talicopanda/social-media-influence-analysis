@@ -11,7 +11,7 @@ from Aggregation.ContentDemandSupply import ContentDemandSupply
 from User.UserType import UserType
 
 from typing import Set
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 
 class ContentDemandSupplyBuilder(BuilderBase):
@@ -19,6 +19,8 @@ class ContentDemandSupplyBuilder(BuilderBase):
     dao: ContentDemandSupplyMongoDAO
     partition: UserPartitioningStrategy
     space: ContentSpace
+    start: datetime
+    end: datetime
     period: timedelta
 
     def __init__(self, *args):
@@ -27,12 +29,15 @@ class ContentDemandSupplyBuilder(BuilderBase):
             self.name = args[0]
             self.dao = args[1]
             self.partition = args[2]
-        # param: str, ContentDemandSupplyMongoDAO, ContentSpace, timedelta
-        elif len(args) == 4:
+        # param: str, ContentDemandSupplyMongoDAO, ContentSpace,
+        #        datetime, datetime, timedelta
+        elif len(args) == 6:
             self.name = args[0]
             self.dao = args[1]
             self.space = args[2]
-            self.period = args[3]
+            self.start = args[3]
+            self.end = args[4]
+            self.period = args[5]
 
     def create(self) -> ContentDemandSupply:
         # Build Tweet Manager
@@ -53,7 +58,8 @@ class ContentDemandSupplyBuilder(BuilderBase):
 
         # Build Content Demand Supply
         ds = ContentDemandSupply(self.name, self.space.content_space,
-                                 user_manager, tweet_manager, self.period)
+                                 user_manager, tweet_manager,
+                                 self.start, self.end, self.period)
         ds.calculate_user_demand()
         ds.calculate_user_supply()
         ds.calculate_user_agg_mapping()

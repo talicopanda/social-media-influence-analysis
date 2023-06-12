@@ -13,9 +13,12 @@ from collections import defaultdict
 
 def _find_time_index(create_time: datetime,
                      time_stamps: List[datetime], len_time: int) -> int:
+    """Return -1 if not in the range.
+    """
     for i in range(len_time):
         if create_time < time_stamps[i]:
             return i - 1
+    return -1
 
 
 class UserManager:
@@ -154,7 +157,8 @@ class UserManager:
                 create_time = tweet.created_at
                 representation = tweet.content.get_representation()
                 index = _find_time_index(create_time, time_stamps, len_time)
-                freq_dict[representation][index] += 1
+                if index != -1:
+                    freq_dict[representation][index] += 1
 
         # return dictionary
         return freq_dict

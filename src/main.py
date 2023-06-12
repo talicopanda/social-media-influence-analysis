@@ -8,7 +8,7 @@ from Builder.ContentDemandSupplyBuilder import ContentDemandSupplyBuilder
 import json
 import pickle
 import pymongo
-from datetime import timedelta
+from datetime import datetime, timedelta
 import time
 import matplotlib.pyplot as plt
 
@@ -25,10 +25,15 @@ config_file = open(config_file_path)
 config = json.load(config_file)
 config_file.close()
 
-# Loading mapping/to database
+# Loading from database
 MARKET_LOAD = True
-SPACE_LOAD = True
+SPACE_LOAD = False
 DEMAND_SUPPLY_LOAD = True
+# Store from database
+MARKET_STORE = False
+SPACE_STORE = False
+DEMAND_SUPPLY_STORE = False
+
 
 
 ##########################################################
@@ -63,7 +68,9 @@ if MARKET_LOAD:
     market = market_builder.load()
 else:
     market = market_builder.create()
-    market_builder.store(market)
+    if MARKET_STORE:
+        market_builder.store(market)
+
 end_time = time.time()
 print(f"market time elapsed {end_time - start_time} seconds")
 
@@ -75,16 +82,17 @@ start_time = time.time()
 space_dao = dao_factory.get_content_space_dao(config["database"])
 mapping = None
 if not SPACE_LOAD:
-    print("=================Load Mapping=================")
-    # mapping_factory = MappingFactory(config["clustering_method"])
-    # mapping = mapping_factory.get_cluster({
-    #     # "embeddings": space_dao.load_tweet_embeddings(),
-    #     "num_bins": config["num_bins"],
-    #     "dao": market_dao
-    # })
-    # mapping.generate_tweet_to_type()
-    # pickle.dump(mapping, open("creator_mapping.pkl", "wb"))
-    mapping = pickle.load(open("creator_mapping.pkl", "rb"))
+    print("=================Creating Mapping=================")
+    mapping_factory = MappingFactory(config["clustering_method"])
+    mapping = mapping_factory.get_cluster({
+        "embeddings": space_dao.load_tweet_embeddings(),
+        "num_bins": config["num_bins"],
+        "dao": market_dao
+    })
+    mapping.generate_tweet_to_type()
+    pickle.dump(mapping, open("kmers_mapping.pkl", "wb"))
+    # print("=================Loading Mapping=================")
+    # mapping = pickle.load(open("creator_mapping.pkl", "rb"))
 
 # Build Content Space
 if SPACE_LOAD:
@@ -97,7 +105,9 @@ else:
         config["database"]["content_space_db_name"],
         space_dao, partition, market, mapping)
     space = space_builder.create()
-    space_builder.store(space)
+    if SPACE_STORE:
+        space_builder.store(space)
+
 end_time = time.time()
 print(f"space time elapsed {end_time - start_time} seconds")
 
@@ -112,11 +122,16 @@ if DEMAND_SUPPLY_LOAD:
         ds_dao, partition)
     ds = ds_builder.load()
 else:
+    start = datetime(2020, 6, 29)
+    end = datetime.now()
+    period = timedelta(days=7)
     ds_builder = ContentDemandSupplyBuilder(
         config["database"]["content_demand_supply_db_name"],
-        ds_dao, space, timedelta(days=7))
+        ds_dao, space, start, end, period)
     ds = ds_builder.create()
-    ds_builder.store(ds)
+    if DEMAND_SUPPLY_STORE:
+        ds_builder.store(ds)
+
 end_time = time.time()
 print(f"ds time elapsed {end_time - start_time} seconds")
 

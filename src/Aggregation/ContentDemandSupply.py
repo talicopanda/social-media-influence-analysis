@@ -1,5 +1,4 @@
 from User.UserManager import UserManager
-from Tweet.TweetManager import TweetManager
 from User.UserType import UserType
 from Tweet.TweetType import TweetType
 from Aggregation.AggregationBase import AggregationBase
@@ -16,7 +15,6 @@ class ContentDemandSupply(AggregationBase):
     name: str
     content_space: Set[ContentType]
     user_manager: UserManager
-    period: timedelta
 
     time_stamps: List[datetime]
 
@@ -27,16 +25,18 @@ class ContentDemandSupply(AggregationBase):
 
     def __init__(self, *args):
         # param: str, Set[ContentType], UserManager, TweetManager, timedelta
-        if len(args) == 5:
+        if len(args) == 7:
             super().__init__(args[0], args[2], args[3])
             # load from arguments
             self.content_space = args[1]
             self.user_manager = args[2]
-            self.period = args[4]
+            start = args[4]
+            end = args[5]
+            period = args[6]
             self.time_stamps = []
 
             # create time stamps
-            self._create_time_stamps()
+            self._create_time_stamps(start, end, period)
 
             # initialize user demand and supply
             self.user_demand = {}
@@ -63,17 +63,16 @@ class ContentDemandSupply(AggregationBase):
             self.user_agg_supply = args[7]
             self._create_content_space_from_tweet()
 
-    def _create_time_stamps(self) -> None:
+    def _create_time_stamps(self, start: datetime, end: datetime,
+                            period: timedelta) -> None:
         """Create a list of time stamps for partitioning the Tweet, and
         store in self.time_stamps.
         """
         # TODO: automate min and max time
-        min_time = datetime(2020, 6, 29)
-        end_time = datetime.now()
-        curr_time = min_time
-        while curr_time <= end_time:
+        curr_time = start
+        while curr_time <= end:
             self.time_stamps.append(curr_time)
-            curr_time += self.period
+            curr_time += period
 
     def _create_content_space_from_tweet(self) -> None:
         content_space = []
