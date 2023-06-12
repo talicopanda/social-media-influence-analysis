@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 # Parameter Setup
 ##########################################################
 # retrieve configuration
-start = time.time()
 args = ["kmers_mapping_supply_only", "../config.json"]
 content_market_name = args[0]
 config_file_path = args[1]
@@ -56,6 +55,7 @@ partition = UserPartitioningStrategyFactory.get_user_type_strategy(
 ##########################################################
 # Build Content Market
 ##########################################################
+start_time = time.time()
 market_dao = dao_factory.get_content_market_dao(config["database"])
 market_builder = ContentMarketBuilder(config["database"]["content_market_db_name"],
                                       market_dao, partition)
@@ -64,12 +64,14 @@ if MARKET_LOAD:
 else:
     market = market_builder.create()
     market_builder.store(market)
-
+end_time = time.time()
+print(f"market time elapsed {end_time - start_time} seconds")
 
 ##########################################################
 # Build Content Space
 ##########################################################
 # Build ContentType Mapping
+start_time = time.time()
 space_dao = dao_factory.get_content_space_dao(config["database"])
 mapping = None
 if not SPACE_LOAD:
@@ -96,10 +98,13 @@ else:
         space_dao, partition, market, mapping)
     space = space_builder.create()
     space_builder.store(space)
+end_time = time.time()
+print(f"space time elapsed {end_time - start_time} seconds")
 
 ##########################################################
 # Build Demand and Supply
 ##########################################################
+start_time = time.time()
 ds_dao = dao_factory.get_supply_demand_dao(config["database"])
 if DEMAND_SUPPLY_LOAD:
     ds_builder = ContentDemandSupplyBuilder(
@@ -109,12 +114,11 @@ if DEMAND_SUPPLY_LOAD:
 else:
     ds_builder = ContentDemandSupplyBuilder(
         config["database"]["content_demand_supply_db_name"],
-        ds_dao, space, timedelta(days=14))
+        ds_dao, space, timedelta(days=7))
     ds = ds_builder.create()
     ds_builder.store(ds)
-
-end = time.time()
-print(f"elapsed {round(end - start, 3)} seconds")
+end_time = time.time()
+print(f"ds time elapsed {end_time - start_time} seconds")
 
 ##########################################################
 # Plotting

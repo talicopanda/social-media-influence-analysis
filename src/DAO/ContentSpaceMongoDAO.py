@@ -96,7 +96,7 @@ class ContentSpaceMongoDAO(MongoDAOBase):
     def store_users(self, users: Set[ContentSpaceUser]) -> None:
         user_dict_list = []
         for user in users:
-            user_dict = vars(user)
+            user_dict = deepcopy(vars(user))
             user_dict["original_tweets"] = _serialize_space_tweet(
                 user_dict["original_tweets"])
             user_dict["retweets_of_in_community"] = _serialize_space_tweet(
