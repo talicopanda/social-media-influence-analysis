@@ -8,6 +8,7 @@ from typing import Dict, List, Any, Set
 from datetime import datetime, timedelta
 import numpy as np
 from tqdm import tqdm
+from collections import defaultdict
 
 
 class ContentDemandSupply(AggregationBase):
@@ -68,7 +69,6 @@ class ContentDemandSupply(AggregationBase):
         """Create a list of time stamps for partitioning the Tweet, and
         store in self.time_stamps.
         """
-        # TODO: automate min and max time
         curr_time = start
         while curr_time <= end:
             self.time_stamps.append(curr_time)
@@ -86,19 +86,35 @@ class ContentDemandSupply(AggregationBase):
         pass
 
     # Below are methods for extraction from outer space
-    def get_type_demand_series(self, user_type: UserType) \
-            -> (List[datetime], Dict[Any, List[int]]):
+    def get_type_demand_series(self, user_type: UserType) -> Dict[Any, np.array]:
         """Return the demand time series for <user_type>.
         """
-        # TODO
-        pass
+        # get users
+        users = self.user_manager.get_type_users(user_type)
 
-    def get_type_supply_series(self, user_type: UserType) \
-            -> (List[datetime], Dict[Any, List[int]]):
-        """Return the demand time series for <user_type>.
+        # get data
+        new_dict = defaultdict(lambda: np.array([0 for _ in
+                                                 range(len(self.time_stamps))]))
+        for user in users:
+            curve = self.user_demand[user.user_id]
+            for key, value in curve.items():
+                new_dict[key] += np.array(value)
+        return new_dict
+
+    def get_type_supply_series(self, user_type: UserType) -> Dict[Any, np.array]:
+        """Return the supply time series for <user_type>.
         """
-        # TODO
-        pass
+        # get users
+        users = self.user_manager.get_type_users(user_type)
+
+        # get data
+        new_dict = defaultdict(lambda: np.array([0 for _ in
+                                                 range(len(self.time_stamps))]))
+        for user in users:
+            curve = self.user_supply[user.user_id]
+            for key, value in curve.items():
+                new_dict[key] += np.array(value)
+        return new_dict
 
     def get_agg_demand(self, user_type: UserType) -> Dict[Any, int]:
         """Return the aggregate demand dictionary for <user_type>.
@@ -113,11 +129,11 @@ class ContentDemandSupply(AggregationBase):
         pass
 
     def get_agg_type_demand_series(self, user_type: UserType) -> np.array:
-        demand_series = list(self.get_type_demand_series(user_type)[1].values())
+        demand_series = list(self.get_type_demand_series(user_type).values())
         return np.array(demand_series).sum(axis=0)
 
     def get_agg_type_supply_series(self, user_type: UserType) -> np.array:
-        supply_series = list(self.get_type_supply_series(user_type)[1].values())
+        supply_series = list(self.get_type_supply_series(user_type).values())
         return np.array(supply_series).sum(axis=0)
 
     def get_content_type_repr(self) -> List:

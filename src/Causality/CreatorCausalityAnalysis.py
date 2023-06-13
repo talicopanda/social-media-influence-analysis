@@ -10,21 +10,21 @@ from typing import List, Dict, Any
 
 class CreatorCausalityAnalysis:
     # Attributes
-    mapping_manager: ContentDemandSupply
+    ds: ContentDemandSupply
 
     def __init__(self, mapping_manager: ContentDemandSupply):
-        self.mapping_manager = mapping_manager
+        self.ds = mapping_manager
 
     def consumer_to_core_node_all(self, lags: List[int]) -> List[float]:
         """Return a list of p values for Granger causality test with <lags>
         for all consumers' demand and all core nodes' supply.
         """
         # create consumer demand time series
-        consumer_series = list(self.mapping_manager.get_type_demand_series(UserType.CONSUMER)[1].values())
+        consumer_series = list(self.ds.get_type_demand_series(UserType.CONSUMER)[1].values())
         consumer_series = np.array(consumer_series).sum(axis=0)
 
         # create core node supply time series
-        core_node_series = list(self.mapping_manager.get_type_supply_series(UserType.CORE_NODE)[1].values())
+        core_node_series = list(self.ds.get_type_supply_series(UserType.CORE_NODE)[1].values())
         core_node_series = np.array(core_node_series).sum(axis=0)
 
         # get granger score
@@ -35,12 +35,12 @@ class CreatorCausalityAnalysis:
         for all core nodes' demand and all producers' supply.
         """
         # create core node demand time series
-        core_node_series = list(self.mapping_manager.get_type_demand_series(UserType.CORE_NODE)[1].values())
+        core_node_series = list(self.ds.get_type_demand_series(UserType.CORE_NODE)[1].values())
         core_node_series = np.array(core_node_series).sum(axis=0)
 
         # create producer supply time series
         # create core node supply time series
-        producer_series = list(self.mapping_manager.get_type_supply_series(UserType.PRODUCER)[1].values())
+        producer_series = list(self.ds.get_type_supply_series(UserType.PRODUCER)[1].values())
         producer_series = np.array(producer_series).sum(axis=0)
 
         # get granger score
@@ -69,9 +69,12 @@ class CreatorCausalityAnalysis:
         within different ContentTypes for consumers and core nodes.
         """
         p_dict = {}
-        for content_type_repr in self.mapping_manager.get_content_type_repr():
-            consumer_series = self.mapping_manager.get_type_demand_series(UserType.CONSUMER)[1][content_type_repr]
-            core_node_series = self.mapping_manager.get_type_supply_series(UserType.CORE_NODE)[1][content_type_repr]
+        core_node_list = [user.user_id for user in self.ds.user_manager.core_nodes]
+        for content_type_repr in self.ds.get_content_type_repr():
+            if int(content_type_repr) in core_node_list:
+                continue
+            consumer_series = self.ds.get_type_demand_series(UserType.CONSUMER)[content_type_repr]
+            core_node_series = self.ds.get_type_supply_series(UserType.CORE_NODE)[content_type_repr]
             try:
                 p_dict[content_type_repr] = min(gc_score_for_lags(consumer_series,
                                                                   core_node_series,
@@ -86,9 +89,12 @@ class CreatorCausalityAnalysis:
         within different ContentTypes for core nodes and producers.
         """
         p_dict = {}
-        for content_type_repr in self.mapping_manager.get_content_type_repr():
-            core_node_series = self.mapping_manager.get_type_demand_series(UserType.CORE_NODE)[1][content_type_repr]
-            producer_series = self.mapping_manager.get_type_supply_series(UserType.PRODUCER)[1][content_type_repr]
+        core_node_list = [user.user_id for user in self.ds.user_manager.core_nodes]
+        for content_type_repr in self.ds.get_content_type_repr():
+            if int(content_type_repr) in core_node_list:
+                continue
+            core_node_series = self.ds.get_type_demand_series(UserType.CORE_NODE)[content_type_repr]
+            producer_series = self.ds.get_type_supply_series(UserType.PRODUCER)[content_type_repr]
             try:
                 p_dict[content_type_repr] = min(gc_score_for_lags(core_node_series,
                                                                   producer_series,

@@ -4,6 +4,8 @@ from Mapping.MappingFactory import MappingFactory
 from Builder.ContentMarketBuilder import ContentMarketBuilder
 from Builder.ContentSpaceBuilder import ContentSpaceBuilder
 from Builder.ContentDemandSupplyBuilder import ContentDemandSupplyBuilder
+from Causality.CreatorCausalityAnalysis import CreatorCausalityAnalysis
+from Causality.MappingCausalityAnalysis import MappingCausalityAnalysis
 
 import json
 import pickle
@@ -28,7 +30,7 @@ config_file.close()
 # Loading from database
 MARKET_LOAD = True
 SPACE_LOAD = False
-DEMAND_SUPPLY_LOAD = True
+DEMAND_SUPPLY_LOAD = False
 # Store from database
 MARKET_STORE = False
 SPACE_STORE = False
@@ -82,17 +84,17 @@ start_time = time.time()
 space_dao = dao_factory.get_content_space_dao(config["database"])
 mapping = None
 if not SPACE_LOAD:
-    print("=================Creating Mapping=================")
-    mapping_factory = MappingFactory(config["clustering_method"])
-    mapping = mapping_factory.get_cluster({
-        "embeddings": space_dao.load_tweet_embeddings(),
-        "num_bins": config["num_bins"],
-        "dao": market_dao
-    })
-    mapping.generate_tweet_to_type()
-    pickle.dump(mapping, open("kmers_mapping.pkl", "wb"))
-    # print("=================Loading Mapping=================")
-    # mapping = pickle.load(open("creator_mapping.pkl", "rb"))
+    # print("=================Creating Mapping=================")
+    # mapping_factory = MappingFactory(config["clustering_method"])
+    # mapping = mapping_factory.get_cluster({
+    #     "embeddings": space_dao.load_tweet_embeddings(),
+    #     "num_bins": config["num_bins"],
+    #     "dao": market_dao
+    # })
+    # mapping.generate_tweet_to_type()
+    # pickle.dump(mapping, open("creator_mapping.pkl", "wb"))
+    print("=================Loading Mapping=================")
+    mapping = pickle.load(open("kmers_mapping.pkl", "rb"))
 
 # Build Content Space
 if SPACE_LOAD:
@@ -140,29 +142,14 @@ print(f"ds time elapsed {end_time - start_time} seconds")
 ##########################################################
 # KMers Plotting
 # kmers_plotter = KmersPlotter()
-# kmers_plotter.create_mapping_curves(full_mapping_manager, True)
+# kmers_plotter.create_mapping_curves(ds, True)
 
 ##########################################################
 # Causality Analysis
 ##########################################################
 # Plot causality
-# mapping_causality = MappingCausalityAnalysis(full_mapping_manager)
-# # mapping_causality = CreatorCausalityAnalysis(full_mapping_manager)
-# lags = list(range(1, 10))
+mapping_causality = MappingCausalityAnalysis(ds)
+# mapping_causality = CreatorCausalityAnalysis(ds)
+lags = list(range(1, 10))
 # mapping_causality.mapping_cause_all(lags)
-# # mapping_causality.mapping_cause_type(lags)
-
-# consumer_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CONSUMER)
-# core_node_demand_series = full_mapping_manager.get_agg_type_demand_series(UserType.CORE_NODE)
-# core_node_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.CORE_NODE)
-# producer_supply_series = full_mapping_manager.get_agg_type_supply_series(UserType.PRODUCER)
-# time_stamps = full_mapping_manager.time_stamps
-#
-# plt.figure()
-# plt.plot(time_stamps, consumer_demand_series, label="consumer demand")
-# plt.plot(time_stamps, core_node_demand_series, label="core node demand")
-# plt.plot(time_stamps, core_node_supply_series, label="core node supply")
-# plt.plot(time_stamps, producer_supply_series, label="producer supply")
-# plt.legend()
-# plt.title("Aggregate Supply and Demand Time Series")
-# plt.show()
+mapping_causality.mapping_cause_type(lags)
