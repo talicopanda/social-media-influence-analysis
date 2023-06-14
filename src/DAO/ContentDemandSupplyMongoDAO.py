@@ -3,6 +3,8 @@ from Tweet.ContentSpaceTweet import ContentSpaceTweet
 from User.ContentSpaceUser import ContentSpaceUser
 from Tweet.TweetType import TweetType
 from Mapping.ContentType import ContentType
+from User.UserType import UserType, value_to_type
+from Tweet.MinimalTweet import MinimalTweet
 
 from typing import Set, List, Dict, Any, Union
 from copy import deepcopy
@@ -10,7 +12,7 @@ from datetime import datetime
 
 # file global variable
 content_space = set()
-repr_to_num = dict()
+num_to_repr = dict()
 
 
 def _convert_tweet(tweet: ContentSpaceTweet) -> Dict[str, Any]:
@@ -45,41 +47,10 @@ def _populate_content_type(representation: Any,
 
 class ContentDemandSupplyMongoDAO(MongoDAOBase):
     def load_users(self) -> Set[ContentSpaceUser]:
-        users = set()
-        for user in self.content_demand_supply_db[
-            self.content_ds_user_info].find():
-            user_dict = {
-                "user_id": user["user_id"],
-                "rank": user["rank"],
-                "username": user["username"],
-                "influence_one": user["influence_one"],
-                "influence_two": user["influence_two"],
-                "production_utility": user["production_utility"],
-                "consumption_utility": user["consumption_utility"],
-                "local_follower_count": user["local_follower_count"],
-                "local_following_count": user["local_following_count"],
-                "local_followers": user["local_followers"],
-                "local_following": user["local_following"],
-                "global_follower_count": user["global_follower_count"],
-                "global_following_count": user["global_following_count"],
-                "is_new_user": user["is_new_user"]
-            }
-            new_user = ContentSpaceUser(**user_dict)
-            users.add(new_user)
-        return users
-
-    def _load_tweets(self, db_name: str) -> Set[ContentSpaceTweet]:
-        tweets = set()
-        for tweet in self.content_demand_supply_db[db_name].find():
-            del tweet["_id"]
-            tweet["text"] = _populate_content_type(tweet["content"],
-                                                   content_space)
-            tweet.pop("content")
-            tweets.add(ContentSpaceTweet(**tweet))
-        return tweets
+        pass
 
     def load_original_tweets(self) -> Set[ContentSpaceTweet]:
-        return self._load_tweets(self.content_ds_original_tweets_collection)
+        pass
 
     def load_quotes_of_in_community(self) -> Set[ContentSpaceTweet]:
         pass
@@ -88,117 +59,98 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
         pass
 
     def load_retweets_of_in_community(self) -> Set[ContentSpaceTweet]:
-        return self._load_tweets(
-            self.content_ds_retweets_of_in_community_collection)
+        pass
 
     def load_retweets_of_out_community(self) -> Set[ContentSpaceTweet]:
-        return self._load_tweets(
-            self.content_ds_retweets_of_out_community_collection)
+        pass
 
     def load_replies(self) -> Set[ContentSpaceTweet]:
         pass
 
-    def load_time_stamps(self) -> List[datetime]:
-        query = {"time_stamps": {"$exists": True}}
-        return self.content_demand_supply_db[self.content_ds_curves] \
-            .find_one(query)["time_stamps"]
+    def load_content_space(self) -> set[ContentType]:
+        # load num_to_repr
+        if len(num_to_repr) == 0:
+            query = {"num_to_repr": {"$exists": True}}
+            num_to_repr.update(
+                self.content_demand_supply_db[self.content_ds_content_space].find_one(
+                    query)["num_to_repr"])
+        # load Content Space
+        content_space.clear()
+        content_space.update({ContentType(type_repr) for type_repr
+                              in num_to_repr.values()})
+        return content_space
 
-    def load_curve(self, name: str) -> Dict[int, Dict[Any, Union[int,
-                                            List[int]]]]:
-        # load repr_to_num
-        if len(repr_to_num) == 0:
-            query = {"repr_to_num": {"$exists": True}}
-            repr_to_num.update(self.content_demand_supply_db[self.content_ds_curves].find_one(query)["repr_to_num"])
+    def load_curve(self, name: str) -> Dict[UserType, Dict[Any, Set[MinimalTweet]]]:
         # get raw dictionary
         query = {name: {"$exists": True}}
         raw_dict = self.content_demand_supply_db[self.content_ds_curves].find_one(query)[name]
         # build new dictionary
         new_dict = {}
-        for key1 in raw_dict.keys(): # userid
+        for key1 in raw_dict.keys(): # user_type
             new_sub_dict = {}
-            for key2, value2 in raw_dict[key1].items(): # repr_num, time series
-                new_sub_dict[repr_to_num[key2]] = value2
-            new_dict[int(key1)] = new_sub_dict
+            for key2, value2 in raw_dict[key1].items():
+                # key2 = repr_num, value2 = Set[tweet info]
+                new_sub_dict[num_to_repr[key2]] = {MinimalTweet(**dct)
+                                                   for dct in value2}
+            new_dict[value_to_type(key1)] = new_sub_dict
         return new_dict
 
     def store_users(self, users: Set[ContentSpaceUser]) -> None:
-        user_dict_list = []
-        for user in users:
-            user_dict = deepcopy(vars(user))
-            user_dict["original_tweets"] = _serialize_space_tweet(
-                user_dict["original_tweets"])
-            user_dict["retweets_of_in_community"] = _serialize_space_tweet(
-                user_dict["retweets_of_in_community"])
-            user_dict["retweets_of_out_community"] = _serialize_space_tweet(
-                user_dict["retweets_of_out_community"])
-            user_dict["quotes_of_in_community"] = _serialize_space_tweet(
-                user_dict["quotes_of_in_community"])
-            user_dict["quotes_of_out_community"] = _serialize_space_tweet(
-                user_dict["quotes_of_out_community"])
-            user_dict["replies"] = _serialize_space_tweet(
-                user_dict["replies"])
-            user_dict_list.append(user_dict)
-        self.content_demand_supply_db[self.content_ds_user_info].insert_many(
-            user_dict_list)
+        pass
 
     def store_tweets(self, tweets: Set[ContentSpaceTweet],
                      tweet_type: TweetType) -> None:
-        if tweet_type == TweetType.ORIGINAL_TWEET:
-            self.content_demand_supply_db[
-                self.content_ds_original_tweets_collection] \
-                .insert_many(_serialize_space_tweet(tweets))
-        elif tweet_type == TweetType.RETWEET_OF_IN_COMM:
-            self.content_demand_supply_db[
-                self.content_ds_retweets_of_in_community_collection] \
-                .insert_many(_serialize_space_tweet(tweets))
-        elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
-            self.content_demand_supply_db[
-                self.content_ds_retweets_of_out_community_collection] \
-                .insert_many(_serialize_space_tweet(tweets))
-        else:
-            raise ValueError
+        pass
 
     def init_content_space(self, content_space_set: Set[ContentType]) -> None:
         content_space.update(content_space_set)
 
     def store_time_stamps(self, time_stamps: List[datetime]) -> None:
+        # TODO: move to new place
         self.content_demand_supply_db[self.content_ds_curves].insert_one({
             "time_stamps": time_stamps
         })
 
-    def store_curve(self, curve: Dict[
-                    str, Dict[int, Dict[Any, Union[int, List[int]]]]]) -> None:
-        if len(repr_to_num) == 0:
+    def store_curve(self, name: str, curve: Dict[UserType, Dict[Any,
+                    Set[MinimalTweet]]]) -> None:
+        if len(num_to_repr) == 0:
             # create ContentType tracking
-            repr_to_num.update(
+            num_to_repr.update(
                 {str(index): content_type.representation for index,
                  content_type in enumerate(content_space)})
-            self.content_demand_supply_db[self.content_ds_curves].insert_one({
-                "repr_to_num": repr_to_num
-            })
+            self.content_demand_supply_db[self.content_ds_content_space].insert_one(
+                {"num_to_repr": num_to_repr}
+            )
         curve_dict = self._subs_repr_to_num(curve)
         self.content_demand_supply_db[self.content_ds_curves] \
-            .insert_one(curve_dict)
+            .insert_one({name: curve_dict})
 
-    def _subs_repr_to_num(self, curve: Dict[str, Dict[int, Dict[Any, Union[int,
-                          List[int]]]]]) -> Dict[
-                          str, Dict[str, Dict[str, Union[int, List[int]]]]]:
+    def _subs_repr_to_num(self, curve: Dict[UserType, Dict[Any, Set[MinimalTweet]]]) -> Dict[str, Dict[str, List[Dict[str, Union[int, datetime]]]]]:
         new_dict = {}
-        for key1 in curve.keys():  # name
-            new_sub_dict = {}
-            for key2, value2 in curve[key1].items():  # userid, Dict[Any, int]
-                new_sub_dict[str(key2)] = self._sub_repr_to_num(value2)
-            new_dict[key1] = new_sub_dict
+        for key, value in curve.items():
+            # key = UserType, value = Dict[Any, Set[MinimalTweet]]
+            new_sub_dict = self._sub_repr_to_num(value)
+            new_sub_dict = self._min_tweet_to_dict(new_sub_dict)
+            new_dict[key.value] = new_sub_dict
         return new_dict
 
-    def _sub_repr_to_num(self, small_dict: Dict[Any, Union[int, List[int]]]) -> \
-            Dict[str, Union[int, List[int]]]:
+    def _sub_repr_to_num(self, dct: Dict[Any, Set[MinimalTweet]]) -> \
+            Dict[str, Set[MinimalTweet]]:
         new_dict = {}
-        for key, value in small_dict.items():
+        for key, value in dct.items():
             new_dict[self._find_key_from_value(key)] = value
         return new_dict
 
     def _find_key_from_value(self, target_key: Any) -> str:
-        for key, value in repr_to_num.items():
+        for key, value in num_to_repr.items():
             if target_key == value:
                 return key
+
+    def _min_tweet_to_dict(self, dct: Dict[str, Set[MinimalTweet]]) -> \
+            Dict[str, List[Dict[str, Union[int, datetime]]]]:
+        new_dict = {}
+        for key, value in dct.items():
+            tweet_dict_list = [{"id": tweet.id, "created_at": tweet.created_at}
+                               for tweet in value]
+            new_dict[key] = tweet_dict_list
+        return new_dict

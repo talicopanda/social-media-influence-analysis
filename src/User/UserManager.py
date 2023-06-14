@@ -5,6 +5,7 @@ from Tweet.TweetType import TweetType
 from Tweet.TweetManager import TweetManager
 from Tweet.TweetBase import TweetBase
 from User.ContentSpaceUser import ContentSpaceUser
+from Tweet.MinimalTweet import MinimalTweet
 
 from typing import Set, Dict, Any, List
 from datetime import datetime
@@ -13,6 +14,7 @@ from collections import defaultdict
 
 def _find_time_index(create_time: datetime,
                      time_stamps: List[datetime], len_time: int) -> int:
+    # TODO: move to new module
     """Return -1 if not in the range.
     """
     for i in range(len_time):
@@ -144,21 +146,16 @@ class UserManager:
             raise Exception(f"Invalid Tweet Type `{tweet_type}` when getting")
 
     def calculate_user_time_mapping(self, user: ContentSpaceUser,
-                                    time_stamps: List[datetime],
                                     tweet_types: List[TweetType]) -> \
-            Dict[Any, List[int]]:
-        len_time = len(time_stamps)
+            Dict[Any, Set[MinimalTweet]]:
         # initialize dictionary storage
-        freq_dict = defaultdict(lambda: [0 for _ in range(len_time)])
+        freq_dict = defaultdict(set)
 
         # accumulate time series (user has own ContentSpaceTweet)
         for tweet_type in tweet_types:
             for tweet in self._get_user_tweets(user, tweet_type):
-                create_time = tweet.created_at
-                representation = tweet.content.get_representation()
-                index = _find_time_index(create_time, time_stamps, len_time)
-                if index != -1:
-                    freq_dict[representation][index] += 1
+                freq_dict[tweet.content.get_representation()]\
+                    .add(MinimalTweet(tweet.id, tweet.created_at))
 
         # return dictionary
         return freq_dict

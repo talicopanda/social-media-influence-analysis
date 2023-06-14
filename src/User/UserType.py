@@ -10,7 +10,13 @@ def get_all_user_types() -> Set[UserType]:
     return {UserType.CONSUMER, UserType.PRODUCER, UserType.CORE_NODE}
 
 
+def value_to_type(value: str) -> UserType:
+    for user_type in get_all_user_types():
+        if user_type.value == value:
+            return user_type
+
+
 class UserType(Enum):
     CONSUMER = "consumer"
     PRODUCER = "producer"
-    CORE_NODE = "core node"
+    CORE_NODE = "core_node"

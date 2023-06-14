@@ -62,6 +62,8 @@ class ContentMarketMongoDAO(MongoDAOBase):
         tweets = set()
         for tweet in self.content_market_db[db_name].find():
             del tweet["_id"]
+            tweet["id"] = int(tweet["id"])
+            tweet["user_id"] = int(tweet["user_id"])
             tweets.add(ContentMarketTweet(**tweet))
         return tweets
 

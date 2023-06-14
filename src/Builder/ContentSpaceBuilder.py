@@ -23,11 +23,13 @@ class ContentSpaceBuilder(BuilderBase):
     mapping: ContentTypeMapping
 
     def __init__(self, *args):
+        # create()
         # param: str, ContentSpaceMongoDAO, UserPartitioningStrategy
         if len(args) == 3:
             self.name = args[0]
             self.dao = args[1]
             self.partition = args[2]
+        # load()
         # param: str, ContentSpaceMongoDAO, UserPartitioningStrategy,
         #        ContentMarket, ContentTypeMapping
         elif len(args) == 5:

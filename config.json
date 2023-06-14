@@ -30,10 +30,7 @@
     "content_space_collection": "content_space",
 
     "content_demand_supply_db_name": "chess_content_supply_demand",
-    "content_ds_original_tweets_collection": "original_tweets",
-    "content_ds_retweets_of_in_community_collection": "retweets_of_in_community",
-    "content_ds_retweets_of_out_community_collection": "retweets_of_out_community",
-    "content_ds_user_info": "user_info",
+    "content_ds_content_space": "content_space",
     "content_ds_curves": "curves"
   },
   "num_bins": 20,

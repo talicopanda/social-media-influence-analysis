@@ -17,27 +17,23 @@ from datetime import datetime, timedelta
 class ContentDemandSupplyBuilder(BuilderBase):
     name: str
     dao: ContentDemandSupplyMongoDAO
-    partition: UserPartitioningStrategy
     space: ContentSpace
     start: datetime
     end: datetime
     period: timedelta
 
     def __init__(self, *args):
-        # param: str, ContentDemandSupplyMongoDAO, UserPartitioningStrategy
+        # create()
+        # param: str, ContentDemandSupplyMongoDAO, ContentSpace
         if len(args) == 3:
             self.name = args[0]
             self.dao = args[1]
-            self.partition = args[2]
-        # param: str, ContentDemandSupplyMongoDAO, ContentSpace,
-        #        datetime, datetime, timedelta
-        elif len(args) == 6:
+            self.space = args[2]
+        # load()
+        # param: str, ContentDemandSupplyMongoDAO
+        elif len(args) == 2:
             self.name = args[0]
             self.dao = args[1]
-            self.space = args[2]
-            self.start = args[3]
-            self.end = args[4]
-            self.period = args[5]
 
     def create(self) -> ContentDemandSupply:
         # Build Tweet Manager
@@ -58,53 +54,31 @@ class ContentDemandSupplyBuilder(BuilderBase):
 
         # Build Content Demand Supply
         ds = ContentDemandSupply(self.name, self.space.content_space,
-                                 user_manager, tweet_manager,
-                                 self.start, self.end, self.period)
-        ds.calculate_user_demand()
-        ds.calculate_user_supply()
-        ds.calculate_user_agg_mapping()
+                                 user_manager, tweet_manager, None)
+        ds.calculate_demand()
+        ds.calculate_supply()
         return ds
 
     def store(self, ds: ContentDemandSupply) -> None:
         super().store(ds)
         self.dao.init_content_space(ds.content_space)
-        self.dao.store_time_stamps(ds.time_stamps)
-        self.dao.store_curve({"user_demand": ds.user_demand})
-        self.dao.store_curve({"user_supply": ds.user_supply})
-        self.dao.store_curve({"user_agg_demand": ds.user_agg_demand})
-        self.dao.store_curve({"user_agg_supply": ds.user_agg_supply})
+        self.dao.store_curve("demand", ds.demand)
+        self.dao.store_curve("supply", ds.supply)
 
     def _store_users(self, users: Set[ContentSpaceUser]) -> None:
-        self.dao.store_users(users)
+        pass
 
     def _store_tweets(self, tweets: Set[ContentSpaceTweet],
                       tweet_type: TweetType) -> None:
-        self.dao.store_tweets(tweets, tweet_type)
+        pass
 
     def load(self) -> ContentDemandSupply:
-        # Build Tweet Manager
-        tweet_manager = TweetManager()
-        tweet_manager.load_tweets(self.dao.load_original_tweets(),
-                                  TweetType.ORIGINAL_TWEET)
-        tweet_manager.load_tweets(self.dao.load_retweets_of_in_community(),
-                                  TweetType.RETWEET_OF_IN_COMM)
-        tweet_manager.load_tweets(self.dao.load_retweets_of_out_community(),
-                                  TweetType.RETWEET_OF_OUT_COMM)
-
-        # Build User Manager
-        user_manager = UserManager(self.dao.load_users(),
-                                   self.partition, tweet_manager)
-
-        # Build time stamps
-        time_stamps = self.dao.load_time_stamps()
+        # Build Content Space
+        content_space = self.dao.load_content_space()
 
         # Build Demand and Supply
-        user_demand = self.dao.load_curve("user_demand")
-        user_supply = self.dao.load_curve("user_supply")
-        user_agg_demand = self.dao.load_curve("user_agg_demand")
-        user_agg_supply = self.dao.load_curve("user_agg_supply")
+        demand = self.dao.load_curve("demand")
+        supply = self.dao.load_curve("supply")
 
         # Build Content Demand Supply
-        return ContentDemandSupply(self.name, user_manager, tweet_manager,
-                                   time_stamps, user_demand, user_supply,
-                                   user_agg_demand, user_agg_supply)
+        return ContentDemandSupply(self.name, content_space, demand, supply)

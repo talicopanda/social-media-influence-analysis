@@ -10,10 +10,10 @@ class TweetBase:
     """
 
     id: int
-    user_id: int
+    user_id: Optional[int]
     created_at: datetime
-    content: Union[str, ContentType]
-    lang: str
+    content: Union[str, ContentType, None]
+    lang: Optional[str]
     retweet_id: Optional[str]
     retweet_user_id: Optional[str]
     quote_id: Optional[str]
@@ -23,8 +23,8 @@ class TweetBase:
                  text: Union[str, ContentType], lang: str,
                  retweet_id: str = None, retweet_user_id: str = None,
                  quote_id: str = None, quote_user_id: str = None):
-        self.id = int(id)
-        self.user_id = int(user_id)
+        self.id = id
+        self.user_id = user_id
         self.created_at = created_at
         self.content = text
         self.lang = lang

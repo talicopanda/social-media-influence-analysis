@@ -42,10 +42,7 @@ class MongoDAOBase(DAOBase, ABC):
     content_space_collection: str
 
     content_demand_supply_db_name: str
-    content_ds_original_tweets_collection: str
-    content_ds_retweets_of_in_community_collection: str
-    content_ds_retweets_of_out_community_collection: str
-    content_ds_user_info: str
+    content_ds_content_space: str
     content_ds_curves: str
 
     community_db: Database
@@ -70,10 +67,7 @@ class MongoDAOBase(DAOBase, ABC):
                  content_space_retweets_of_out_community_collection,
                  content_space_user_info, content_space_collection,
                  content_demand_supply_db_name,
-                 content_ds_original_tweets_collection,
-                 content_ds_retweets_of_in_community_collection,
-                 content_ds_retweets_of_out_community_collection,
-                 content_ds_user_info, content_ds_curves):
+                 content_ds_content_space, content_ds_curves):
         self.db_type = db_type
         self.connection_url = connection_url
         # Community
@@ -107,10 +101,7 @@ class MongoDAOBase(DAOBase, ABC):
 
         # Content Demand Supply
         self.content_demand_supply_db_name = content_demand_supply_db_name
-        self.content_ds_original_tweets_collection = content_ds_original_tweets_collection
-        self.content_ds_retweets_of_in_community_collection = content_ds_retweets_of_in_community_collection
-        self.content_ds_retweets_of_out_community_collection = content_ds_retweets_of_out_community_collection
-        self.content_ds_user_info = content_ds_user_info
+        self.content_ds_content_space = content_ds_content_space
         self.content_ds_curves = content_ds_curves
 
         # Create Databases

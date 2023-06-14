@@ -29,8 +29,8 @@ config_file.close()
 
 # Loading from database
 MARKET_LOAD = True
-SPACE_LOAD = False
-DEMAND_SUPPLY_LOAD = False
+SPACE_LOAD = True
+DEMAND_SUPPLY_LOAD = True
 # Store from database
 MARKET_STORE = False
 SPACE_STORE = False
@@ -120,16 +120,11 @@ start_time = time.time()
 ds_dao = dao_factory.get_supply_demand_dao(config["database"])
 if DEMAND_SUPPLY_LOAD:
     ds_builder = ContentDemandSupplyBuilder(
-        config["database"]["content_demand_supply_db_name"],
-        ds_dao, partition)
+        config["database"]["content_demand_supply_db_name"], ds_dao)
     ds = ds_builder.load()
 else:
-    start = datetime(2020, 6, 29)
-    end = datetime.now()
-    period = timedelta(days=7)
     ds_builder = ContentDemandSupplyBuilder(
-        config["database"]["content_demand_supply_db_name"],
-        ds_dao, space, start, end, period)
+        config["database"]["content_demand_supply_db_name"], ds_dao, space)
     ds = ds_builder.create()
     if DEMAND_SUPPLY_STORE:
         ds_builder.store(ds)
@@ -143,13 +138,16 @@ print(f"ds time elapsed {end_time - start_time} seconds")
 # KMers Plotting
 # kmers_plotter = KmersPlotter()
 # kmers_plotter.create_mapping_curves(ds, True)
+start = datetime(2020, 6, 29)
+end = datetime.now()
+period = timedelta(days=7)
 
 ##########################################################
 # Causality Analysis
 ##########################################################
 # Plot causality
-mapping_causality = MappingCausalityAnalysis(ds)
+# mapping_causality = MappingCausalityAnalysis(ds)
 # mapping_causality = CreatorCausalityAnalysis(ds)
-lags = list(range(1, 10))
+# lags = list(range(1, 10))
 # mapping_causality.mapping_cause_all(lags)
-mapping_causality.mapping_cause_type(lags)
+# mapping_causality.mapping_cause_type(lags)
