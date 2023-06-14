@@ -28,14 +28,13 @@ config = json.load(config_file)
 config_file.close()
 
 # Loading from database
-MARKET_LOAD = True
-SPACE_LOAD = True
-DEMAND_SUPPLY_LOAD = True
-
+MARKET_LOAD = False
+SPACE_LOAD = False
+DEMAND_SUPPLY_LOAD = False
 # Store from database
 MARKET_STORE = False
-SPACE_STORE = False
-DEMAND_SUPPLY_STORE = False
+SPACE_STORE = True
+DEMAND_SUPPLY_STORE = True
 
 # Skip
 MARKET_SKIP = True
@@ -74,7 +73,7 @@ if not SPACE_SKIP:
         # mapping_factory = MappingFactory(config["clustering_method"])
         # mapping = mapping_factory.get_cluster({
         #     "embeddings": space_dao.load_tweet_embeddings(),
-        #     "num_bins": config["num_bins"],
+        #     "num_clusters": config["num_clusters"],
         #     "dao": market_dao
         # })
         # mapping.generate_tweet_to_type()

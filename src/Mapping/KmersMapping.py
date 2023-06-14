@@ -17,11 +17,11 @@ class KmersMapping(ContentTypeMapping):
         super().__init__(args)
         # extract arguments
         embeddings = args["embeddings"]
-        num_bins = args["num_bins"]
+        num_clusters = args["num_clusters"]
 
         # save useful data for generate_tweet_to_cluster
         data = np.asarray(list(embeddings.values()), dtype=np.float32)
-        clusters, centers, radius = kmer(data, num_bins)
+        clusters, centers, radius = kmer(data, num_clusters)
 
         ids = list(embeddings.keys())
 
