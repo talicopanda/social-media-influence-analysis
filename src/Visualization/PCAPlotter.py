@@ -135,7 +135,6 @@ class PCAPlotter(MappingPlotter):
         """Create demand time series for each ContentType, where the users are
         determined by <is_core_node>.
         """
-        # TODO: Implement
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
         time_stamps, demand = mapping_manager.get_type_demand_series(user_type)
@@ -156,7 +155,6 @@ class PCAPlotter(MappingPlotter):
         """Create demand time series for each ContentType, where the users are
         determined by <is_core_node>.
         """
-        # TODO: Implement
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
         time_stamps, supply = mapping_manager.get_type_supply_series(user_type)

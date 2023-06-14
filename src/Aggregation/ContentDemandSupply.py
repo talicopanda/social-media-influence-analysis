@@ -54,21 +54,6 @@ class ContentDemandSupply(AggregationBase):
             self.demand = args[2]
             self.supply = args[3]
 
-    def _create_time_stamps(self, start: datetime, end: datetime,
-                            period: timedelta) -> None:
-        """Create a list of time stamps for partitioning the Tweet, and
-        store in self.time_stamps.
-        """
-        # TODO: move to new module
-        curr_time = start
-        while curr_time <= end:
-            self.time_stamps.append(curr_time)
-            curr_time += period
-
-    def clear_trailing_zero(self) -> None:
-        # TODO: move to new class
-        pass
-
     # # Below are methods for extraction from outer space
     # def get_type_demand_series(self, user_type: UserType) -> Dict[Any, np.array]:
     #     """Return the demand time series for <user_type>.

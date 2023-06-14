@@ -105,12 +105,6 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
     def init_content_space(self, content_space_set: Set[ContentType]) -> None:
         content_space.update(content_space_set)
 
-    def store_time_stamps(self, time_stamps: List[datetime]) -> None:
-        # TODO: move to new place
-        self.content_demand_supply_db[self.content_ds_curves].insert_one({
-            "time_stamps": time_stamps
-        })
-
     def store_curve(self, name: str, curve: Dict[UserType, Dict[Any,
                     Set[MinimalTweet]]]) -> None:
         if len(num_to_repr) == 0:

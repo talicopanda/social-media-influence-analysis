@@ -8,19 +8,7 @@ from User.ContentSpaceUser import ContentSpaceUser
 from Tweet.MinimalTweet import MinimalTweet
 
 from typing import Set, Dict, Any, List
-from datetime import datetime
 from collections import defaultdict
-
-
-def _find_time_index(create_time: datetime,
-                     time_stamps: List[datetime], len_time: int) -> int:
-    # TODO: move to new module
-    """Return -1 if not in the range.
-    """
-    for i in range(len_time):
-        if create_time < time_stamps[i]:
-            return i - 1
-    return -1
 
 
 class UserManager:
@@ -99,7 +87,6 @@ class UserManager:
                 int(tweet.retweet_user_id)).retweets_of_out_community.add(tweet)
 
         # For Replies
-        # TODO: Remove later
         for tweet in tweet_manager.get_type_tweets(
                 TweetType.REPLY):
             self.get_user(int(tweet.user_id)).replies.add(tweet)

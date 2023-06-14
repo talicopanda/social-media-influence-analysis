@@ -6,7 +6,6 @@ from typing import Dict
 
 
 class DAOFactory:
-    # TODO: may generalize the parameter
     def get_content_market_dao(self, db_config: Dict[str, str]) \
             -> ContentMarketMongoDAO:
         if db_config["db_type"] == "Mongo":
