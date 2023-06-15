@@ -86,13 +86,16 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
         raw_dict = self.content_demand_supply_db[self.content_ds_curves].find_one(query)[name]
         # build new dictionary
         new_dict = {}
-        for key1 in raw_dict.keys(): # user_type
+        for key1 in raw_dict.keys(): # user_type or user_id
             new_sub_dict = {}
             for key2, value2 in raw_dict[key1].items():
                 # key2 = repr_num, value2 = Set[tweet info]
                 new_sub_dict[num_to_repr[key2]] = {MinimalTweet(**dct)
                                                    for dct in value2}
-            new_dict[value_to_type(key1)] = new_sub_dict
+            if value_to_type(key1) is not None:
+                new_dict[value_to_type(key1)] = new_sub_dict
+            else:
+                new_dict[key1] = new_sub_dict
         return new_dict
 
     def store_users(self, users: Set[ContentSpaceUser]) -> None:
