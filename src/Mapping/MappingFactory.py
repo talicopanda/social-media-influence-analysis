@@ -2,6 +2,8 @@ from Mapping.ContentTypeMapping import ContentTypeMapping
 from Mapping.CreatorMapping import CreatorMapping
 from Mapping.KmersMapping import KmersMapping
 from Mapping.EmbeddingMapping import EmbeddingMapping
+from Mapping.BinningMapping import BinningMapping
+
 
 from typing import Dict, Any
 
@@ -21,6 +23,8 @@ class MappingFactory:
                 return EmbeddingMapping(args)
             elif self.division_type == "creator":
                 return CreatorMapping(args)
+            elif self.division_type == "binning":
+                return BinningMapping(args)
             else:
                 raise ValueError
         except KeyError:
