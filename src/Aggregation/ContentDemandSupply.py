@@ -28,23 +28,28 @@ class ContentDemandSupply(AggregationBase):
     content_space: Set[ContentType]
     user_manager: UserManager
 
-    demand: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
+    demand_in_community: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
+    demand_out_community: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
     supply: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
 
     def __init__(self, *args):
         # create()
         # param: str, Set[ContentType], UserManager, TweetManager
-        if len(args) == 5:
+        if len(args) == 4:
             super().__init__(args[0], args[2], args[3])
             # load from arguments
             self.content_space = args[1]
             self.user_manager = args[2]
 
             # initialize demand and supply
-            self.demand = {UserType.CONSUMER: defaultdict(set),
-                           UserType.CORE_NODE: defaultdict(set)}
+            self.demand_in_community = {UserType.CONSUMER: defaultdict(set), 
+                                        UserType.CORE_NODE: defaultdict(set)}
             for user in self.user_manager.users:
-                self.demand[user.user_id] = defaultdict(set)
+                self.demand_in_community[user.user_id] = defaultdict(set)
+            self.demand_out_community = {UserType.CONSUMER: defaultdict(set), 
+                                         UserType.CORE_NODE: defaultdict(set)}
+            for user in self.user_manager.users:
+                self.demand_out_community[user.user_id] = defaultdict(set)
             self.supply = {UserType.CORE_NODE: defaultdict(set),
                            UserType.PRODUCER: defaultdict(set)}
             for user in self.user_manager.users:
@@ -53,11 +58,12 @@ class ContentDemandSupply(AggregationBase):
         # param: str, Set[ContentType],
         #        Dict[UserType, Dict[Any, Set[MinimalTweet]]],
         #        Dict[UserType, Dict[Any, Set[MinimalTweet]]]
-        elif len(args) == 4:
+        elif len(args) == 5:
             self.name = args[0]
             self.content_space = args[1]
-            self.demand = args[2]
-            self.supply = args[3]
+            self.demand_in_community = args[2]
+            self.demand_out_community = args[3]
+            self.supply = args[4]
 
     # # Below are methods for extraction from outer space
     # def get_type_demand_series(self, user_type: UserType) -> Dict[Any, np.array]:
@@ -135,16 +141,25 @@ class ContentDemandSupply(AggregationBase):
                 user, tweet_types)
         storage[user.user_id] = freq_dict
 
-    def calculate_demand(self):
-        print("Start User Demand")
-        demand_spec = [TweetType.RETWEET_OF_IN_COMM,
-                       TweetType.RETWEET_OF_OUT_COMM]
-        self._calculate_user_type_mapping(UserType.CONSUMER, self.demand,
+    def calculate_demand_in_community(self):
+        print("Start User Demand In Community")
+        demand_spec = [TweetType.RETWEET_OF_IN_COMM]
+        self._calculate_user_type_mapping(UserType.CONSUMER, self.demand_in_community,
                                           demand_spec)
-        self._calculate_user_type_mapping(UserType.CORE_NODE, self.demand,
+        self._calculate_user_type_mapping(UserType.CORE_NODE, self.demand_in_community,
                                           demand_spec)
         for user in self.user_manager.users:
-            self._calculate_user_mapping(user, self.demand, demand_spec)
+            self._calculate_user_mapping(user, self.demand_in_community, demand_spec)
+
+    def calculate_demand_out_community(self):
+        print("Start User Demand Out Community")
+        demand_spec = [TweetType.RETWEET_OF_OUT_COMM]
+        self._calculate_user_type_mapping(UserType.CONSUMER, self.demand_out_community,
+                                          demand_spec)
+        self._calculate_user_type_mapping(UserType.CORE_NODE, self.demand_out_community,
+                                          demand_spec)
+        for user in self.user_manager.users:
+            self._calculate_user_mapping(user, self.demand_out_community, demand_spec)
 
     def calculate_supply(self):
         print("Start User Supply")
