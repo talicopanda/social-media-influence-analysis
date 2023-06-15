@@ -80,12 +80,12 @@ class UserManager:
             self.get_user(int(tweet.user_id)).retweets_of_in_community.add(
                 tweet)
 
-        # For Retweets of Out Community
-        # TODO: this is innately wrong
-        for tweet in tweet_manager.get_type_tweets(
-                TweetType.RETWEET_OF_OUT_COMM):
-            self.get_user(
-                int(tweet.retweet_user_id)).retweets_of_out_community.add(tweet)
+        # # For Retweets of Out Community
+        # # TODO: this is innately wrong
+        # for tweet in tweet_manager.get_type_tweets(
+        #         TweetType.RETWEET_OF_OUT_COMM):
+        #     self.get_user(
+        #         int(tweet.retweet_user_id)).retweets_of_out_community.add(tweet)
 
         # For Replies
         for tweet in tweet_manager.get_type_tweets(
