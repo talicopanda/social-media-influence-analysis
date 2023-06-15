@@ -6,7 +6,6 @@ from Mapping.ContentType import ContentType
 from Tweet.MinimalTweet import MinimalTweet
 
 from typing import Dict, List, Any, Set, DefaultDict
-from datetime import datetime, timedelta
 from tqdm import tqdm
 from collections import defaultdict
 
@@ -124,8 +123,7 @@ class ContentDemandSupply(AggregationBase):
 
     def calculate_demand(self):
         print("Start User Demand")
-        demand_spec = [TweetType.RETWEET_OF_IN_COMM,
-                       TweetType.RETWEET_OF_OUT_COMM]
+        demand_spec = [TweetType.RETWEET_OF_IN_COMM]
         self._calculate_user_type_mapping(UserType.CONSUMER, self.demand,
                                           demand_spec)
         self._calculate_user_type_mapping(UserType.CORE_NODE, self.demand,

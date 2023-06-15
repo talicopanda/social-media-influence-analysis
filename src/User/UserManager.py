@@ -81,6 +81,7 @@ class UserManager:
                 tweet)
 
         # For Retweets of Out Community
+        # TODO: this is innately wrong
         for tweet in tweet_manager.get_type_tweets(
                 TweetType.RETWEET_OF_OUT_COMM):
             self.get_user(
