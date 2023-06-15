@@ -4,6 +4,7 @@ from Tweet.TweetType import TweetType
 from Aggregation.AggregationBase import AggregationBase
 from Mapping.ContentType import ContentType
 from Tweet.MinimalTweet import MinimalTweet
+from User.ContentSpaceUser import ContentSpaceUser
 
 from typing import Dict, List, Any, Set, DefaultDict
 from datetime import datetime, timedelta
@@ -27,8 +28,8 @@ class ContentDemandSupply(AggregationBase):
     content_space: Set[ContentType]
     user_manager: UserManager
 
-    demand: Dict[UserType, DefaultDict[Any, Set[MinimalTweet]]]
-    supply: Dict[UserType, DefaultDict[Any, Set[MinimalTweet]]]
+    demand: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
+    supply: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
 
     def __init__(self, *args):
         # create()
@@ -42,8 +43,12 @@ class ContentDemandSupply(AggregationBase):
             # initialize demand and supply
             self.demand = {UserType.CONSUMER: defaultdict(set),
                            UserType.CORE_NODE: defaultdict(set)}
+            for user in self.user_manager.users:
+                self.demand[user.user_id] = defaultdict(set)
             self.supply = {UserType.CORE_NODE: defaultdict(set),
                            UserType.PRODUCER: defaultdict(set)}
+            for user in self.user_manager.users:
+                self.supply[user.user_id] = defaultdict(set)
         # load()
         # param: str, Set[ContentType],
         #        Dict[UserType, Dict[Any, Set[MinimalTweet]]],
@@ -113,7 +118,7 @@ class ContentDemandSupply(AggregationBase):
     # Test Version
     ##########################################################
     def _calculate_user_type_mapping(self, user_type: UserType,
-                                     storage: Dict[UserType,
+                                     storage: Dict[Any,
                                      Dict[Any, Set[MinimalTweet]]],
                                      tweet_types: List[TweetType]) -> None:
         for user in tqdm(self.user_manager.get_type_users(user_type)):
@@ -121,6 +126,14 @@ class ContentDemandSupply(AggregationBase):
             freq_dict = self.user_manager.calculate_user_time_mapping(
                 user, tweet_types)
             _merge_dicts(storage[user_type], freq_dict)
+
+    def _calculate_user_mapping(self, user: ContentSpaceUser, 
+                                storage: Dict[Any,
+                                Dict[Any, Set[MinimalTweet]]],
+                                tweet_types: List[TweetType]) -> None:
+        freq_dict = self.user_manager.calculate_user_time_mapping(
+                user, tweet_types)
+        storage[user.user_id] = freq_dict
 
     def calculate_demand(self):
         print("Start User Demand")
@@ -130,6 +143,8 @@ class ContentDemandSupply(AggregationBase):
                                           demand_spec)
         self._calculate_user_type_mapping(UserType.CORE_NODE, self.demand,
                                           demand_spec)
+        for user in self.user_manager.users:
+            self._calculate_user_mapping(user, self.demand, demand_spec)
 
     def calculate_supply(self):
         print("Start User Supply")
@@ -138,3 +153,5 @@ class ContentDemandSupply(AggregationBase):
                                           supply_spec)
         self._calculate_user_type_mapping(UserType.CORE_NODE, self.supply,
                                           supply_spec)
+        for user in self.user_manager.users:
+            self._calculate_user_mapping(user, self.supply, supply_spec)

@@ -80,7 +80,7 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
                               in num_to_repr.values()})
         return content_space
 
-    def load_curve(self, name: str) -> Dict[UserType, Dict[Any, Set[MinimalTweet]]]:
+    def load_curve(self, name: str) -> Dict[Any, Dict[Any, Set[MinimalTweet]]]:
         # get raw dictionary
         query = {name: {"$exists": True}}
         raw_dict = self.content_demand_supply_db[self.content_ds_curves].find_one(query)[name]
@@ -105,7 +105,7 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
     def init_content_space(self, content_space_set: Set[ContentType]) -> None:
         content_space.update(content_space_set)
 
-    def store_curve(self, name: str, curve: Dict[UserType, Dict[Any,
+    def store_curve(self, name: str, curve: Dict[Any, Dict[Any,
                     Set[MinimalTweet]]]) -> None:
         if len(num_to_repr) == 0:
             # create ContentType tracking
@@ -119,13 +119,16 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
         self.content_demand_supply_db[self.content_ds_curves] \
             .insert_one({name: curve_dict})
 
-    def _subs_repr_to_num(self, curve: Dict[UserType, Dict[Any, Set[MinimalTweet]]]) -> Dict[str, Dict[str, List[Dict[str, Union[int, datetime]]]]]:
+    def _subs_repr_to_num(self, curve: Dict[Any, Dict[Any, Set[MinimalTweet]]]) -> Dict[str, Dict[str, List[Dict[str, Union[int, datetime]]]]]:
         new_dict = {}
         for key, value in curve.items():
             # key = UserType, value = Dict[Any, Set[MinimalTweet]]
             new_sub_dict = self._sub_repr_to_num(value)
             new_sub_dict = self._min_tweet_to_dict(new_sub_dict)
-            new_dict[key.value] = new_sub_dict
+            if type(key) is int:
+                new_dict[str(key)] = new_sub_dict
+            else:
+                new_dict[key.value] = new_sub_dict
         return new_dict
 
     def _sub_repr_to_num(self, dct: Dict[Any, Set[MinimalTweet]]) -> \
