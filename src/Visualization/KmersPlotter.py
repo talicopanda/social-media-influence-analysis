@@ -68,8 +68,7 @@ class KmersPlotter(MappingPlotter):
         plt.legend()
         plt.title("Supply and Demand for Core Node")
         if save:
-            plt.savefig(
-                f'../results/kmers_' + 'supply_and_demand_for_core_node')
+            plt.savefig('../results/kmers_supply_and_demand_for_core_node')
         else:
             plt.show()
 
@@ -85,8 +84,7 @@ class KmersPlotter(MappingPlotter):
         plt.legend()
         plt.title("Supply and Demand for Ordinary User")
         if save:
-            plt.savefig(
-                f'../results/kmers_' + 'supply_and_demand_for_ordinary_user')
+            plt.savefig('../results/kmers_supply_and_demand_for_ordinary_user')
         else:
             plt.show()
 
@@ -102,8 +100,7 @@ class KmersPlotter(MappingPlotter):
         plt.legend()
         plt.title("Aggregate Supply and Demand")
         if save:
-            plt.savefig(
-                f'../results/kmers_agg_supply_and_demand')
+            plt.savefig('../results/kmers_agg_supply_and_demand')
         else:
             plt.show()
 

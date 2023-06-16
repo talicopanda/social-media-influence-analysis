@@ -43,7 +43,8 @@ class TimeSeriesBuilder:
 
     def create_time_series(self, user_type: UserType, content_repr: Any,
                            mapping: str) -> List[int]:
-        if mapping != "demand" and mapping != "supply":
+        if mapping not in ["demand_in_community", "demand_out_community",
+                           "supply"]:
             raise KeyError("Invalid Mapping Type.")
 
         # Extraction
