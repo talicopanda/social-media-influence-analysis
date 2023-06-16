@@ -33,12 +33,12 @@ MARKET_LOAD = True
 SPACE_LOAD = False
 DEMAND_SUPPLY_LOAD = False
 
-# Store from database
+# Store to database
 MARKET_STORE = False
-SPACE_STORE = False
-DEMAND_SUPPLY_STORE = False
+SPACE_STORE = True
+DEMAND_SUPPLY_STORE = True
 
-# Skip
+# Skip Building
 MARKET_SKIP = False
 SPACE_SKIP = False
 
@@ -73,10 +73,10 @@ if not SPACE_SKIP:
     mapping = None
     if not SPACE_LOAD:
         # print("=================Creating Mapping=================")
-        # mapping_factory = MappingFactory(config["clustering_method"])
+        # mapping_factory = MappingFactory(config["content_type_method"])
         # mapping = mapping_factory.get_cluster({
         #     "embeddings": space_dao.load_tweet_embeddings(),
-        #     "num_bins": config["num_bins"],
+        #     "num_clusters": config["num_clusters"],
         #     "dao": market_dao
         # })
         # mapping.generate_tweet_to_type()

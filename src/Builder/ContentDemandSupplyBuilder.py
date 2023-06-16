@@ -54,15 +54,17 @@ class ContentDemandSupplyBuilder(BuilderBase):
 
         # Build Content Demand Supply
         ds = ContentDemandSupply(self.name, self.space.content_space,
-                                 user_manager, tweet_manager, None)
-        ds.calculate_demand()
+                                 user_manager, tweet_manager)
+        ds.calculate_demand_in_community()
+        ds.calculate_demand_out_community()
         ds.calculate_supply()
         return ds
 
     def store(self, ds: ContentDemandSupply) -> None:
         super().store(ds)
         self.dao.init_content_space(ds.content_space)
-        self.dao.store_curve("demand", ds.demand)
+        self.dao.store_curve("demand_in_community", ds.demand_in_community)
+        self.dao.store_curve("demand_out_community", ds.demand_out_community)
         self.dao.store_curve("supply", ds.supply)
 
     def _store_users(self, users: Set[ContentSpaceUser]) -> None:
@@ -77,8 +79,10 @@ class ContentDemandSupplyBuilder(BuilderBase):
         content_space = self.dao.load_content_space()
 
         # Build Demand and Supply
-        demand = self.dao.load_curve("demand")
+        demand_in_community = self.dao.load_curve("demand_in_community")
+        demand_out_community = self.dao.load_curve("demand_out_community")
         supply = self.dao.load_curve("supply")
 
         # Build Content Demand Supply
-        return ContentDemandSupply(self.name, content_space, demand, supply)
+        return ContentDemandSupply(self.name, content_space, 
+                                   demand_in_community, demand_out_community, supply)

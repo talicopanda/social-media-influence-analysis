@@ -34,3 +34,15 @@ class AggregationBase:
         self.original_tweets = tweet_manager.original_tweets
         self.retweets_of_in_comm = tweet_manager.retweets_of_in_comm
         self.retweets_of_out_comm = tweet_manager.retweets_of_out_comm
+    
+    def get_tweet(self, id) -> TweetBase:
+        """Return the tweet with <id>."""
+        for tweet in self.original_tweets:
+            if tweet.id == id:
+                return tweet
+        for tweet in self.retweets_of_in_comm:
+            if tweet.id == id:
+                return tweet
+        for tweet in self.retweets_of_out_comm:
+            if tweet.id == id:
+                return tweet
