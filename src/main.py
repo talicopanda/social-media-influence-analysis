@@ -6,7 +6,11 @@ from Builder.ContentSpaceBuilder import ContentSpaceBuilder
 from Builder.ContentDemandSupplyBuilder import ContentDemandSupplyBuilder
 from TS.TimeSeriesBuilder import TimeSeriesBuilder
 from Causality.CreatorCausalityAnalysis import CreatorCausalityAnalysis
-from Causality.MappingCausalityAnalysis import MappingCausalityAnalysis
+from Causality.KmersCausalityAnalysis import KmersCausalityAnalysis
+from User.UserType import UserType
+from Visualization.KmersPlotter import KmersPlotter
+from Visualization.CreatorPlotter import CreatorPlotter
+from Causality.CausalityAnalysisTool import *
 
 import json
 import pickle
@@ -15,22 +19,19 @@ from datetime import datetime, timedelta
 import time
 import matplotlib.pyplot as plt
 
-
 ##########################################################
 # Parameter Setup
 ##########################################################
-# retrieve configuration
-content_market_name = "kmers_mapping_supply_only"
+# Load configuration
 config_file_path = "../config.json"
-
 config_file = open(config_file_path)
 config = json.load(config_file)
 config_file.close()
 
-# Loading from database
+# Load from database
 MARKET_LOAD = True
-SPACE_LOAD = True
-DEMAND_SUPPLY_LOAD = True
+SPACE_LOAD = False
+DEMAND_SUPPLY_LOAD = False
 
 # Store from database
 MARKET_STORE = False
@@ -38,8 +39,8 @@ SPACE_STORE = False
 DEMAND_SUPPLY_STORE = False
 
 # Skip
-MARKET_SKIP = True
-SPACE_SKIP = True
+MARKET_SKIP = False
+SPACE_SKIP = False
 
 ##########################################################
 # Build DAO Factory and Partitioning
@@ -53,8 +54,9 @@ partition = UserPartitioningStrategyFactory.get_user_type_strategy(
 ##########################################################
 if not MARKET_SKIP:
     market_dao = dao_factory.get_content_market_dao(config["database"])
-    market_builder = ContentMarketBuilder(config["database"]["content_market_db_name"],
-                                          market_dao, partition)
+    market_builder = ContentMarketBuilder(
+        config["database"]["content_market_db_name"],
+        market_dao, partition)
     if MARKET_LOAD:
         market = market_builder.load()
     else:
@@ -114,9 +116,11 @@ else:
 ##########################################################
 # Plotting
 ##########################################################
+plotter = KmersPlotter(ds)
+plotter.create_mapping_curves(False)
 
 ##########################################################
-# Build Time Series Builder
+# Build Time Series
 ##########################################################
 start = datetime(2020, 6, 29)
 end = datetime(2023, 3, 20)
@@ -126,9 +130,9 @@ ts_builder = TimeSeriesBuilder(ds, start, end, period)
 ##########################################################
 # Build Causality Analysis
 ##########################################################
-# Plot causality
-# mapping_causality = MappingCausalityAnalysis(ds)
-# mapping_causality = CreatorCausalityAnalysis(ds)
-# lags = list(range(1, 10))
-# mapping_causality.mapping_cause_all(lags)
-# mapping_causality.mapping_cause_type(lags)
+lags = list(range(1, 20))
+ca = KmersCausalityAnalysis(ts_builder, lags)
+
+cluster_list = [2, 5, 9, 10, 12, 16, 19]
+ca.plot_cause_forward(cluster_list)
+ca.plot_cause_backward(cluster_list)

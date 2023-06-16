@@ -12,8 +12,8 @@ class CreatorCausalityAnalysis:
     # Attributes
     ds: ContentDemandSupply
 
-    def __init__(self, mapping_manager: ContentDemandSupply):
-        self.ds = mapping_manager
+    def __init__(self, ds: ContentDemandSupply):
+        self.ds = ds
 
     def consumer_to_core_node_all(self, lags: List[int]) -> List[float]:
         """Return a list of p values for Granger causality test with <lags>
