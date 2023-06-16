@@ -43,7 +43,7 @@ class TimeSeriesBuilder:
 
     def create_time_series(self, user_type: UserType, content_repr: Any,
                            mapping: str) -> List[int]:
-        if mapping != "demand" or mapping != "supply":
+        if mapping != "demand" and mapping != "supply":
             raise KeyError("Invalid Mapping Type.")
 
         # Extraction
@@ -57,3 +57,12 @@ class TimeSeriesBuilder:
                                          len_time)] += 1
 
         return output_list
+
+    def create_type_series(self, user_type1: UserType, mapping1: str,
+                           user_type2: UserType, mapping2: str,
+                           content_repr: Any) -> (List[int], List[int]):
+        demand_series = self.create_time_series(user_type1, content_repr,
+                                                mapping1)
+        supply_series = self.create_time_series(user_type2, content_repr,
+                                                mapping2)
+        return demand_series, supply_series
