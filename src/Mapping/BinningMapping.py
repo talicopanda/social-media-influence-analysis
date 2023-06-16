@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 import numpy as np
 from sklearn.decomposition import PCA
 
+
 class BinningMapping(ContentTypeMapping):
 
     ids: List[int]
@@ -12,7 +13,7 @@ class BinningMapping(ContentTypeMapping):
 
     def __init__(self, args: Dict[str, Any]):
         super().__init__(args)
-        
+
         embeddings = args["embeddings"]
         num_bins = args["num_bins"]
 
@@ -30,7 +31,7 @@ class BinningMapping(ContentTypeMapping):
         self.bin_boundaries = [min_pca + i * bin_size for i in range(num_bins - 1)] + [max_pca]
 
         self.bins = [self._find_bin_number(pca_value) for pca_value in pca.components_[0]]
-    
+
     def generate_tweet_to_type(self):
         """Assign each tweet with a bin."""
         content_type_set = set()
@@ -47,5 +48,4 @@ class BinningMapping(ContentTypeMapping):
             if num < self.bin_boundaries[i]:
                 return i - 1
         return len(self.bin_boundaries) - 1
-    
-        
+

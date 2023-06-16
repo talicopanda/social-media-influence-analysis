@@ -38,7 +38,7 @@ class CreatorPlotter(MappingPlotter):
                 """
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
-        demand = self.ds.demand[user_type]
+        demand = self.ds.demand_in_community[user_type]
 
         # convert to numbers
         demand_dict = {key: len(val) for key, val in demand.items()}
