@@ -20,7 +20,7 @@ class BinningCausalityAnalysis:
 
     def _plot_lag_to_cause(self, user_type1: UserType, mapping1: str,
                            user_type2: UserType, mapping2: str,
-                           cluster_list: List[int]) -> None:
+                           cluster_list: List[int], save: bool) -> None:
         plt.figure()
         period_to_remove = 6
         for cluster_id in cluster_list:
@@ -35,36 +35,38 @@ class BinningCausalityAnalysis:
         plt.xlabel("lags")
         plt.ylabel("p-value")
         plt.legend()
-        title = "binning " + user_type1.value + " " + mapping1 + " to " \
+        title = "binning cleaned " + user_type1.value + " " + mapping1 + " to " \
                 + user_type2.value + " " + mapping2
         plt.title(title)
-        plt.show()
-        # plt.savefig('../results/' + title)
+        if save:
+            plt.savefig('../results/' + title)
+        else:
+            plt.show()
 
-    def plot_cause_forward(self, cluster_list: List[int]) -> None:
+    def plot_cause_forward(self, cluster_list: List[int], save: bool) -> None:
         self._plot_lag_to_cause(UserType.CONSUMER, "demand_in_community",
                                 UserType.CORE_NODE, "supply",
-                                cluster_list)
+                                cluster_list, save)
         self._plot_lag_to_cause(UserType.CORE_NODE, "demand_in_community",
                                 UserType.PRODUCER, "supply",
-                                cluster_list)
+                                cluster_list, save)
         self._plot_lag_to_cause(UserType.CONSUMER, "demand_in_community",
                                 UserType.PRODUCER, "supply",
-                                cluster_list)
+                                cluster_list, save)
         self._plot_lag_to_cause(UserType.CONSUMER, "demand_in_community",
                                 UserType.CORE_NODE, "demand_in_community",
-                                cluster_list)
+                                cluster_list, save)
 
-    def plot_cause_backward(self, cluster_list: List[int]) -> None:
+    def plot_cause_backward(self, cluster_list: List[int], save: bool) -> None:
         self._plot_lag_to_cause(UserType.CORE_NODE, "supply",
                                 UserType.CONSUMER, "demand_in_community",
-                                cluster_list)
+                                cluster_list, save)
         self._plot_lag_to_cause(UserType.PRODUCER, "supply",
                                 UserType.CORE_NODE, "demand_in_community",
-                                cluster_list)
+                                cluster_list, save)
         self._plot_lag_to_cause(UserType.PRODUCER, "supply",
                                 UserType.CONSUMER, "demand_in_community",
-                                cluster_list)
+                                cluster_list, save)
         self._plot_lag_to_cause(UserType.CORE_NODE, "demand_in_community",
                                 UserType.CONSUMER, "demand_in_community",
-                                cluster_list)
+                                cluster_list, save)

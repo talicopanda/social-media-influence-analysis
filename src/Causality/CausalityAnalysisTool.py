@@ -1,9 +1,11 @@
 from typing import List
 import warnings
 import pandas as pd
+import numpy as np
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 from statsmodels.tsa.stattools import grangercausalitytests, adfuller
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, MaxAbsScaler
 
 
 def gc_score_for_lag(indep_series: List[int],
@@ -25,6 +27,8 @@ def gc_score_for_lags(indep_series: List[int],
     """Return a list of p values for Granger causality test for <indep_series>
     and <dep_series> with <lag>.
     """
+    # indep_series = MaxAbsScaler().fit_transform(np.array(indep_series).reshape(-1, 1)).reshape(-1)
+    # dep_series = MaxAbsScaler().fit_transform(np.array(dep_series).reshape(-1, 1)).reshape(-1)
     granger_test = grangercausalitytests(pd.DataFrame({
         "x": dep_series,
         "y": indep_series
