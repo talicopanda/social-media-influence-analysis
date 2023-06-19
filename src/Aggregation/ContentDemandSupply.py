@@ -7,7 +7,6 @@ from Tweet.MinimalTweet import MinimalTweet
 from User.ContentSpaceUser import ContentSpaceUser
 
 from typing import Dict, List, Any, Set, DefaultDict
-from datetime import datetime, timedelta
 from tqdm import tqdm
 from collections import defaultdict
 
@@ -115,10 +114,10 @@ class ContentDemandSupply(AggregationBase):
     # def get_agg_type_supply_series(self, user_type: UserType) -> np.array:
     #     supply_series = list(self.get_type_supply_series(user_type).values())
     #     return np.array(supply_series).sum(axis=0)
-    #
-    # def get_content_type_repr(self) -> List:
-    #     return [content_type.get_representation() for content_type
-    #             in self.content_space]
+
+    def get_content_type_repr(self) -> List:
+        return [content_type.get_representation() for content_type
+                in self.content_space]
 
     ##########################################################
     # Test Version

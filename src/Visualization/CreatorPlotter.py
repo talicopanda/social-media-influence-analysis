@@ -1,5 +1,6 @@
-from User.UserType import UserType
+from Aggregation.ContentDemandSupply import ContentDemandSupply
 from Visualization.MappingPlotter import MappingPlotter
+from User.UserType import UserType
 
 from typing import Dict
 import matplotlib.pyplot as plt
@@ -23,39 +24,56 @@ def _merge_dict(dct1: Dict[int, int], dct2: Dict[int, int]) -> Dict[int, int]:
     return merged_dict
 
 
-class KmersPlotter(MappingPlotter):
+class CreatorPlotter(MappingPlotter):
+    repr_to_id: Dict[int, int]
+
+    def __init__(self, ds: ContentDemandSupply):
+        super().__init__(ds)
+        self.repr_to_id = {index: content.get_representation()
+                           for index, content in enumerate(ds.content_space)}
+
     def create_demand_curves(self, is_core_node: bool) -> Dict[int, int]:
         """Create demand bar plot for each ContentType, where the users are
-        determined by <is_core_node>.
-        """
+                determined by <is_core_node>.
+                """
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
         demand = self.ds.demand[user_type]
 
         # convert to numbers
         demand_dict = {key: len(val) for key, val in demand.items()}
-        demand_dict.pop(-1)
-        return demand_dict
+
+        # substitute
+        demand = self._sub_id_to_num(demand_dict)
+        return demand
 
     def create_supply_curves(self, is_core_node: bool) -> Dict[int, int]:
         """Create supply bar plot for each ContentType, where the users are
-        determined by <is_core_node>.
-        """
+                determined by <is_core_node>.
+                """
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.PRODUCER
         supply = self.ds.supply[user_type]
 
         # convert to numbers
         supply_dict = {key: len(val) for key, val in supply.items()}
-        supply_dict.pop(-1)
-        return supply_dict
+
+        # substitute
+        supply = self._sub_id_to_num(supply_dict)
+        return supply
+
+    def _sub_id_to_num(self, dct: Dict[int, int]) -> Dict[int, int]:
+        new_dict = {}
+        for key, value in dct.items():
+            new_dict[self._find_key_from_value(key)] = value
+        return new_dict
+
+    def _find_key_from_value(self, target_key: int) -> int:
+        for key, value in self.repr_to_id.items():
+            if target_key == value:
+                return key
 
     def create_mapping_curves(self, save: bool) -> None:
-        """Create both supply and demand bar plots for core node and ordinary user.
-        """
-        x_ticks = self.ds.get_content_type_repr()
-        x_ticks.remove(-1)
-
         # Core Nodes
         plt.figure()
         core_node_demand = self.create_demand_curves(True)
@@ -64,12 +82,11 @@ class KmersPlotter(MappingPlotter):
                 label="demand", alpha=0.5)
         plt.bar(core_node_supply.keys(), core_node_supply.values(),
                 label="supply", alpha=0.5)
-        plt.xticks(x_ticks)
         plt.legend()
         plt.title("Supply and Demand for Core Node")
         if save:
             plt.savefig(
-                f'../results/kmers_' + 'supply_and_demand_for_core_node')
+                f'../results/creator_' + 'supply_and_demand_for_core_node')
         else:
             plt.show()
 
@@ -81,12 +98,11 @@ class KmersPlotter(MappingPlotter):
                 label="demand", alpha=0.5)
         plt.bar(producer_supply.keys(), producer_supply.values(),
                 label="supply", alpha=0.5)
-        plt.xticks(x_ticks)
         plt.legend()
         plt.title("Supply and Demand for Ordinary User")
         if save:
             plt.savefig(
-                f'../results/kmers_' + 'supply_and_demand_for_ordinary_user')
+                f'../results/creator_' + 'supply_and_demand_for_ordinary_user')
         else:
             plt.show()
 
@@ -94,16 +110,13 @@ class KmersPlotter(MappingPlotter):
         plt.figure()
         agg_demand = _merge_dict(core_node_demand, consumer_demand)
         agg_supply = _merge_dict(core_node_supply, producer_supply)
-        plt.bar(agg_demand.keys(), agg_demand.values(), label="demand",
-                alpha=0.5)
-        plt.bar(agg_supply.keys(), agg_supply.values(), label="supply",
-                alpha=0.5)
-        plt.xticks(x_ticks)
+        plt.bar(agg_demand.keys(), agg_demand.values(), label="demand", alpha=0.5)
+        plt.bar(agg_supply.keys(), agg_supply.values(), label="supply", alpha=0.5)
         plt.legend()
         plt.title("Aggregate Supply and Demand")
         if save:
             plt.savefig(
-                f'../results/kmers_agg_supply_and_demand')
+                f'../results/creator_agg_supply_and_demand')
         else:
             plt.show()
 
