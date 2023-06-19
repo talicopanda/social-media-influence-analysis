@@ -25,12 +25,16 @@ class ContentMarketBuilder(BuilderBase):
     def create(self) -> ContentMarket:
         # Build Tweet Manager
         tweet_manager = TweetManager()
-        tweet_manager.load_tweets(self.dao.load_original_tweets(),
-                                  TweetType.ORIGINAL_TWEET)
-        tweet_manager.load_tweets(self.dao.load_retweets_of_in_community(),
-                                  TweetType.RETWEET_OF_IN_COMM)
-        tweet_manager.load_tweets(self.dao.load_retweets_of_out_community(),
-                                  TweetType.RETWEET_OF_OUT_COMM)
+        tweet_manager.load_tweets(self.dao.load_original_tweets(), TweetType.ORIGINAL_TWEET)
+        tweet_manager.load_tweets(self.dao.load_retweets_of_in_community(), TweetType.RETWEET_OF_IN_COMM)
+        tweet_manager.load_tweets(self.dao.load_retweets_of_out_community(), TweetType.RETWEET_OF_OUT_COMM)
+
+        # (4) - filtering
+        # tweet_manager.load_tweets(self.filter_original_tweets(self.dao.load_original_tweets(), self.dao.load_retweets_of_in_community()), TweetType.ORIGINAL_TWEET)
+        # tweet_manager.load_tweets(self.filter_retweets_of_in_community(self.dao.load_original_tweets(), self.dao.load_retweets_of_in_community()),
+        #                           TweetType.RETWEET_OF_IN_COMM)
+        # tweet_manager.load_tweets(self.filter_retweets_of_in_community(self.dao.load_original_tweets(), self.dao.load_retweets_of_out_community()),
+        #                           TweetType.RETWEET_OF_OUT_COMM)
 
         # Build User Manager
         user_manager = UserManager(self.dao.create_users(),
@@ -62,3 +66,42 @@ class ContentMarketBuilder(BuilderBase):
 
         # Build Content Market
         return ContentMarket(self.name, user_manager, tweet_manager)
+    
+    def filter_original_tweets(self, original_tweets: Set[ContentMarketTweet], 
+                               retweets_of_in_community: Set[ContentMarketTweet]) \
+                                -> Set[ContentMarketTweet]:
+        """Remove original tweets that are never retweeted in community."""
+        original_ids = set()
+        for tweet in retweets_of_in_community:
+            original_ids.add(tweet.retweet_id)
+        filtered_tweets = set()
+        for tweet in original_tweets:
+            if tweet.id in original_ids:
+                filtered_tweets.add(tweet)
+        return filtered_tweets
+    
+    def filter_retweets_of_in_community(self, original_tweets: Set[ContentMarketTweet], 
+                                        retweets_of_in_community: Set[ContentMarketTweet]) \
+                                            -> Set[ContentMarketTweet]:
+        """Remove retweets of in community that do not map to an original tweet."""
+        original_ids = set()
+        for tweet in original_tweets:
+            original_ids.add(tweet.id)
+        filtered_tweets = set()
+        for tweet in retweets_of_in_community:
+            if tweet.retweet_id in original_ids:
+                filtered_tweets.add(tweet)
+        return filtered_tweets
+    
+    def filter_retweets_of_out_community(self, original_tweets: Set[ContentMarketTweet], 
+                                         retweets_of_out_community: Set[ContentMarketTweet]) \
+                                            -> Set[ContentMarketTweet]:
+        """Remove retweets of out community that do not map to an original tweet."""
+        original_ids = set()
+        for tweet in original_tweets:
+            original_ids.add(tweet.id)
+        filtered_tweets = set()
+        for tweet in retweets_of_out_community:
+            if tweet.retweet_id in original_ids:
+                filtered_tweets.add(tweet)
+        return filtered_tweets
