@@ -24,7 +24,9 @@ class ContentTypeMapping(ABC):
         """Return the ContentType object that the Tweet with <tweet_id> mapped
         to in self.tweet_to_type.
         """
-        return self.tweet_to_type[tweet_id]
+        if tweet_id in self.tweet_to_type:  # (3) - filtering for binning
+            return self.tweet_to_type[tweet_id]
+        return None
 
     def set_content_type(self, tweet_id: int, new_type: ContentType):
         """Set the mapped value of Tweet with <tweet_id> to <new_type>.
