@@ -119,9 +119,3 @@ class CreatorPlotter(MappingPlotter):
                 f'../results/creator_agg_supply_and_demand')
         else:
             plt.show()
-
-    def create_demand_time_series(self, is_core_node: bool, save: bool) -> None:
-        pass
-
-    def create_supply_time_series(self, is_core_node: bool, save: bool) -> None:
-        pass

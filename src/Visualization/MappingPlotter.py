@@ -24,11 +24,3 @@ class MappingPlotter(ABC):
     @abstractmethod
     def create_mapping_curves(self, save: bool) -> Dict:
         pass
-
-    @abstractmethod
-    def create_demand_time_series(self, is_core_node: bool, save: bool) -> None:
-        pass
-
-    @abstractmethod
-    def create_supply_time_series(self, is_core_node: bool, save: bool) -> None:
-        pass
