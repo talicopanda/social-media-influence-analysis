@@ -37,8 +37,8 @@ SPACE_STORE = True
 DEMAND_SUPPLY_STORE = True
 
 # Skip
-MARKET_SKIP = True
-SPACE_SKIP = True
+MARKET_SKIP = False
+SPACE_SKIP = False
 
 ##########################################################
 # Build DAO Factory and Partitioning
@@ -69,17 +69,19 @@ if not SPACE_SKIP:
     space_dao = dao_factory.get_content_space_dao(config["database"])
     mapping = None
     if not SPACE_LOAD:
-        # print("=================Creating Mapping=================")
-        # mapping_factory = MappingFactory(config["content_type_method"])
-        # mapping = mapping_factory.get_cluster({
-        #     "embeddings": space_dao.load_tweet_embeddings(),
-        #     "num_clusters": config["num_clusters"],
-        #     "dao": market_dao
-        # })
-        # mapping.generate_tweet_to_type()
-        # pickle.dump(mapping, open("creator_mapping.pkl", "wb"))
+        print("=================Creating Mapping=================")
+        mapping_factory = MappingFactory(config["content_type_method"])
+        mapping = mapping_factory.get_cluster({
+            "embeddings": space_dao.load_tweet_embeddings(),
+            "num_bins": config["num_bins"],
+            "num_clusters": config["num_clusters"],
+            "dao": market_dao,
+            "market": market
+        })
+        mapping.generate_tweet_to_type()
+        pickle.dump(mapping, open("binning_mapping.pkl", "wb"))
         print("=================Loading Mapping=================")
-        mapping = pickle.load(open("kmers_mapping.pkl", "rb"))
+        mapping = pickle.load(open("binning_mapping.pkl", "rb"))
 
     # Build Content Space
     if SPACE_LOAD:
