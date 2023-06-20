@@ -22,12 +22,9 @@ class BinningCausalityAnalysis:
                            user_type2: UserType, mapping2: str,
                            cluster_list: List[int], save: bool) -> None:
         plt.figure()
-        period_to_remove = 6
         for cluster_id in cluster_list:
             d_series, s_series = self.ts_builder.create_type_series(
                 user_type1, mapping1, user_type2, mapping2, cluster_id)
-            d_series = d_series[:-period_to_remove]
-            s_series = s_series[:-period_to_remove]
             p_vals = gc_score_for_lags(d_series, s_series, self.lags)
             plt.plot(self.lags, p_vals, label=cluster_id)
         plt.axhline(y=0.05, color="r", linestyle="--")
@@ -35,7 +32,7 @@ class BinningCausalityAnalysis:
         plt.xlabel("lags")
         plt.ylabel("p-value")
         plt.legend()
-        title = "binning cleaned " + user_type1.value + " " + mapping1 + " to " \
+        title = "binning filtered " + user_type1.value + " " + mapping1 + " to " \
                 + user_type2.value + " " + mapping2
         plt.title(title)
         if save:
