@@ -72,6 +72,27 @@ def preprocess(s, lowercase=True):
     return ' '.join([t for t in tokens if t])
 
 
+def original_preprocess(s, lowercase=True):
+    tokens = tokenize(s)
+    tokens = [token.lower() for token in tokens]
+
+    html_regex = re.compile('<[^>]+>')
+    tokens = [token for token in tokens if not html_regex.match(token)]
+
+    mention_regex = re.compile('(?:@[\w_]+)')
+    tokens = [
+        '@user' if mention_regex.match(token) else token for token in tokens]
+
+    url_regex = re.compile(
+        'http[s]?://(?:[a-z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+')
+    tokens = ['!url' if url_regex.match(token) else token for token in tokens]
+
+    hashtag_regex = re.compile("(?:\#+[\w_]+[\w\'_\-]*[\w_]+)")
+    tokens = ['' if hashtag_regex.match(token) else token for token in tokens]
+
+    return ' '.join([t for t in tokens if t]).replace('rt @user : ', '')
+
+
 with io.open(db_config, 'r') as config_file:
     config = json.load(config_file)
 
