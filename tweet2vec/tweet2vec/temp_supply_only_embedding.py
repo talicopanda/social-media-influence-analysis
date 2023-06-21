@@ -15,37 +15,47 @@ def old_to_new_embeddings(config):
     retweets_out_community_collection = client[content_market_db_name][config["database"]["clean_retweets_of_out_community_collection"]]
     old_embeddings_collection = client[content_market_db_name][config["database"]["tweet_embeddings_collection"]]
 
-    embeddings = {}
+    hashtags, embeddings = {}, {}
     i = 0
     print(original_tweets_collection.find())
     for tweet in original_tweets_collection.find():
         if i % 1000 == 0:
             print(i)
         i += 1
+        hashtags[tweet["id"]] = \
+            old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
         embeddings[tweet["id"]] = \
-            old_embeddings_collection.find_one({ "id": tweet["id"] }, { "embedding": 1, "_id": 0 })["embedding"]
+            old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
     for tweet in retweets_in_community_collection.find():
         if i % 1000 == 0:
             print(i)
         i += 1
         if tweet["retweet_id"] in embeddings:
+            hashtags[tweet["id"]] = \
+                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
             embeddings[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "embedding": 1, "_id": 0 })["embedding"]
+                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
         else:
             # if the parent is not in the embedding, embed the comment directly into the space
+            hashtags[tweet["id"]] = \
+                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
             embeddings[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "embedding": 1, "_id": 0 })["embedding"]
+                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
     for tweet in retweets_out_community_collection.find():
         if i % 1000 == 0:
             print(i)
         i += 1
         if tweet["retweet_id"] in embeddings:
+            hashtags[tweet["id"]] = \
+                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
             embeddings[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "embedding": 1, "_id": 0 })["embedding"]
+                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
         else:
             # if the parent is not in the embedding, embed the comment directly into the space
+            hashtags[tweet["id"]] = \
+                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
             embeddings[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "embedding": 1, "_id": 0 })["embedding"]
+                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
     
     print(len(embeddings))
 
@@ -54,7 +64,7 @@ def old_to_new_embeddings(config):
         if i % 1000 == 0:
             print(i)
         i += 1
-        client[content_market_db_name]["tweet_embeddings_supply_only"].insert_one({"id": tweet_id, "embedding": embeddings[tweet_id]})
+        client[content_market_db_name]["tweet_embeddings_supply_only"].insert_one({"id": tweet_id, "hashtags": hashtags[tweet_id], "embedding": embeddings[tweet_id]})
     
     return embeddings
 
@@ -68,7 +78,7 @@ def remove_non_english_embeddings(config):
     old_embeddings_collection = client[content_market_db_name][config["database"]["tweet_embeddings_collection"]]
 
     non_english_ids = set()
-    embeddings = {}
+    hashtags, embeddings = {}, {}
     i = 0
     for tweet in original_tweets_collection.find():
         if tweet["lang"] != "en":
@@ -85,6 +95,8 @@ def remove_non_english_embeddings(config):
             print(i)
         i += 1
         if tweet["id"] not in non_english_ids:
+            hashtags[tweet["id"]] = \
+                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
             embeddings[tweet["id"]] = \
                 old_embeddings_collection.find_one({ "id": tweet["id"] }, { "embedding": 1, "_id": 0 })["embedding"]
     for tweet in retweets_in_community_collection.find():
@@ -92,6 +104,8 @@ def remove_non_english_embeddings(config):
             print(i)
         i += 1
         if tweet["id"] not in non_english_ids:
+            hashtags[tweet["id"]] = \
+                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
             embeddings[tweet["id"]] = \
                 old_embeddings_collection.find_one({ "id": tweet["id"] }, { "embedding": 1, "_id": 0 })["embedding"]
     for tweet in retweets_out_community_collection.find():
@@ -99,6 +113,8 @@ def remove_non_english_embeddings(config):
             print(i)
         i += 1
         if tweet["id"] not in non_english_ids:
+            hashtags[tweet["id"]] = \
+                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
             embeddings[tweet["id"]] = \
                 old_embeddings_collection.find_one({ "id": tweet["id"] }, { "embedding": 1, "_id": 0 })["embedding"]
     
@@ -109,7 +125,7 @@ def remove_non_english_embeddings(config):
         if i % 1000 == 0:
             print(i)
         i += 1
-        client[content_market_db_name]["tweet_embeddings_non_english"].insert_one({"id": tweet_id, "embedding": embeddings[tweet_id]})
+        client[content_market_db_name]["tweet_embeddings_english_only"].insert_one({"id": tweet_id, "hashtags": hashtags[tweet_id], "embedding": embeddings[tweet_id]})
     
     return embeddings
 
@@ -119,5 +135,6 @@ if __name__ == "__main__":
     config_file = open(config_file_path)
     config = json.load(config_file)
     config_file.close()
+    # embeddings = old_to_new_embeddings(config)
     embeddings = remove_non_english_embeddings(config)
     print(len(embeddings))
