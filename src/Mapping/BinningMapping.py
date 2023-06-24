@@ -15,25 +15,6 @@ class BinningMapping(ContentTypeMapping):
     def __init__(self, args: Dict[str, Any]):
         super().__init__(args)
         
-        # embeddings = args["embeddings"]
-        # num_bins = args["num_bins"]
-
-        # # PCA onto one dimension
-        # X = np.asarray(list(embeddings.values()), dtype=np.float32)
-
-        # self.ids = list(embeddings.keys())
-
-        # pca = PCA(n_components=1)
-        # pca.fit(np.transpose(np.asarray(X)))
-
-        # min_pca, max_pca = min(pca.components_[0]), max(pca.components_[0])
-        # bin_size = (max_pca - min_pca) / num_bins
-
-        # self.bin_boundaries = [min_pca + i * bin_size for i in range(num_bins - 1)] + [max_pca]
-
-        # self.bins = [self._find_bin_number(pca_value) for pca_value in pca.components_[0]]
-
-        # (3) - remove ids from bins that are junk, and re-bin (uncomment the above)
         embeddings = args["embeddings"]
         num_bins = args["num_bins"]
 
@@ -52,33 +33,49 @@ class BinningMapping(ContentTypeMapping):
 
         self.bins = [self._find_bin_number(pca_value) for pca_value in pca.components_[0]]
 
-        new_ids, new_values = [], []
-        for i in range(len(self.ids)):
-            if self.bins[i] < 13:
-                new_ids.append(self.ids[i])
-                new_values.append(embeddings[self.ids[i]])
-        X = np.asarray(new_values, dtype=np.float32)
-        print(len(new_ids))
+        # (3) - remove ids from bins that are junk, and re-bin (uncomment the above)
+        # embeddings = args["embeddings"]
+        # num_bins = args["num_bins"]
 
-        self.ids = new_ids
+        # # PCA onto one dimension
+        # X = np.asarray(list(embeddings.values()), dtype=np.float32)
 
-        pca = PCA(n_components=1)
-        pca.fit(np.transpose(np.asarray(X)))
+        # self.ids = list(embeddings.keys())
 
-        min_pca, max_pca = min(pca.components_[0]), max(pca.components_[0])
-        bin_size = (max_pca - min_pca) / num_bins
+        # pca = PCA(n_components=1)
+        # pca.fit(np.transpose(np.asarray(X)))
 
-        self.bin_boundaries = [min_pca + i * bin_size for i in range(num_bins - 1)] + [max_pca]
+        # min_pca, max_pca = min(pca.components_[0]), max(pca.components_[0])
+        # bin_size = (max_pca - min_pca) / num_bins
 
-        self.bins = [self._find_bin_number(pca_value) for pca_value in pca.components_[0]]
+        # self.bin_boundaries = [min_pca + i * bin_size for i in range(num_bins - 1)] + [max_pca]
+
+        # self.bins = [self._find_bin_number(pca_value) for pca_value in pca.components_[0]]
+
+        # new_ids, new_values = [], []
+        # for i in range(len(self.ids)):
+        #     if self.bins[i] < 13:
+        #         new_ids.append(self.ids[i])
+        #         new_values.append(embeddings[self.ids[i]])
+        # X = np.asarray(new_values, dtype=np.float32)
+
+        # self.ids = new_ids
+
+        # pca = PCA(n_components=1)
+        # pca.fit(np.transpose(np.asarray(X)))
+
+        # min_pca, max_pca = min(pca.components_[0]), max(pca.components_[0])
+        # bin_size = (max_pca - min_pca) / num_bins
+
+        # self.bin_boundaries = [min_pca + i * bin_size for i in range(num_bins - 1)] + [max_pca]
+
+        # self.bins = [self._find_bin_number(pca_value) for pca_value in pca.components_[0]]
 
         # (4) - filter
         # embeddings = args["embeddings"]
         # num_bins = args["num_bins"]
 
         # self.market = args["market"]
-
-        # print("here")
 
         # original_tweet_ids = {tweet.id for tweet in self.market.original_tweets}
         # retweets_of_in_comm_ids = {tweet.id for tweet in self.market.retweets_of_in_comm}
@@ -105,6 +102,7 @@ class BinningMapping(ContentTypeMapping):
         # self.bin_boundaries = [min_pca + i * bin_size for i in range(num_bins - 1)] + [max_pca]
 
         # self.bins = [self._find_bin_number(pca_value) for pca_value in pca.components_[0]]
+    
 
     def generate_tweet_to_type(self):
         """Assign each tweet with a bin."""

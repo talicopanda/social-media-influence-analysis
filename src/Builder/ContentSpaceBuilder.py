@@ -52,14 +52,13 @@ class ContentSpaceBuilder(BuilderBase):
             self.market.retweets_of_out_comm),
             TweetType.RETWEET_OF_OUT_COMM)
 
-        # (4) - filtering
+        # (4) - filtering (this is actually not necessary)
         # tweet_manager.load_tweets(self._convert_market_to_space_tweet(self.filter_original_tweets(self.market.original_tweets, self.market.retweets_of_in_comm)),
         #     TweetType.ORIGINAL_TWEET)
         # tweet_manager.load_tweets(self._convert_market_to_space_tweet(self.filter_retweets_of_in_community(self.market.original_tweets, self.market.retweets_of_in_comm)),
         #     TweetType.RETWEET_OF_IN_COMM)
         # tweet_manager.load_tweets(self._convert_market_to_space_tweet(self.filter_retweets_of_out_community(self.market.original_tweets, self.market.retweets_of_out_comm)),
         #     TweetType.RETWEET_OF_OUT_COMM)
-        
 
         # Build User Manager
         users = self.market.consumers | self.market.producers | self.market.core_nodes
