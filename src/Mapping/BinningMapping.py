@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from sklearn.decomposition import PCA
 
+
 class BinningMapping(ContentTypeMapping):
     
     ids: List[int]
@@ -14,7 +15,7 @@ class BinningMapping(ContentTypeMapping):
 
     def __init__(self, args: Dict[str, Any]):
         super().__init__(args)
-        
+
         embeddings = args["embeddings"]
         num_bins = args["num_bins"]
 
@@ -120,5 +121,4 @@ class BinningMapping(ContentTypeMapping):
             if num < self.bin_boundaries[i]:
                 return i - 1
         return len(self.bin_boundaries) - 1
-    
-        
+

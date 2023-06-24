@@ -6,9 +6,10 @@ from Mapping.ContentType import ContentType
 from Tweet.MinimalTweet import MinimalTweet
 from User.ContentSpaceUser import ContentSpaceUser
 
-from typing import Dict, List, Any, Set, DefaultDict
+from typing import Dict, List, Any, Set, DefaultDict, Union
 from tqdm import tqdm
 from collections import defaultdict
+from datetime import datetime
 
 
 def _merge_dicts(dict1: Dict[Any, Set[MinimalTweet]], dict2: Dict[Any,
@@ -19,6 +20,16 @@ def _merge_dicts(dict1: Dict[Any, Set[MinimalTweet]], dict2: Dict[Any,
         dict1[key].update(value)
 
 
+def _clear_by_time_helper(start: datetime, end: datetime, storage:
+                          Dict[Union[UserType, int],
+                          DefaultDict[Any, Set[MinimalTweet]]]) -> None:
+    for user, map_dict in storage.items():
+        for content_type, tweet_set in map_dict.items():
+            new_set = {tweet for tweet in tweet_set if start <=
+                       tweet.created_at < end}
+            storage[user][content_type] = new_set
+
+
 class ContentDemandSupply(AggregationBase):
     """Aggregate Supply and Demand Information for time series processing.
     """
@@ -27,9 +38,9 @@ class ContentDemandSupply(AggregationBase):
     content_space: Set[ContentType]
     user_manager: UserManager
 
-    demand_in_community: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
-    demand_out_community: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
-    supply: Dict[Any, DefaultDict[Any, Set[MinimalTweet]]]
+    demand_in_community: Dict[Union[UserType, int], DefaultDict[Any, Set[MinimalTweet]]]
+    demand_out_community: Dict[Union[UserType, int], DefaultDict[Any, Set[MinimalTweet]]]
+    supply: Dict[Any, DefaultDict[Union[UserType, int], Set[MinimalTweet]]]
 
     def __init__(self, *args):
         # create()
@@ -41,11 +52,11 @@ class ContentDemandSupply(AggregationBase):
             self.user_manager = args[2]
 
             # initialize demand and supply
-            self.demand_in_community = {UserType.CONSUMER: defaultdict(set), 
+            self.demand_in_community = {UserType.CONSUMER: defaultdict(set),
                                         UserType.CORE_NODE: defaultdict(set)}
             for user in self.user_manager.users:
                 self.demand_in_community[user.user_id] = defaultdict(set)
-            self.demand_out_community = {UserType.CONSUMER: defaultdict(set), 
+            self.demand_out_community = {UserType.CONSUMER: defaultdict(set),
                                          UserType.CORE_NODE: defaultdict(set)}
             for user in self.user_manager.users:
                 self.demand_out_community[user.user_id] = defaultdict(set)
@@ -64,64 +75,10 @@ class ContentDemandSupply(AggregationBase):
             self.demand_out_community = args[3]
             self.supply = args[4]
 
-    # # Below are methods for extraction from outer space
-    # def get_type_demand_series(self, user_type: UserType) -> Dict[Any, np.array]:
-    #     """Return the demand time series for <user_type>.
-    #     """
-    #     # get users
-    #     users = self.user_manager.get_type_users(user_type)
-    #
-    #     # get data
-    #     new_dict = defaultdict(lambda: np.array([0 for _ in
-    #                                              range(len(self.time_stamps))]))
-    #     for user in users:
-    #         curve = self.demand[user.user_id]
-    #         for key, value in curve.items():
-    #             new_dict[key] += np.array(value)
-    #     return new_dict
-    #
-    # def get_type_supply_series(self, user_type: UserType) -> Dict[Any, np.array]:
-    #     """Return the supply time series for <user_type>.
-    #     """
-    #     # get users
-    #     users = self.user_manager.get_type_users(user_type)
-    #
-    #     # get data
-    #     new_dict = defaultdict(lambda: np.array([0 for _ in
-    #                                              range(len(self.time_stamps))]))
-    #     for user in users:
-    #         curve = self.supply[user.user_id]
-    #         for key, value in curve.items():
-    #             new_dict[key] += np.array(value)
-    #     return new_dict
-    #
-    # def get_agg_demand(self, user_type: UserType) -> Dict[Any, int]:
-    #     """Return the aggregate demand dictionary for <user_type>.
-    #     """
-    #     # TODO
-    #     pass
-    #
-    # def get_agg_supply(self, user_type: UserType) -> Dict[Any, int]:
-    #     """Return the aggregate supply dictionary for <user_type>.
-    #     """
-    #     # TODO
-    #     pass
-    #
-    # def get_agg_type_demand_series(self, user_type: UserType) -> np.array:
-    #     demand_series = list(self.get_type_demand_series(user_type).values())
-    #     return np.array(demand_series).sum(axis=0)
-    #
-    # def get_agg_type_supply_series(self, user_type: UserType) -> np.array:
-    #     supply_series = list(self.get_type_supply_series(user_type).values())
-    #     return np.array(supply_series).sum(axis=0)
-
     def get_content_type_repr(self) -> List:
         return [content_type.get_representation() for content_type
                 in self.content_space]
 
-    ##########################################################
-    # Test Version
-    ##########################################################
     def _calculate_user_type_mapping(self, user_type: UserType,
                                      storage: Dict[Any,
                                      Dict[Any, Set[MinimalTweet]]],
@@ -132,7 +89,7 @@ class ContentDemandSupply(AggregationBase):
                 user, tweet_types)
             _merge_dicts(storage[user_type], freq_dict)
 
-    def _calculate_user_mapping(self, user: ContentSpaceUser, 
+    def _calculate_user_mapping(self, user: ContentSpaceUser,
                                 storage: Dict[Any,
                                 Dict[Any, Set[MinimalTweet]]],
                                 tweet_types: List[TweetType]) -> None:
@@ -169,3 +126,8 @@ class ContentDemandSupply(AggregationBase):
                                           supply_spec)
         for user in self.user_manager.users:
             self._calculate_user_mapping(user, self.supply, supply_spec)
+
+    def clear_tweets_by_time(self, start: datetime, end: datetime) -> None:
+        _clear_by_time_helper(start, end, self.demand_in_community)
+        _clear_by_time_helper(start, end, self.demand_out_community)
+        _clear_by_time_helper(start, end, self.supply)

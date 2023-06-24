@@ -43,18 +43,21 @@ class TimeSeriesBuilder:
 
     def create_time_series(self, user_type: UserType, content_repr: Any,
                            mapping: str) -> List[int]:
-        if mapping != "demand" and mapping != "supply":
+        if mapping not in ["demand_in_community", "demand_out_community",
+                           "supply"]:
             raise KeyError("Invalid Mapping Type.")
 
         # Extraction
         tweet_set = vars(self.ds)[mapping][user_type][content_repr]
         len_time = len(self.time_stamps)
-        output_list = [0] * len_time
+        output_list = [0] * (len_time - 1)
 
         # Generation
         for tweet in tweet_set:
-            output_list[_find_time_index(tweet.created_at, self.time_stamps,
-                                         len_time)] += 1
+            index = _find_time_index(tweet.created_at, self.time_stamps,
+                                     len_time)
+            if index != -1:
+                output_list[index] += 1
 
         return output_list
 

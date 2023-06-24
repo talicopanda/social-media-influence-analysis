@@ -38,7 +38,7 @@ class CreatorPlotter(MappingPlotter):
                 """
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
-        demand = self.ds.demand[user_type]
+        demand = self.ds.demand_in_community[user_type]
 
         # convert to numbers
         demand_dict = {key: len(val) for key, val in demand.items()}
@@ -85,8 +85,7 @@ class CreatorPlotter(MappingPlotter):
         plt.legend()
         plt.title("Supply and Demand for Core Node")
         if save:
-            plt.savefig(
-                f'../results/creator_' + 'supply_and_demand_for_core_node')
+            plt.savefig('../results/creator_supply_and_demand_for_core_node')
         else:
             plt.show()
 
@@ -101,8 +100,7 @@ class CreatorPlotter(MappingPlotter):
         plt.legend()
         plt.title("Supply and Demand for Ordinary User")
         if save:
-            plt.savefig(
-                f'../results/creator_' + 'supply_and_demand_for_ordinary_user')
+            plt.savefig('../results/creator_supply_and_demand_for_ordinary_user')
         else:
             plt.show()
 
@@ -115,13 +113,6 @@ class CreatorPlotter(MappingPlotter):
         plt.legend()
         plt.title("Aggregate Supply and Demand")
         if save:
-            plt.savefig(
-                f'../results/creator_agg_supply_and_demand')
+            plt.savefig('../results/creator_agg_supply_and_demand')
         else:
             plt.show()
-
-    def create_demand_time_series(self, is_core_node: bool, save: bool) -> None:
-        pass
-
-    def create_supply_time_series(self, is_core_node: bool, save: bool) -> None:
-        pass

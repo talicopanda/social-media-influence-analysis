@@ -23,7 +23,7 @@ def _merge_dict(dct1: Dict[int, int], dct2: Dict[int, int]) -> Dict[int, int]:
     return merged_dict
 
 
-class KmersPlotter(MappingPlotter):
+class BinningPlotter(MappingPlotter):
     def create_demand_curves(self, is_core_node: bool) -> Dict[int, int]:
         """Create demand bar plot for each ContentType, where the users are
         determined by <is_core_node>.
@@ -34,7 +34,6 @@ class KmersPlotter(MappingPlotter):
 
         # convert to numbers
         demand_dict = {key: len(val) for key, val in demand.items()}
-        demand_dict.pop(-1)
         return demand_dict
 
     def create_supply_curves(self, is_core_node: bool) -> Dict[int, int]:
@@ -47,14 +46,12 @@ class KmersPlotter(MappingPlotter):
 
         # convert to numbers
         supply_dict = {key: len(val) for key, val in supply.items()}
-        supply_dict.pop(-1)
         return supply_dict
 
     def create_mapping_curves(self, save: bool) -> None:
         """Create both supply and demand bar plots for core node and ordinary user.
         """
         x_ticks = self.ds.get_content_type_repr()
-        x_ticks.remove(-1)
 
         # Core Nodes
         plt.figure()
@@ -68,7 +65,7 @@ class KmersPlotter(MappingPlotter):
         plt.legend()
         plt.title("Supply and Demand for Core Node")
         if save:
-            plt.savefig('../results/kmers_supply_and_demand_for_core_node')
+            plt.savefig('../results/binning_supply_and_demand_for_core_node')
         else:
             plt.show()
 
@@ -84,7 +81,7 @@ class KmersPlotter(MappingPlotter):
         plt.legend()
         plt.title("Supply and Demand for Ordinary User")
         if save:
-            plt.savefig('../results/kmers_supply_and_demand_for_ordinary_user')
+            plt.savefig('../results/binning_supply_and_demand_for_ordinary_user')
         else:
             plt.show()
 
@@ -100,6 +97,6 @@ class KmersPlotter(MappingPlotter):
         plt.legend()
         plt.title("Aggregate Supply and Demand")
         if save:
-            plt.savefig('../results/kmers_agg_supply_and_demand')
+            plt.savefig('../results/binning_agg_supply_and_demand')
         else:
             plt.show()

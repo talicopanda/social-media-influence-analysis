@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from typing import List
 
 
-class KmersCausalityAnalysis:
+class BinningCausalityAnalysis:
     # Attributes
     ts_builder: TimeSeriesBuilder
     lags: List[int]
@@ -21,6 +21,7 @@ class KmersCausalityAnalysis:
     def _plot_lag_to_cause(self, user_type1: UserType, mapping1: str,
                            user_type2: UserType, mapping2: str,
                            cluster_list: List[int], save: bool) -> None:
+        plt.figure()
         for cluster_id in cluster_list:
             d_series, s_series = self.ts_builder.create_type_series(
                 user_type1, mapping1, user_type2, mapping2, cluster_id)
@@ -31,12 +32,13 @@ class KmersCausalityAnalysis:
         plt.xlabel("lags")
         plt.ylabel("p-value")
         plt.legend()
-        title = "kmers " + user_type1.value + " " + mapping1 + " to " \
+        title = "binning filtered " + user_type1.value + " " + mapping1 + " to " \
                 + user_type2.value + " " + mapping2
         plt.title(title)
         if save:
-            plt.savefig("../results/" + title)
-        plt.show()
+            plt.savefig('../results/' + title)
+        else:
+            plt.show()
 
     def plot_cause_forward(self, cluster_list: List[int], save: bool) -> None:
         self._plot_lag_to_cause(UserType.CONSUMER, "demand_in_community",
