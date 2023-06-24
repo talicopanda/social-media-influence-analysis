@@ -54,6 +54,38 @@ def plot_bin_distances(market, space):
     sns.heatmap(heatmap)
     plt.show()
 
+
+def plot_bhattacharyya_distances(ds, sorted_user_ids):
+    """Calculate the Bhattacharyya distance between each user's curve and the aggregate demand."""
+    # user_id_to_production_utility = get_user_id_to_social_support(db_config)
+    # sorted_user_ids = sorted(user_id_to_production_utility, 
+    #                          key=lambda user_id: user_id_to_production_utility[user_id],
+    #                          reverse=True)
+    
+    dict1 = pad_dictionary(ds.demand_in_community[UserType.CONSUMER]) 
+    dict2 = pad_dictionary(ds.demand_in_community[UserType.CORE_NODE])
+    for content_type in range(20):
+        dict1[content_type] = dict1[content_type].union(dict2[content_type])
+    
+    curr_rank = 1
+    ranks = []
+    bhattacharyya_distances = []
+    for user_id in sorted_user_ids:
+        if len(ds.supply[str(user_id)]) != 0:
+            dict2 = pad_dictionary(ds.supply[str(user_id)])
+            ranks.append(curr_rank)
+            bhattacharyya_distances.append(bhattacharyya_distance(dict1, dict2))
+            curr_rank += 1
+
+    print(np.corrcoef(ranks, bhattacharyya_distances))
+    plt.plot(ranks, bhattacharyya_distances)
+    plt.xlabel("Social Support Rank")
+    plt.ylabel("Bhattacharyya Distance with All In Community Demand")
+    plt.show()
+
+
+def plot_bhattacharyya_distances_vs_
+
 ### Bin Analysis ###################################################################################
 def bin_interpretations(market, space, content_type: int, num_comments: int):
     """Print a random sample of <num_comments> comments from the database that have content type 
@@ -145,7 +177,7 @@ def initialize_market_corpus(market, space):
 ### Relative Frequency - Words #####################################################################
 def relative_frequency(market, space):
     corpus = initialize_market_corpus(market, space)
-    vectorizer = CountVectorizer(min_df=0.01)
+    vectorizer = CountVectorizer(min_df=0.0075)
     X = vectorizer.fit_transform(corpus)
     X = X.todense()
     X = np.array(X)
@@ -230,7 +262,7 @@ def initialize_hashtag_corpus(market, space, tweet_to_hashtags: Dict[int, List[s
     return corpus
 
 
-### Bhattacharyya Distances ########################################################################
+### Bhattacharyya Distances - Helpers ##############################################################
 def bhattacharyya_distance(dict1, dict2):
     """Calculate the Bhattacharyya distance. 
     <dict1>, <dict2> are dictionaries that map each content type to a set of tweets."""
@@ -239,52 +271,19 @@ def bhattacharyya_distance(dict1, dict2):
     a = convert_to_relative_frequencies(dict1)
     b = convert_to_relative_frequencies(dict2)
     
-
     bhattacharyya_coefficient = 0
-    for i in range(5):
+    for i in range(20):
         if a[i] == 0 or b[i] == 0:
             bhattacharyya_coefficient += 0
         else:
             bhattacharyya_coefficient \
                 += np.sqrt(a[i] * b[i])
-
-    print(bhattacharyya_coefficient)
-
     return -np.log(bhattacharyya_coefficient)
-
-
-def plot_bhattacharyya_distances(ds, sorted_user_ids):
-    """Calculate the Bhattacharyya distance between each user's curve and the aggregate demand."""
-    # user_id_to_production_utility = get_user_id_to_social_support(db_config)
-    # sorted_user_ids = sorted(user_id_to_production_utility, 
-    #                          key=lambda user_id: user_id_to_production_utility[user_id],
-    #                          reverse=True)
-    
-    dict1 = pad_dictionary(ds.demand_in_community[UserType.CONSUMER]) 
-    dict2 = pad_dictionary(ds.demand_in_community[UserType.CORE_NODE])
-    for content_type in range(20):
-        dict1[content_type] = dict1[content_type].union(dict2[content_type])
-    
-    curr_rank = 1
-    ranks = []
-    bhattacharyya_distances = []
-    for user_id in sorted_user_ids:
-        print(curr_rank)
-        dict2 = pad_dictionary(ds.supply[str(user_id)])
-        ranks.append(curr_rank)
-        bhattacharyya_distances.append(bhattacharyya_distance(dict1, dict2))
-        curr_rank += 1
-
-    print(np.corrcoef(ranks, bhattacharyya_distances))
-    plt.plot(ranks, bhattacharyya_distances)
-    plt.xlabel("Regular Rank")
-    plt.ylabel("Bhattacharyya Distance with All In Community Demand")
-    plt.show()
 
 
 def convert_to_relative_frequencies(d) -> Dict[Any, float]:
     """d is a dictionary that maps each content type to a set of tweets."""
-    total = sum(len(d[content_type]) for content_type in d)
+    total = max(1, sum(len(d[content_type]) for content_type in d))
     content_type_to_relative_frequency = {}
     for content_type in d:
         content_type_to_relative_frequency[content_type] = len(d[content_type]) / total
@@ -332,7 +331,7 @@ if __name__ == "__main__":
             config["database"]["content_demand_supply_db_name"], ds_dao)
     ds = ds_builder.load()
 
-    plot_demand_and_supply(ds, [UserType.CONSUMER, UserType.CORE_NODE], [UserType.PRODUCER, UserType.CORE_NODE])
+    # plot_demand_and_supply(ds, [UserType.CONSUMER, UserType.CORE_NODE], [UserType.PRODUCER, UserType.CORE_NODE])
     
     # for i in range(20):
     #     bin_interpretations(market, space, i, 10)
@@ -354,5 +353,5 @@ if __name__ == "__main__":
     # plot_bin_distances(market, space)
 
     # users = ds.producers.union(ds.core_nodes.union(ds.consumers))
-    plot_bhattacharyya_distances(ds, 
-                                 [1330571318971027462, 2233129128, 23612012, 232951413, 3161912605, 228806806, 132702118, 1884178352, 1067064666, 313299656, 277594186, 917892794953404417, 94340676, 3392260661, 60494861, 919900711, 126345156, 228660231, 186797066, 301042394, 83338597, 609121227, 1651411087, 28994084, 1081889952412119040, 1729528081, 4369711156, 161308987, 1495255914, 1167467303002345474, 29521967, 499173831, 1356595452, 1093199136596287489, 3511819222, 297267701, 13247182, 1702864658, 425376095, 77210396, 75174049, 1041446451715473408, 46465628, 617004214, 92284830, 4922808130, 391563229, 406172437, 31479252, 217741900, 480444935, 227629567, 1588889406, 97426170, 354486695, 101850896, 1110733580, 3086225424, 434270813, 2609917590, 277634312, 167842102, 132787956, 953260427475079168, 252909412, 898166654575751172, 247232127, 337149339, 198339335, 71476598, 769229557576507392, 279565150, 22202577, 19647809, 60995997, 185677963])
+    sorted_user_ids = [1330571318971027462, 917892794953404417, 23612012, 3161912605, 227629567, 919900711, 301042394, 228660231, 2233129128, 4369711156, 1884178352, 1651411087, 126345156, 232951413, 277594186, 313299656, 186797066, 92284830, 1729528081, 13247182, 132702118, 77210396, 609121227, 60494861, 1110733580, 3511819222, 46465628, 97426170, 354486695, 161308987, 252909412, 391563229, 277634312, 3392260661, 1081889952412119040, 1356595452, 279565150, 29521967, 94340676, 953260427475079168, 28994084, 1495255914, 1067064666, 4922808130, 75174049, 617004214, 297267701, 1093199136596287489, 83338597, 499173831, 22202577, 31479252, 337149339, 480444935, 406172437, 1702864658, 1167467303002345474, 101850896, 132787956, 434270813, 2609917590, 898166654575751172, 1041446451715473408, 185677963, 769229557576507392, 247232127, 3086225424, 167842102, 60995997, 228806806, 19647809, 198339335, 425376095, 217741900, 1588889406, 71476598]
+    plot_bhattacharyya_distances(ds, sorted_user_ids)
