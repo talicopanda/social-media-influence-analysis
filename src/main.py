@@ -29,14 +29,14 @@ config = json.load(config_file)
 config_file.close()
 
 # Load from database
-MARKET_LOAD = True
+MARKET_LOAD = False
 SPACE_LOAD = False
 DEMAND_SUPPLY_LOAD = False
 
 # Store to database
 MARKET_STORE = False
-SPACE_STORE = True
-DEMAND_SUPPLY_STORE = True
+SPACE_STORE = False
+DEMAND_SUPPLY_STORE = False
 
 # Skip Building
 MARKET_SKIP = False
