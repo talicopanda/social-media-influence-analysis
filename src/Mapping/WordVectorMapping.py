@@ -1,7 +1,7 @@
 from Mapping.ContentTypeMapping import ContentTypeMapping
 from DAO.ContentMarketMongoDAO import ContentMarketMongoDAO
 
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 
 
 class WordVectorMapping(ContentTypeMapping):
@@ -40,7 +40,7 @@ class WordVectorMapping(ContentTypeMapping):
         print("===============Successfully Classify Content===============")
         self.dao = None  # so that pickle.dump don't store this object
 
-    def _create_vector(self, text: str) -> List[int]:
+    def _create_vector(self, text: str) -> Tuple[int]:
         """Return 1 if <text> contains at least one word in <self.words>,
         return 0 if it doesn't.
         """
@@ -50,4 +50,4 @@ class WordVectorMapping(ContentTypeMapping):
                 vector.append(1)
             else:
                 vector.append(0)
-        return vector
+        return tuple(vector)
