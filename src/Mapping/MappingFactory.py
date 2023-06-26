@@ -3,7 +3,8 @@ from Mapping.CreatorMapping import CreatorMapping
 from Mapping.KmersMapping import KmersMapping
 from Mapping.EmbeddingMapping import EmbeddingMapping
 from Mapping.BinningMapping import BinningMapping
-
+from Mapping.WordsAnyMapping import WordsAnyMapping
+from Mapping.WordVectorMapping import WordVectorMapping
 
 from typing import Dict, Any
 
@@ -25,6 +26,10 @@ class MappingFactory:
                 return CreatorMapping(args)
             elif self.division_type == "binning":
                 return BinningMapping(args)
+            elif self.division_type == "word_any":
+                return WordsAnyMapping(args)
+            elif self.division_type == "word_vector":
+                return WordVectorMapping(args)
             else:
                 raise ValueError
         except KeyError:
