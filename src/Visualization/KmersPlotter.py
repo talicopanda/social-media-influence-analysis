@@ -34,7 +34,7 @@ class KmersPlotter(MappingPlotter):
 
         # convert to numbers
         demand_dict = {key: len(val) for key, val in demand.items()}
-        # demand_dict.pop(-1)
+        demand_dict.pop(-1)
         return demand_dict
 
     def create_supply_curves(self, is_core_node: bool) -> Dict[int, int]:
@@ -47,14 +47,14 @@ class KmersPlotter(MappingPlotter):
 
         # convert to numbers
         supply_dict = {key: len(val) for key, val in supply.items()}
-        # supply_dict.pop(-1)
+        supply_dict.pop(-1)
         return supply_dict
 
     def create_mapping_curves(self, save: bool) -> None:
         """Create both supply and demand bar plots for core node and ordinary user.
         """
         x_ticks = self.ds.get_content_type_repr()
-        # x_ticks.remove(-1)
+        x_ticks.remove(-1)
 
         # Core Nodes
         plt.figure()
