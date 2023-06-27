@@ -136,5 +136,5 @@ lags = list(range(1, 20))
 ca = KmersCausalityAnalysis(ts_builder, lags)
 
 cluster_list = [2, 5, 9, 10, 12, 16, 19]
-ca.plot_cause_forward(cluster_list)
-ca.plot_cause_backward(cluster_list)
+ca.plot_cause_forward(cluster_list, False)
+ca.plot_cause_backward(cluster_list, False)
