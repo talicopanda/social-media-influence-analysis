@@ -55,8 +55,6 @@ class TimeSeriesBuilder:
         while curr_time <= end:
             self.time_stamps.append(curr_time)
             curr_time += period
-        # add one more timestamp
-        self.time_stamps.append(end)
 
     def create_time_series(self, user_type_or_id: Union[UserType, int], content_repr: Any,
                            mapping: str) -> List[int]:
