@@ -40,7 +40,7 @@ class ContentDemandSupply(AggregationBase):
 
     demand_in_community: Dict[Union[UserType, int], DefaultDict[Any, Set[MinimalTweet]]]
     demand_out_community: Dict[Union[UserType, int], DefaultDict[Any, Set[MinimalTweet]]]
-    supply: Dict[Any, DefaultDict[Union[UserType, int], Set[MinimalTweet]]]
+    supply: Dict[Union[UserType, int], DefaultDict[Any, Set[MinimalTweet]]]
 
     def __init__(self, *args):
         # create()
