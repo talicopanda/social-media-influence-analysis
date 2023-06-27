@@ -46,3 +46,15 @@ class AggregationBase:
         for tweet in self.retweets_of_out_comm:
             if tweet.id == id:
                 return tweet
+    
+    def get_user(self, id) -> UserBase:
+        """Return the user with <id>."""
+        for user in self.consumers:
+            if user.user_id == id:
+                return user
+        for user in self.producers:
+            if user.user_id == id:
+                return user
+        for user in self.core_nodes:
+            if user.user_id == id:
+                return user
