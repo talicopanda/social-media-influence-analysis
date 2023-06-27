@@ -98,7 +98,7 @@ if __name__ == "__main__":
     config = json.load(config_file)
     config_file.close()
     
-    scores, ranks = calculate_social_support("rachel_chess_content_space_binning", 
+    scores, ranks = calculate_social_support("chess_content_space_binning_filtered", 
                                       config, market=False)
     ranked_ids = list(sorted(scores, key=lambda x: (scores[x][0], scores[x][1]), reverse=True))
     print(ranked_ids[:10])
@@ -110,4 +110,8 @@ if __name__ == "__main__":
 
     print("Original rank: " + str(sorted(ranks, key=lambda user_id: ranks[user_id])))
     print("Social support rank: " + str(ranked_ids))
+
+    print(ranked_ids[10])
+    print(ranked_ids[40])
+    print(ranked_ids[70])
 
