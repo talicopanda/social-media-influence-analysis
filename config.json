@@ -12,30 +12,30 @@
     "retweets_of_in_community_collection": "retweets_of_in_community",
     "retweets_of_out_community_collection": "retweets_of_out_community",
 
-    "content_market_db_name": "rachel_chess_content_market",
-    "clean_original_tweets_collection": "original_tweets",
+    "content_market_db_name": "chess_content_market",
+    "clean_original_tweets_collection": "clean_original_tweets",
     "clean_replies_collection": "clean_replies",
     "clean_quotes_of_in_community_collection": "clean_quotes_of_in_community",
     "clean_quotes_of_out_community_collection": "clean_quotes_of_out_community",
-    "clean_retweets_of_in_community_collection": "retweets_of_in_community",
-    "clean_retweets_of_out_community_collection": "retweets_of_out_community",
-    "tweet_embeddings_collection": "tweet_embeddings",
+    "clean_retweets_of_in_community_collection": "clean_retweets_of_in_community",
+    "clean_retweets_of_out_community_collection": "clean_retweets_of_out_community",
+    "tweet_embeddings_collection": "tweet_embeddings_supply_only",
     "market_user_info_collection": "user_info",
 
-    "content_space_db_name": "rachel_chess_content_space_binning",
+    "content_space_db_name": "chess_content_space",
     "content_space_original_tweets_collection": "original_tweets",
     "content_space_retweets_of_in_community_collection": "retweets_of_in_community",
     "content_space_retweets_of_out_community_collection": "retweets_of_out_community",
     "content_space_user_info": "user_info",
     "content_space_collection": "content_space",
 
-    "content_demand_supply_db_name": "rachel_chess_content_supply_demand_binning",
+    "content_demand_supply_db_name": "chess_content_supply_demand",
     "content_ds_content_space": "content_space",
     "content_ds_curves": "curves"
   },
   "num_clusters": 20,
   "num_bins": 20,
-  "partitioning_strategy": "users",
+  "partitioning_strategy": "social_support",
   "embedding_type": "tweet2vec",
-  "content_type_method": "binning"
+  "content_type_method": "word_any"
 }

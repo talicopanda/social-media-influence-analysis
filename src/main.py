@@ -1,12 +1,16 @@
 from DAO.DAOFactory import DAOFactory
 from UserPartitioning import UserPartitioningStrategyFactory
 from Mapping.MappingFactory import MappingFactory
+
 from Builder.ContentMarketBuilder import ContentMarketBuilder
 from Builder.ContentSpaceBuilder import ContentSpaceBuilder
 from Builder.ContentDemandSupplyBuilder import ContentDemandSupplyBuilder
 from TS.TimeSeriesBuilder import TimeSeriesBuilder
+
 from Causality.CreatorCausalityAnalysis import CreatorCausalityAnalysis
 from Causality.KmersCausalityAnalysis import KmersCausalityAnalysis
+from Causality.BinningCausalityAnalysis import BinningCausalityAnalysis
+
 from User.UserType import UserType
 from Visualization.KmersPlotter import KmersPlotter
 from Visualization.CreatorPlotter import CreatorPlotter
@@ -14,10 +18,10 @@ from Causality.CausalityAnalysisTool import *
 
 import json
 import pickle
-import pymongo
 from datetime import datetime, timedelta
 import time
 import matplotlib.pyplot as plt
+import numpy as np
 
 ##########################################################
 # Parameter Setup
@@ -75,16 +79,14 @@ if not SPACE_SKIP:
         print("=================Creating Mapping=================")
         mapping_factory = MappingFactory(config["content_type_method"])
         mapping = mapping_factory.get_cluster({
-            "embeddings": space_dao.load_tweet_embeddings(),
-            "num_bins": config["num_bins"],
             "num_clusters": config["num_clusters"],
             "dao": market_dao,
-            "market": market
+            "words": ["chess"]
         })
         mapping.generate_tweet_to_type()
-        pickle.dump(mapping, open("binning_mapping.pkl", "wb"))
-        print("=================Loading Mapping=================")
-        mapping = pickle.load(open("binning_mapping.pkl", "rb"))
+        pickle.dump(mapping, open("words_any_chess_mapping.pkl", "wb"))
+        # print("=================Loading Mapping=================")
+        # mapping = pickle.load(open("words_any_mapping.pkl", "rb"))
 
     # Build Content Space
     if SPACE_LOAD:
@@ -118,23 +120,37 @@ else:
 ##########################################################
 # Plotting
 ##########################################################
-plotter = KmersPlotter(ds)
-plotter.create_mapping_curves(False)
+# plotter = KmersPlotter(ds)
+# plotter.create_mapping_curves(False)
 
 ##########################################################
 # Build Time Series
 ##########################################################
 start = datetime(2020, 6, 29)
-end = datetime(2023, 3, 20)
+end = datetime(2023, 3, 1)
 period = timedelta(days=7)
 ts_builder = TimeSeriesBuilder(ds, start, end, period)
 
 ##########################################################
 # Build Causality Analysis
 ##########################################################
-lags = list(range(1, 20))
-ca = KmersCausalityAnalysis(ts_builder, lags)
+# lags = list(range(1, 10))
+# ca = BinningCausalityAnalysis(ts_builder, lags)
+#
+# cluster_list = [1]
+# ca.plot_cause_forward(cluster_list, save=True)
+# ca.plot_cause_backward(cluster_list, save=True)
 
-cluster_list = [2, 5, 9, 10, 12, 16, 19]
-ca.plot_cause_forward(cluster_list, False)
-ca.plot_cause_backward(cluster_list, False)
+###########################################################################
+cluster = 1
+plt.figure()
+a = ts_builder.create_time_series(UserType.CONSUMER, cluster, "demand_in_community")
+b = ts_builder.create_time_series(UserType.CORE_NODE, cluster, "demand_in_community")
+plt.plot(ts_builder.time_stamps[:-1], np.add(a, b), label="aggregate demand")
+d = ts_builder.create_time_series(UserType.PRODUCER, cluster, "supply")
+plt.plot(ts_builder.time_stamps[:-1], d, label="producer supply")
+plt.title("chess, period = 7 days")
+plt.legend()
+plt.gcf().autofmt_xdate()
+plt.savefig("../results/aggregate demand core node supply chess 7d")
+plt.show()
