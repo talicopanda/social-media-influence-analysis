@@ -45,8 +45,7 @@ def main(args):
 
         db_content_market = client[content_market_db_name]
 
-        collections = [config["database"]["clean_replies_collection"],
-            config["database"]["clean_original_tweets_collection"],
+        collections = [config["database"]["clean_original_tweets_collection"],
             config["database"]["clean_quotes_of_in_community_collection"],
             config["database"]["clean_quotes_of_out_community_collection"],
             config["database"]["clean_retweets_of_in_community_collection"],

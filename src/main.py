@@ -29,14 +29,14 @@ config = json.load(config_file)
 config_file.close()
 
 # Load from database
-MARKET_LOAD = True
+MARKET_LOAD = False
 SPACE_LOAD = False
 DEMAND_SUPPLY_LOAD = False
 
 # Store to database
 MARKET_STORE = False
-SPACE_STORE = True
-DEMAND_SUPPLY_STORE = True
+SPACE_STORE = False
+DEMAND_SUPPLY_STORE = False
 
 # Skip Building
 MARKET_SKIP = False
@@ -72,17 +72,19 @@ if not SPACE_SKIP:
     space_dao = dao_factory.get_content_space_dao(config["database"])
     mapping = None
     if not SPACE_LOAD:
-        # print("=================Creating Mapping=================")
-        # mapping_factory = MappingFactory(config["content_type_method"])
-        # mapping = mapping_factory.get_cluster({
-        #     "embeddings": space_dao.load_tweet_embeddings(),
-        #     "num_clusters": config["num_clusters"],
-        #     "dao": market_dao
-        # })
-        # mapping.generate_tweet_to_type()
-        # pickle.dump(mapping, open("creator_mapping.pkl", "wb"))
+        print("=================Creating Mapping=================")
+        mapping_factory = MappingFactory(config["content_type_method"])
+        mapping = mapping_factory.get_cluster({
+            "embeddings": space_dao.load_tweet_embeddings(),
+            "num_bins": config["num_bins"],
+            "num_clusters": config["num_clusters"],
+            "dao": market_dao,
+            "market": market
+        })
+        mapping.generate_tweet_to_type()
+        pickle.dump(mapping, open("binning_mapping.pkl", "wb"))
         print("=================Loading Mapping=================")
-        mapping = pickle.load(open("kmers_mapping.pkl", "rb"))
+        mapping = pickle.load(open("binning_mapping.pkl", "rb"))
 
     # Build Content Space
     if SPACE_LOAD:
@@ -134,5 +136,5 @@ lags = list(range(1, 20))
 ca = KmersCausalityAnalysis(ts_builder, lags)
 
 cluster_list = [2, 5, 9, 10, 12, 16, 19]
-ca.plot_cause_forward(cluster_list)
-ca.plot_cause_backward(cluster_list)
+ca.plot_cause_forward(cluster_list, False)
+ca.plot_cause_backward(cluster_list, False)
