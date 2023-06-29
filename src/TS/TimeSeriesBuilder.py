@@ -63,7 +63,10 @@ class TimeSeriesBuilder:
             raise KeyError("Invalid Mapping Type.")
 
         # Extraction
-        tweet_set = vars(self.ds)[mapping][user_type_or_id][content_repr]
+        try:
+            tweet_set = vars(self.ds)[mapping][user_type_or_id][content_repr]
+        except KeyError:
+            tweet_set = set()
         len_time = len(self.time_stamps)
         output_list = [0] * (len_time - 1)
 
@@ -127,8 +130,8 @@ class TimeSeriesBuilder:
         len_time = len(self.time_stamps)
         for tweet in vars(self.space)[tweet_type]:
             index = _find_time_index(tweet.created_at, self.time_stamps, len_time)
-            assert index != -1
-            partitioned_tweets[index].add(tweet)
+            if index != -1:
+                partitioned_tweets[index].add(tweet)
 
         return partitioned_tweets
 
