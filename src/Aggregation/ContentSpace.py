@@ -64,3 +64,7 @@ class ContentSpace(AggregationBase):
                 self.mapping.set_content_type(tweet_id, content_type)
                 return
         raise ValueError(f"ContentType with `{representation}` does not exist")
+
+    def get_all_user_ids(self) -> Set[int]:
+        all_users = self.producers | self.consumers | self.core_nodes
+        return {user.user_id for user in all_users}
