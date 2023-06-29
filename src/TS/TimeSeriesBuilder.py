@@ -103,7 +103,7 @@ class TimeSeriesBuilder:
             temp1[user_type_or_id] = temp2
 
         mapping_series = []
-        for i in range(len(self.time_stamps) - 1):
+        for i in range(len(self.time_stamps)):
             mapping_dict = {}
             for user_type_or_id in vars(self.ds)[mapping]:
                 content_dict = {}
@@ -123,7 +123,7 @@ class TimeSeriesBuilder:
         if tweet_type not in ["retweets_of_in_comm", "retweets_of_out_comm", "original_tweets"]:
             raise KeyError("Invalid Tweet Type.")
 
-        partitioned_tweets = [set() for _ in range(len(self.time_stamps) - 1)]
+        partitioned_tweets = [set() for _ in range(len(self.time_stamps))]
         len_time = len(self.time_stamps)
         for tweet in vars(self.space)[tweet_type]:
             index = _find_time_index(tweet.created_at, self.time_stamps, len_time)
@@ -147,7 +147,7 @@ class TimeSeriesBuilder:
         except KeyError:
             tweet_set = set()
         len_time = len(self.time_stamps)
-        output_list = [set() for _ in range(len_time - 1)]
+        output_list = [set() for _ in range(len_time)]
 
         # Generation
         for tweet in tweet_set:

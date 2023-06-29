@@ -101,11 +101,13 @@ def plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id: i
         bhattacharyya_ranks.append(bhattacharyya_rank)
         social_support_ranks.append(social_support_rank)
     plt.figure(figsize=(10, 5))
-    plt.plot(ts_builder.time_stamps[:-1], bhattacharyya_ranks, label="Bhattacharyya Rank")
-    plt.plot(ts_builder.time_stamps[:-1], social_support_ranks, label="Social Support Rank")
+    print(ts_builder.time_stamps)
+    plt.plot(ts_builder.time_stamps, bhattacharyya_ranks, label="Bhattacharyya Rank")
+    plt.plot(ts_builder.time_stamps, social_support_ranks, label="Social Support Rank")
     plt.legend()
     plt.ylabel("Rank")
     plt.title("user_id: " + str(user_id))
+    plt.show()
     plt.savefig("../results/bhattacharyya_and_social_support_" + str(user_id))
 
 
@@ -147,6 +149,7 @@ def plot_bhattacharyya_for_top_social_support(space, ds):
     plt.xlabel("Overall Social Support Rank")
     plt.ylabel("Bhattacharyya Rank")
     plt.show()
+    
 
 ### Bin Analysis ###################################################################################
 def bin_interpretations(market, space, content_type: int, num_comments: int):
