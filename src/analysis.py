@@ -1,11 +1,12 @@
 from Builder.ContentMarketBuilder import ContentMarketBuilder
 from Builder.ContentSpaceBuilder import ContentSpaceBuilder
-from Builder.ContentDemandSupplyBuilder import ContentDemandSupplyBuilder 
+from Builder.ContentDemandSupplyBuilder import ContentDemandSupplyBuilder
 from UserPartitioning import UserPartitioningStrategyFactory
 from DAO.DAOFactory import DAOFactory
 from User.UserType import UserType
 from TS.TimeSeriesBuilder import TimeSeriesBuilder
 from Tweet.MinimalTweet import MinimalTweet
+from TS.TSATool import *
 
 from typing import Dict, List, Union
 import json
@@ -25,24 +26,25 @@ from scipy.stats import gaussian_kde, rv_histogram, relfreq
 from datetime import datetime, timedelta
 from dateutil import rrule
 from tqdm import tqdm
+from scipy.stats import rankdata
 
 
 ### Plotting Functions #############################################################################
-def plot_demand_and_supply(ds, demand_in_community_keys: Collection[Union[UserType, int]], 
+def plot_demand_and_supply(ds, demand_in_community_keys: Collection[Union[UserType, int]],
                            supply_keys: Collection[Union[UserType, int]]):
     """Plot the demand and supply curves for the binning embedding."""
     # print(ds.demand_in_community.keys())
     for key in demand_in_community_keys:
         print(sorted(ds.demand_in_community[key].keys()))
-        plt.bar(sorted(ds.demand_in_community[key].keys()), 
-                [len(ds.demand_in_community[key][content_type]) 
+        plt.bar(sorted(ds.demand_in_community[key].keys()),
+                [len(ds.demand_in_community[key][content_type])
                  for content_type in sorted(ds.demand_in_community[key].keys())],
                 alpha=0.3, label=key.value)
-    
+
     for key in supply_keys:
         print(ds.supply[key].keys())
-        plt.bar(sorted(ds.supply[key].keys()), 
-                [len(ds.supply[key][content_type]) 
+        plt.bar(sorted(ds.supply[key].keys()),
+                [len(ds.supply[key][content_type])
                  for content_type in sorted(ds.supply[key].keys())],
                 alpha=0.3, label=key.value)
     plt.legend()
@@ -62,12 +64,12 @@ def plot_bin_distances(market, space):
 
 
 def plot_bhattacharyya_distances(ds, sorted_user_ids):
-    """Calculate the Bhattacharyya distance between each user's curve and the aggregate demand."""   
-    dict1 = pad_dictionary(ds.demand_in_community[UserType.CONSUMER]) 
+    """Calculate the Bhattacharyya distance between each user's curve and the aggregate demand."""
+    dict1 = pad_dictionary(ds.demand_in_community[UserType.CONSUMER])
     dict2 = pad_dictionary(ds.demand_in_community[UserType.CORE_NODE])
     for content_type in range(20):
         dict1[content_type] = dict1[content_type].union(dict2[content_type])
-    
+
     curr_rank = 0
     ranks = []
     bhattacharyya_distances = []
@@ -90,14 +92,14 @@ def plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id: i
     demand_in_community_list = ts_builder.create_mapping_series("demand_in_community")
     original_tweets_list = ts_builder.partition_tweets_by_tweet_type("original_tweets")
     retweets_of_in_comm_list = ts_builder.partition_tweets_by_tweet_type("retweets_of_in_comm")
-    
+
     # temp = {}
-    # for content_type in supply_list[0][user_id]:
-    #     temp[content_type] = len(supply_list[0][user_id][content_type])
+    # for content_type in supply_list[-2][user_id]:
+    #     temp[content_type] = len(supply_list[-2][user_id][content_type])
     # print(temp)
 
     bhattacharyya_ranks, social_support_ranks = [], []
-    bhattacharyya_time_stamps, social_support_time_stamps = [], [] 
+    bhattacharyya_time_stamps, social_support_time_stamps = [], []
     for i in range(len(supply_list)):
         bhattacharyya_rank \
             = calculate_bhattacharyya_ranks(space, ds, supply_list[i], demand_in_community_list[i])[user_id]
@@ -111,7 +113,6 @@ def plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id: i
     plt.legend()
     plt.ylabel("Rank")
     plt.title("user_id: " + str(user_id))
-    plt.show()
     plt.savefig("../results/bhattacharyya_and_social_support_" + str(user_id))
 
 
@@ -125,8 +126,8 @@ def plot_social_support_for_top_bhattacharyya(space, ds):
     for user_id in top_bhattacharyyas:
         social_support_ranks = []
         for i in range(len(original_tweets_list)):
-            social_support_ranks.append(calculate_social_support_ranks(space, 
-                                                                       original_tweets_list[i], 
+            social_support_ranks.append(calculate_social_support_ranks(space,
+                                                                       original_tweets_list[i],
                                                                        retweets_of_in_comm_list[i])[user_id])
         to_plot.append(social_support_ranks)
     sns.stripplot(data=to_plot, jitter=False)
@@ -144,8 +145,8 @@ def plot_bhattacharyya_for_top_social_support(space, ds):
     for user_id in top_social_supports:
         bhattacharyya_ranks = []
         for i in range(len(supply_list)):
-            bhattacharyya_ranks.append(calculate_bhattacharyya_ranks(space, ds, 
-                                                                     supply_list[i], 
+            bhattacharyya_ranks.append(calculate_bhattacharyya_ranks(space, ds,
+                                                                     supply_list[i],
                                                                      demand_in_community_list[i])[user_id])
         to_plot.append(bhattacharyya_ranks)
     sns.stripplot(data=to_plot, jitter=False)
@@ -169,7 +170,7 @@ def plot_social_support_and_number_of_followers(space):
 
 ### Bin Analysis ###################################################################################
 def bin_interpretations(market, space, content_type: int, num_comments: int):
-    """Print a random sample of <num_comments> comments from the database that have content type 
+    """Print a random sample of <num_comments> comments from the database that have content type
     <content_type>."""
     np.random.seed(42)
     all_tweets \
@@ -182,7 +183,7 @@ def bin_interpretations(market, space, content_type: int, num_comments: int):
             market_tweet = market.get_tweet(space_tweet.id)
             content_type_tweets.append(market_tweet)
     print("Number of tweets in bin " + str(content_type) + ": " + str(len(content_type_tweets)))
-    samples = np.random.choice(content_type_tweets, min(len(content_type_tweets), num_comments), 
+    samples = np.random.choice(content_type_tweets, min(len(content_type_tweets), num_comments),
                                replace=False)
     for market_tweet in samples:
         print(market_tweet.content)
@@ -236,7 +237,7 @@ def initialize_channel_corpus(market, space, channel):
     """Initialize the corpus for a given channel.
     <market> is a content market. <channel> is a bin number in the binning algorithm.
     The corpus is a list of all the tweets, where each tweet is a string.
-    Assume that the preprocessing of the tweets has already been done (i.e. removing numbers and 
+    Assume that the preprocessing of the tweets has already been done (i.e. removing numbers and
     punctuation, stopwords, etc.)"""
     all_tweets \
         = space.original_tweets.union(space.retweets_of_in_comm.union(space.retweets_of_out_comm))
@@ -286,11 +287,11 @@ def relative_frequency(market, space):
         rel_freqs = term_freqs_in_channel / term_freqs
         for j in range(len(term_list)):
             term_to_weight[term_list[j]] = rel_freqs[j]
-        term_to_weights.append(sorted(term_to_weight, 
-                                      key=lambda term: term_to_weight[term], 
+        term_to_weights.append(sorted(term_to_weight,
+                                      key=lambda term: term_to_weight[term],
                                       reverse=True)[:10])
         print(sorted(term_to_weight, key=lambda term: term_to_weight[term], reverse=True)[:10])
-    
+
     return term_to_weights
 
 
@@ -323,12 +324,12 @@ def relative_frequency_hashtags(market, space, tweet_to_hashtags: Dict[int, List
         print(sorted(term_to_weight, key=lambda term: term_to_weight[term], reverse=True)[:10])
 
 
-def initialize_channel_hashtag_corpus(market, space, 
+def initialize_channel_hashtag_corpus(market, space,
                                       tweet_to_hashtags: Dict[int, List[str]], channel):
     """Initialize the corpus for a given channel.
     <market> is a content market. <channel> is a bin number in the binning algorithm.
     The corpus is a list of all the tweets, where each tweet is a string.
-    Assume that the preprocessing of the tweets has already been done (i.e. removing numbers and 
+    Assume that the preprocessing of the tweets has already been done (i.e. removing numbers and
     punctuation, stopwords, etc.)"""
     all_tweets \
         = space.original_tweets.union(space.retweets_of_in_comm.union(space.retweets_of_out_comm))
@@ -352,13 +353,13 @@ def initialize_hashtag_corpus(market, space, tweet_to_hashtags: Dict[int, List[s
 
 ### Bhattacharyya Distances - Helpers ##############################################################
 def bhattacharyya_distance(dict1, dict2):
-    """Calculate the Bhattacharyya distance. 
+    """Calculate the Bhattacharyya distance.
     <dict1>, <dict2> are dictionaries that map each content type to a set of tweets."""
 
     # with histogram:
     a = convert_to_relative_frequencies(dict1)
     b = convert_to_relative_frequencies(dict2)
-    
+
     bhattacharyya_coefficient = 0
     for i in range(20):
         if a[i] == 0 or b[i] == 0:
@@ -382,7 +383,7 @@ def convert_to_relative_frequencies(d) -> Dict[Any, float]:
 
 def pad_dictionary(d):
     """d is a dictionary that maps each content type to a set of tweets.
-    For content types that are not in the dictionary, add a key corresponding to the content type 
+    For content types that are not in the dictionary, add a key corresponding to the content type
     and an empty set."""
     padded_dict = {}
     for content_type in range(20):
@@ -394,9 +395,27 @@ def pad_dictionary(d):
 
 
 ### Social Support and Bhattacharyya Over Time #####################################################
+def _rank_dict(dct: Dict, reverse: bool) -> Dict:
+    # Convert Dictionary to 2D array
+    key_list = []
+    value_list = []
+    for key, val in dct.items():
+        key_list.append(key)
+        value_list.append(val)
+
+    # Rank
+    rank_list = rankdata(value_list, method="average")
+    if reverse:
+        rank_list = len(rank_list) + 1 - rank_list
+
+    # Convert back to Dictionary
+    return dict(zip(key_list, rank_list))
+
+
+
 def calculate_bhattacharyya_ranks(space, ds, supply, demand_in_community) -> Dict[int, int]:
     """Returns a dictionary mapping each user_id to its Bhattacharyya rank.
-    <supply> and <demand_in_community> are dictionaries in the form of the supply and 
+    <supply> and <demand_in_community> are dictionaries in the form of the supply and
     demand_in_community in ContentDemandSupply."""
     all_users = space.producers.union(space.consumers.union(space.core_nodes))
     dict1 = calculate_aggregate_curve(demand_in_community)
@@ -407,15 +426,16 @@ def calculate_bhattacharyya_ranks(space, ds, supply, demand_in_community) -> Dic
             user_id_to_bhattacharyya_distance[user.user_id] = bhattacharyya_distance(dict1, dict2)
 
     # create the dictionary
-    ranked_ids = list(sorted(user_id_to_bhattacharyya_distance, 
-                             key=lambda x: (user_id_to_bhattacharyya_distance[x], x), 
-                             reverse=False))
-    return {id: ranked_ids.index(id) for id in ranked_ids}
+    # ranked_ids = list(sorted(user_id_to_bhattacharyya_distance,
+    #                          key=lambda x: (user_id_to_bhattacharyya_distance[x], x),
+    #                          reverse=False))
+    # return {id: ranked_ids.index(id) for id in ranked_ids}
+    return _rank_dict(user_id_to_bhattacharyya_distance, reverse=False)
 
 
 def calculate_aggregate_curve(demand_in_community):
     """Helper function for calculate_bhattacharyya_ranks."""
-    dict1 = pad_dictionary(demand_in_community[UserType.CONSUMER]) 
+    dict1 = pad_dictionary(demand_in_community[UserType.CONSUMER])
     dict2 = pad_dictionary(demand_in_community[UserType.CORE_NODE])
     for content_type in range(20):
         dict1[content_type] = dict1[content_type].union(dict2[content_type])
@@ -436,7 +456,7 @@ def calculate_social_support_ranks(space, original_tweets, retweets_of_in_comm, 
     def get_retweets_of_tweet_id(tweet_id):
         return tweets_by_retweet_group.get(tweet_id, [])
     def get_later_retweets_of_tweet_id(tweet_id, created_at):
-        return [tweet for tweet in get_retweets_of_tweet_id(tweet_id) 
+        return [tweet for tweet in get_retweets_of_tweet_id(tweet_id)
                 if tweet.created_at > created_at]
     def is_direct_follower(a, b):
         # b follows a
@@ -452,18 +472,21 @@ def calculate_social_support_ranks(space, original_tweets, retweets_of_in_comm, 
 
             user_retweets = [tweet for tweet in user_tweets if tweet.retweet_id is not None]
             for user_retweet in user_retweets:
-                retweets = get_later_retweets_of_tweet_id(user_retweet.retweet_id, 
+                retweets = get_later_retweets_of_tweet_id(user_retweet.retweet_id,
                                                           user_retweet.created_at)
                 # The person who retweeted is a direct follower of id.
-                retweets_from_direct_followers = [rtw for rtw in retweets 
+                retweets_from_direct_followers = [rtw for rtw in retweets
                                                   if is_direct_follower(id, rtw.user_id)]
                 user_id_to_score[id][0] += len(retweets_from_direct_followers) * alpha
-    
+
     # create the dictionary
-    ranked_ids = list(sorted(user_id_to_score, 
-                             key=lambda x: (user_id_to_score[x][0], user_id_to_score[x][1]), 
-                             reverse=True))
-    return {id: ranked_ids.index(id) for id in ranked_ids}
+    # ranked_ids = list(sorted(user_id_to_score,
+    #                          key=lambda x: (user_id_to_score[x][0], user_id_to_score[x][1]),
+    #                          reverse=True))
+    # return {id: ranked_ids.index(id) for id in ranked_ids}
+    user_id_to_score_dict = {key: value[0]
+                             for key, value in user_id_to_score.items()}
+    return _rank_dict(user_id_to_score_dict, reverse=True)
 
 
 def create_friends_dict(space, user_ids) -> Dict[int, List[int]]:
@@ -478,7 +501,7 @@ def create_friends_dict(space, user_ids) -> Dict[int, List[int]]:
 def _group_by_retweet_id(tweets) -> Dict[int, List[MinimalTweet]]:
     """Helper function for calculate_social_support_ranks.
     Puts all tweets with the same retweet_id in the same list
-    Returns: A dictionary where the key is the retweet_id and 
+    Returns: A dictionary where the key is the retweet_id and
     the value is the list of tweets with that retweet_id"""
     dict = {}
     for tweet in tweets:
@@ -496,7 +519,7 @@ def _group_by_retweet_id(tweets) -> Dict[int, List[MinimalTweet]]:
 #     if mapping not in ["demand_in_community", "demand_out_community",
 #                         "supply"]:
 #         raise KeyError("Invalid Mapping Type.")
-    
+
 #     new_mapping = {}
 #     for user_type_or_id in vars(ds)[mapping]:
 #         new_type_to_tweets = {}
@@ -521,7 +544,7 @@ if __name__ == "__main__":
     market_builder = ContentMarketBuilder(config["database"]["content_market_db_name"],
                                           market_dao, partition)
     market = market_builder.load()
-    
+
     space_dao = dao_factory.get_content_space_dao(config["database"])
     space_builder = ContentSpaceBuilder(
         config["database"]["content_space_db_name"],
@@ -547,9 +570,9 @@ if __name__ == "__main__":
     period = timedelta(days=30)
     ts_builder = TimeSeriesBuilder(ds, space, start, end, period)
 
-    # plot_demand_and_supply(ds, [UserType.CONSUMER, UserType.CORE_NODE], 
+    # plot_demand_and_supply(ds, [UserType.CONSUMER, UserType.CORE_NODE],
     #                        [UserType.PRODUCER, UserType.CORE_NODE])
-    
+
     # for i in range(20):
     #     bin_interpretations(market, space, i, 10)
     #     print()
