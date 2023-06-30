@@ -95,7 +95,7 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
             if value_to_type(key1) is not None:
                 new_dict[value_to_type(key1)] = new_sub_dict
             else:
-                new_dict[key1] = new_sub_dict
+                new_dict[int(key1)] = new_sub_dict
         return new_dict
 
     def store_users(self, users: Set[ContentSpaceUser]) -> None:
