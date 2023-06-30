@@ -90,6 +90,11 @@ def plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id: i
     demand_in_community_list = ts_builder.create_mapping_series("demand_in_community")
     original_tweets_list = ts_builder.partition_tweets_by_tweet_type("original_tweets")
     retweets_of_in_comm_list = ts_builder.partition_tweets_by_tweet_type("retweets_of_in_comm")
+    
+    # temp = {}
+    # for content_type in supply_list[0][user_id]:
+    #     temp[content_type] = len(supply_list[0][user_id][content_type])
+    # print(temp)
 
     bhattacharyya_ranks, social_support_ranks = [], []
     bhattacharyya_time_stamps, social_support_time_stamps = [], [] 
@@ -101,7 +106,6 @@ def plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id: i
         bhattacharyya_ranks.append(bhattacharyya_rank)
         social_support_ranks.append(social_support_rank)
     plt.figure(figsize=(10, 5))
-    print(ts_builder.time_stamps)
     plt.plot(ts_builder.time_stamps, bhattacharyya_ranks, label="Bhattacharyya Rank")
     plt.plot(ts_builder.time_stamps, social_support_ranks, label="Social Support Rank")
     plt.legend()
@@ -112,13 +116,13 @@ def plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id: i
 
 
 def plot_social_support_for_top_bhattacharyya(space, ds):
-    bhattacharyya = calculate_bhattacharyya_ranks(space, ds, ds.supply, ds.demand_in_community)
-    top_bhattacharyya = sorted(bhattacharyya, key=lambda x: bhattacharyya[x], reverse=False)[:10]
-    print(top_bhattacharyya)
+    bhattacharyyas = calculate_bhattacharyya_ranks(space, ds, ds.supply, ds.demand_in_community)
+    top_bhattacharyyas = sorted(bhattacharyyas, key=lambda x: bhattacharyyas[x], reverse=False)[:10]
+    # print(top_bhattacharyyas)
     original_tweets_list = ts_builder.partition_tweets_by_tweet_type("original_tweets")
     retweets_of_in_comm_list = ts_builder.partition_tweets_by_tweet_type("retweets_of_in_comm")
     to_plot = []
-    for user_id in top_bhattacharyya:
+    for user_id in top_bhattacharyyas:
         social_support_ranks = []
         for i in range(len(original_tweets_list)):
             social_support_ranks.append(calculate_social_support_ranks(space, 
@@ -132,13 +136,12 @@ def plot_social_support_for_top_bhattacharyya(space, ds):
 
 
 def plot_bhattacharyya_for_top_social_support(space, ds):
-    social_support = calculate_social_support_ranks(space, space.original_tweets, space.retweets_of_in_comm)
-    top_social_support = sorted(social_support, key=lambda x: social_support[x], reverse=False)[:10]
-    print(top_social_support)
+    social_supports = calculate_social_support_ranks(space, space.original_tweets, space.retweets_of_in_comm)
+    top_social_supports = sorted(top_social_supports, key=lambda x: top_social_supports[x], reverse=False)[:10]
     supply_list = ts_builder.create_mapping_series("supply")
     demand_in_community_list = ts_builder.create_mapping_series("demand_in_community")
     to_plot = []
-    for user_id in top_social_support:
+    for user_id in top_social_supports:
         bhattacharyya_ranks = []
         for i in range(len(supply_list)):
             bhattacharyya_ranks.append(calculate_bhattacharyya_ranks(space, ds, 
@@ -149,7 +152,20 @@ def plot_bhattacharyya_for_top_social_support(space, ds):
     plt.xlabel("Overall Social Support Rank")
     plt.ylabel("Bhattacharyya Rank")
     plt.show()
-    
+
+
+def plot_social_support_and_number_of_followers(space):
+    all_users = space.producers.union(space.consumers.union(space.core_nodes))
+    social_supports = calculate_social_support_ranks(space, space.original_tweets, space.retweets_of_in_comm)
+    social_supports = sorted(social_supports, key=lambda x: social_supports[x], reverse=False)
+    local_follower_counts = {user.user_id: user.local_follower_count for user in all_users}
+    local_follower_counts = [local_follower_counts[user_id] for user_id in social_supports]
+    plt.plot(range(len(social_supports)), local_follower_counts)
+    plt.xlabel("Social Support Rank")
+    plt.ylabel("Number of Local Followers")
+    print(np.corrcoef(list(range(len(social_supports))), local_follower_counts))
+    plt.show()
+
 
 ### Bin Analysis ###################################################################################
 def bin_interpretations(market, space, content_type: int, num_comments: int):
@@ -386,13 +402,13 @@ def calculate_bhattacharyya_ranks(space, ds, supply, demand_in_community) -> Dic
     dict1 = calculate_aggregate_curve(demand_in_community)
     user_id_to_bhattacharyya_distance = {}
     for user in all_users:
-        if len(supply[str(user.user_id)]) != 0:
-            dict2 = pad_dictionary(supply[str(user.user_id)])
+        if len(supply[user.user_id]) != 0:
+            dict2 = pad_dictionary(supply[user.user_id])
             user_id_to_bhattacharyya_distance[user.user_id] = bhattacharyya_distance(dict1, dict2)
 
     # create the dictionary
     ranked_ids = list(sorted(user_id_to_bhattacharyya_distance, 
-                             key=lambda x: user_id_to_bhattacharyya_distance[x], 
+                             key=lambda x: (user_id_to_bhattacharyya_distance[x], x), 
                              reverse=False))
     return {id: ranked_ids.index(id) for id in ranked_ids}
 
@@ -517,6 +533,15 @@ if __name__ == "__main__":
             config["database"]["content_demand_supply_db_name"], ds_dao)
     ds = ds_builder.load()
 
+    print("Load: " + str(len(ds.supply)))
+    print("Load: " + str(len(ds.demand_in_community)))
+    print("Load: " + str(len(ds.demand_out_community)))
+
+    # temp = {}
+    # for content_type in ds.supply["1330571318971027462"]:
+    #     temp[content_type] = len(ds.supply["1330571318971027462"][content_type])
+    # print(temp)
+
     start = datetime(2020, 6, 1)  # datetime(2020, 6, 29)
     end = datetime(2023, 4, 1)  # datetime(2023, 3, 5)  # (2023, 3, 5) is for rachel_chess_content_market
     period = timedelta(days=30)
@@ -544,14 +569,16 @@ if __name__ == "__main__":
 
     # plot_bin_distances(market, space)
 
-    temp = ts_builder.create_mapping_series("supply")
-    ts_builder.partition_tweets_by_tweet_type("original_tweets")
-    print(sum(len(tweet_set) for tweet_set in ts_builder.partition_tweets_by_tweet_type("original_tweets")))
+    # temp = ts_builder.create_mapping_series("supply")
+    # ts_builder.partition_tweets_by_tweet_type("original_tweets")
+    # print(sum(len(tweet_set) for tweet_set in ts_builder.partition_tweets_by_tweet_type("original_tweets")))
 
     # sorted_user_ids = [1330571318971027462, 917892794953404417, 23612012, 3161912605, 227629567, 919900711, 301042394, 228660231, 2233129128, 4369711156, 1884178352, 1651411087, 126345156, 232951413, 277594186, 313299656, 186797066, 92284830, 1729528081, 13247182, 132702118, 77210396, 609121227, 60494861, 1110733580, 3511819222, 46465628, 97426170, 354486695, 161308987, 252909412, 391563229, 277634312, 3392260661, 1081889952412119040, 1356595452, 279565150, 29521967, 94340676, 953260427475079168, 28994084, 1495255914, 1067064666, 4922808130, 75174049, 617004214, 297267701, 1093199136596287489, 83338597, 499173831, 22202577, 31479252, 337149339, 480444935, 406172437, 1702864658, 1167467303002345474, 101850896, 132787956, 434270813, 2609917590, 898166654575751172, 1041446451715473408, 185677963, 769229557576507392, 247232127, 3086225424, 167842102, 60995997, 228806806, 19647809, 198339335, 425376095, 217741900, 1588889406, 71476598]
     # plot_bhattacharyya_distances(ds, sorted_user_ids)
 
-    for user_id in [1330571318971027462, 917892794953404417, 23612012, 3161912605, 227629567, 919900711, 301042394, 228660231, 2233129128, 4369711156, 1884178352, 1651411087, 126345156, 232951413, 277594186, 313299656, 186797066, 92284830, 1729528081, 13247182]:
+    for user_id in [1330571318971027462]:
         plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id)
     # plot_social_support_for_top_bhattacharyya(space, ds)
     # plot_bhattacharyya_for_top_social_support(space, ds)
+
+    # plot_social_support_and_number_of_followers(space)
