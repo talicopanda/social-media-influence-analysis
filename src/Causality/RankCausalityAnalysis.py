@@ -61,11 +61,14 @@ class RankCausalityAnalysis:
         result_dict = {}
         for l in lags:
             if l < 0:
-                result_dict[l] = cos_similarity(filter_method(ss_seq[:l]), filter_method(b_seq[-l:]))
+                result_dict[l] = cos_similarity(filter_method(ss_seq[:l]),
+                                                filter_method(b_seq[-l:]))
             elif l > 0:
-                result_dict[l] = cos_similarity(b_seq[:-l], ss_seq[l:])
+                result_dict[l] = cos_similarity(filter_method(b_seq[:-l]),
+                                                filter_method(ss_seq[l:]))
             else:
-                result_dict[l] = cos_similarity(b_seq, ss_seq)
+                result_dict[l] = cos_similarity(filter_method(b_seq),
+                                                filter_method(ss_seq))
         return result_dict
 
     def do_granger_cause(self, filter_method: Callable[[Sequence], Sequence],
