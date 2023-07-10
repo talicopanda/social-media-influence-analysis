@@ -44,15 +44,15 @@ class ContentMarketMongoDAO(MongoDAOBase):
                 "username": user["username"],
                 "influence_one": user["influence one"],
                 "influence_two": user["influence two"],
-                "production_utility": user["production utility"],
-                "consumption_utility": user["consumption utility"],
+                # "production_utility": user["production utility"],
+                # "consumption_utility": user["consumption utility"],
                 "local_follower_count": user["local follower"],
                 "local_following_count": user["local following"],
-                "local_followers": user["local follower list"],
-                "local_following": user["local following list"],
+                # "local_followers": user["local follower list"],
+                # "local_following": user["local following list"],
                 "global_follower_count": user["global follower"],
                 "global_following_count": user["global following"],
-                "is_new_user": user["is new user"]
+                # "is_new_user": user["is new user"]
             }
             new_user = ContentMarketUser(**user_dict)
             users.add(new_user)

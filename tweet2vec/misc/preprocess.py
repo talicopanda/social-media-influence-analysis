@@ -3,10 +3,10 @@ import sys
 import io
 import json
 import pymongo
-import emoji
-import nltk
-nltk.download('stopwords')
-from nltk.corpus import stopwords
+# import emoji
+# import nltk
+# nltk.download('stopwords')
+# from nltk.corpus import stopwords
 
 db_config = sys.argv[1]
 
@@ -31,7 +31,7 @@ def tokenize(s):
     return tokens_re.findall(s)
 
 
-def preprocess(s, lowercase=True):
+def rachel_preprocess(s, lowercase=True):
     tokens = tokenize(s)
     tokens = [token.lower() for token in tokens]
 
@@ -72,7 +72,7 @@ def preprocess(s, lowercase=True):
     return ' '.join([t for t in tokens if t])
 
 
-def original_preprocess(s, lowercase=True):
+def preprocess(s, lowercase=True):
     tokens = tokenize(s)
     tokens = [token.lower() for token in tokens]
 
@@ -128,10 +128,14 @@ with io.open(db_config, 'r') as config_file:
             else:
                 db_content_market[clean_tweets_collection_name].insert_one(new_tweet)
 
-    collections = [(config["database"]["quotes_of_in_community_collection"], config["database"]["clean_quotes_of_in_community_collection"]),
+    collections = [
+        (config["database"]["quotes_of_in_community_collection"], config["database"]["clean_quotes_of_in_community_collection"]),
         (config["database"]["quotes_of_out_community_collection"], config["database"]["clean_quotes_of_out_community_collection"]),
         (config["database"]["retweets_of_in_community_collection"], config["database"]["clean_retweets_of_in_community_collection"]),
-        (config["database"]["retweets_of_out_community_collection"], config["database"]["clean_retweets_of_out_community_collection"])]
+        # (config["database"]["retweets_of_out_community_collection"], config["database"]["clean_retweets_of_out_community_collection"]),
+        (config["database"]["retweets_of_out_community_by_in_community_collection"], config["database"]["clean_retweets_of_out_community_by_in_community_collection"]),
+        (config["database"]["retweets_of_in_community_by_out_community_collection"], config["database"]["clean_retweets_of_in_community_by_out_community_collection"]),
+        ]
 
     for collec in collections:
         for tweet in db_community[collec[0]].find():

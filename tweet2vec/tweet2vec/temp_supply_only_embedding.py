@@ -12,51 +12,93 @@ def old_to_new_embeddings(config):
     content_market_db_name = config["database"]["content_market_db_name"]
     original_tweets_collection = client[content_market_db_name][config["database"]["clean_original_tweets_collection"]]
     retweets_in_community_collection = client[content_market_db_name][config["database"]["clean_retweets_of_in_community_collection"]]
-    retweets_out_community_collection = client[content_market_db_name][config["database"]["clean_retweets_of_out_community_collection"]]
+    # retweets_out_community_collection = client[content_market_db_name][config["database"]["clean_retweets_of_out_community_collection"]]
+    retweets_of_in_community_by_out_community_collection = client[content_market_db_name][config["database"]["clean_retweets_of_in_community_by_out_community_collection"]]
+    retweets_of_out_community_by_in_community_collection = client[content_market_db_name][config["database"]["clean_retweets_of_out_community_by_in_community_collection"]]
     old_embeddings_collection = client[content_market_db_name][config["database"]["tweet_embeddings_collection"]]
+
+    old_embeddings = {}
+    for embedding in old_embeddings_collection.find():
+        old_embeddings[embedding["id"]] = {"hashtags": embedding["hashtags"], "embedding": embedding["embedding"]}
+    print("done")
 
     hashtags, embeddings = {}, {}
     i = 0
     print(original_tweets_collection.find())
-    for tweet in original_tweets_collection.find():
+    cursor = original_tweets_collection.find(no_cursor_timeout=True)
+    for tweet in cursor:
         if i % 1000 == 0:
             print(i)
         i += 1
-        hashtags[tweet["id"]] = \
-            old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
-        embeddings[tweet["id"]] = \
-            old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
-    for tweet in retweets_in_community_collection.find():
-        if i % 1000 == 0:
-            print(i)
-        i += 1
-        if tweet["retweet_id"] in embeddings:
-            hashtags[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
-            embeddings[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
-        else:
-            # if the parent is not in the embedding, embed the comment directly into the space
-            hashtags[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
-            embeddings[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
-    for tweet in retweets_out_community_collection.find():
+        hashtags[tweet["id"]] = old_embeddings[tweet["id"]]["hashtags"]
+            # old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
+        embeddings[tweet["id"]] = old_embeddings[tweet["id"]]["embedding"]
+            # old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
+    cursor.close()
+    cursor = retweets_in_community_collection.find(no_cursor_timeout=True)
+    for tweet in cursor:
         if i % 1000 == 0:
             print(i)
         i += 1
         if tweet["retweet_id"] in embeddings:
-            hashtags[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
-            embeddings[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
+            hashtags[tweet["id"]] = old_embeddings[tweet["retweet_id"]]["hashtags"]
+            embeddings[tweet["id"]] = old_embeddings[tweet["retweet_id"]]["embedding"]
+            # hashtags[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
+            # embeddings[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
         else:
             # if the parent is not in the embedding, embed the comment directly into the space
-            hashtags[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
-            embeddings[tweet["id"]] = \
-                old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
-    
+            hashtags[tweet["id"]] = old_embeddings[tweet["id"]]["hashtags"]
+            embeddings[tweet["id"]] = old_embeddings[tweet["id"]]["embedding"]
+            # hashtags[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
+            # embeddings[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
+    cursor.close()
+    cursor = retweets_of_in_community_by_out_community_collection.find(no_cursor_timeout=True)
+    for tweet in cursor:
+        if i % 1000 == 0:
+            print(i)
+        i += 1
+        if tweet["retweet_id"] in embeddings:
+            hashtags[tweet["id"]] = old_embeddings[tweet["retweet_id"]]["hashtags"]
+            embeddings[tweet["id"]] = old_embeddings[tweet["retweet_id"]]["embedding"]
+            # hashtags[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
+            # embeddings[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
+        else:
+            # if the parent is not in the embedding, embed the comment directly into the space
+            hashtags[tweet["id"]] = old_embeddings[tweet["id"]]["hashtags"]
+            embeddings[tweet["id"]] = old_embeddings[tweet["id"]]["embedding"]
+            # hashtags[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
+            # embeddings[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
+    cursor.close()
+    cursor = retweets_of_out_community_by_in_community_collection.find(no_cursor_timeout=True)
+    for tweet in cursor:
+        if i % 1000 == 0:
+            print(i)
+        i += 1
+        if tweet["retweet_id"] in embeddings:
+            hashtags[tweet["id"]] = old_embeddings[tweet["retweet_id"]]["hashtags"]
+            embeddings[tweet["id"]] = old_embeddings[tweet["retweet_id"]]["embedding"]
+            # hashtags[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
+            # embeddings[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["retweet_id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
+        else:
+            # if the parent is not in the embedding, embed the comment directly into the space
+            hashtags[tweet["id"]] = old_embeddings[tweet["id"]]["hashtags"]
+            embeddings[tweet["id"]] = old_embeddings[tweet["id"]]["embedding"]
+            # hashtags[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["hashtags"]
+            # embeddings[tweet["id"]] = \
+            #     old_embeddings_collection.find_one({ "id": tweet["id"] }, { "hashtags": 1, "embedding": 1, "_id": 0 })["embedding"]
+    cursor.close()
+
     print(len(embeddings))
 
     i = 0
@@ -135,6 +177,6 @@ if __name__ == "__main__":
     config_file = open(config_file_path)
     config = json.load(config_file)
     config_file.close()
-    # embeddings = old_to_new_embeddings(config)
-    embeddings = remove_non_english_embeddings(config)
+    embeddings = old_to_new_embeddings(config)
+    # embeddings = remove_non_english_embeddings(config)
     print(len(embeddings))
