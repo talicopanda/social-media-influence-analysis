@@ -28,23 +28,57 @@ from tqdm import tqdm
 
 
 ### Plotting Functions #############################################################################
-def plot_demand_and_supply(ds, demand_in_community_keys: Collection[Union[UserType, int]], 
-                           supply_keys: Collection[Union[UserType, int]]):
+def plot_demand_and_supply(ds,  
+                           supply_keys: Collection[Union[UserType, int]],
+                           demand_in_community_keys: Collection[Union[UserType, int]],
+                           demand_out_community_keys: Collection[Union[UserType, int]]):
     """Plot the demand and supply curves for the binning embedding."""
     # print(ds.demand_in_community.keys())
-    for key in demand_in_community_keys:
-        print(sorted(ds.demand_in_community[key].keys()))
-        plt.bar(sorted(ds.demand_in_community[key].keys()), 
-                [len(ds.demand_in_community[key][content_type]) 
-                 for content_type in sorted(ds.demand_in_community[key].keys())],
-                alpha=0.3, label=key.value)
+    # TODO: get rid of this
+    # demand = {i: 0 for i in range(20)}
+    # do not get rid of this
     
+    supply_colours = ["red", "yellow"]
+    i = 0
     for key in supply_keys:
         print(ds.supply[key].keys())
         plt.bar(sorted(ds.supply[key].keys()), 
                 [len(ds.supply[key][content_type]) 
                  for content_type in sorted(ds.supply[key].keys())],
+                alpha=1, label=key.value, edgecolor=supply_colours[i], fill=False)
+        i += 1
+
+    demand_in_community_colours = ["blue", "green"]
+    i = 0
+    for key in demand_in_community_keys:
+        print(sorted(ds.demand_in_community[key].keys()))
+        # TODO: get rid of this
+        # for content_type in sorted(ds.demand_in_community[key].keys()):
+        #     demand[content_type] += len(ds.demand_in_community[key][content_type])
+        # do not get rid of this
+        plt.bar(sorted(ds.demand_in_community[key].keys()), 
+                [len(ds.demand_in_community[key][content_type]) 
+                 for content_type in sorted(ds.demand_in_community[key].keys())],
+                alpha=1, label=key.value, edgecolor=demand_in_community_colours[i], fill=False)
+        i += 1
+        
+    for key in demand_out_community_keys:
+        print(sorted(ds.demand_out_community[key].keys()))
+        # TODO: get rid of this
+        # for content_type in sorted(ds.demand_out_community[key].keys()):
+        #     demand[content_type] += len(ds.demand_out_community[key][content_type])
+        # do not get rid of this
+        plt.bar(sorted(ds.demand_out_community[key].keys()), 
+                [len(ds.demand_out_community[key][content_type]) 
+                 for content_type in sorted(ds.demand_out_community[key].keys())],
                 alpha=0.3, label=key.value)
+    
+    # TODO: get rid of this
+    # plt.bar(sorted(demand.keys()), [demand[content_type] for content_type in sorted(demand.keys())],
+    #         alpha=0.3, label="all demand")
+    # do not get rid of this
+
+
     plt.legend()
     plt.show()
 
@@ -65,8 +99,14 @@ def plot_bhattacharyya_distances(ds, sorted_user_ids):
     """Calculate the Bhattacharyya distance between each user's curve and the aggregate demand."""   
     dict1 = pad_dictionary(ds.demand_in_community[UserType.CONSUMER]) 
     dict2 = pad_dictionary(ds.demand_in_community[UserType.CORE_NODE])
+    # TODO: get rid of this
+    # dict3 = pad_dictionary(ds.demand_out_community[UserType.CORE_NODE])
+    # dict4 = pad_dictionary(ds.demand_out_community[UserType.CONSUMER])
+    # do not get rid of this
     for content_type in range(20):
         dict1[content_type] = dict1[content_type].union(dict2[content_type])
+        # dict1[content_type] \
+        #     = dict1[content_type].union(dict2[content_type].union(dict3[content_type].union(dict4[content_type])))
     
     curr_rank = 0
     ranks = []
@@ -74,13 +114,14 @@ def plot_bhattacharyya_distances(ds, sorted_user_ids):
     for user_id in sorted_user_ids:
         if len(ds.supply[user_id]) != 0:
             dict2 = pad_dictionary(ds.supply[user_id])
-            ranks.append(curr_rank)
-            bhattacharyya_distances.append(bhattacharyya_distance(dict1, dict2))
+            if bhattacharyya_distance(dict1, dict2) <= 1:
+                ranks.append(curr_rank)
+                bhattacharyya_distances.append(bhattacharyya_distance(dict1, dict2))
             curr_rank += 1
 
     print(np.corrcoef(ranks, bhattacharyya_distances))
     plt.plot(ranks, bhattacharyya_distances)
-    plt.xlabel("Social Support Rank")
+    plt.xlabel("Rank")
     plt.ylabel("Bhattacharyya Distance with All In Community Demand")
     plt.show()
 
@@ -88,31 +129,55 @@ def plot_bhattacharyya_distances(ds, sorted_user_ids):
 def plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id: int):
     supply_list = ts_builder.create_mapping_series("supply")
     demand_in_community_list = ts_builder.create_mapping_series("demand_in_community")
+    demand_out_community_list = ts_builder.create_mapping_series("demand_out_community")
     original_tweets_list = ts_builder.partition_tweets_by_tweet_type("original_tweets")
     retweets_of_in_comm_list = ts_builder.partition_tweets_by_tweet_type("retweets_of_in_comm")
-    
-    # temp = {}
-    # for content_type in supply_list[0][user_id]:
-    #     temp[content_type] = len(supply_list[0][user_id][content_type])
-    # print(temp)
 
     bhattacharyya_ranks, social_support_ranks = [], []
-    bhattacharyya_time_stamps, social_support_time_stamps = [], [] 
     for i in range(len(supply_list)):
         bhattacharyya_rank \
-            = calculate_bhattacharyya_ranks(space, ds, supply_list[i], demand_in_community_list[i])[user_id]
+            = calculate_bhattacharyya_ranks(space, ds, supply_list[i], demand_in_community_list[i], demand_out_community_list[i])[user_id]
         social_support_rank \
             = calculate_social_support_ranks(space, original_tweets_list[i], retweets_of_in_comm_list[i])[user_id]
         bhattacharyya_ranks.append(bhattacharyya_rank)
         social_support_ranks.append(social_support_rank)
     plt.figure(figsize=(10, 5))
-    plt.plot(ts_builder.time_stamps, bhattacharyya_ranks, label="Bhattacharyya Rank")
-    plt.plot(ts_builder.time_stamps, social_support_ranks, label="Social Support Rank")
+    plt.plot(ts_builder.time_stamps, bhattacharyya_ranks, label="Bhattacharyya Rank", color="tab:blue")
+    plt.plot(ts_builder.time_stamps, social_support_ranks, label="Social Support Rank", color="tab:orange")
     plt.legend()
     plt.ylabel("Rank")
     plt.title("user_id: " + str(user_id))
-    plt.show()
+    # plt.show()
     plt.savefig("../results/bhattacharyya_and_social_support_" + str(user_id))
+
+
+def plot_bhattacharyya_and_social_support_agg(space, ds, ts_builder, user_ids: List[int]):
+    """Averages the ranks of the users for each of the time periods."""
+    supply_list = ts_builder.create_mapping_series("supply")
+    demand_in_community_list = ts_builder.create_mapping_series("demand_in_community")
+    original_tweets_list = ts_builder.partition_tweets_by_tweet_type("original_tweets")
+    retweets_of_in_comm_list = ts_builder.partition_tweets_by_tweet_type("retweets_of_in_comm")
+
+    bhattacharyya_ranks, social_support_ranks = [], []
+    for i in range(len(supply_list)):
+        bhattacharyya_rank_sum = 0
+        social_support_rank_sum = 0
+        for user_id in user_ids:
+            bhattacharyya_rank_sum \
+                += calculate_bhattacharyya_ranks(space, ds, supply_list[i], demand_in_community_list[i])[user_id]
+            social_support_rank_sum \
+                += calculate_social_support_ranks(space, original_tweets_list[i], retweets_of_in_comm_list[i])[user_id]
+        bhattacharyya_ranks.append(bhattacharyya_rank_sum / len(user_ids))
+        social_support_ranks.append(social_support_rank_sum / len(user_ids))
+    plt.figure(figsize=(10, 5))
+    plt.plot(ts_builder.time_stamps, bhattacharyya_ranks, label="Bhattacharyya Rank", color="tab:blue")
+    plt.plot(ts_builder.time_stamps, social_support_ranks, label="Social Support Rank", color="tab:orange")
+    plt.ylim((0, 76))
+    plt.legend()
+    plt.ylabel("Rank")
+    plt.title("Top 5 Overall Social Support")
+    plt.show()
+    
 
 
 def plot_social_support_for_top_bhattacharyya(space, ds):
@@ -165,6 +230,56 @@ def plot_social_support_and_number_of_followers(space):
     plt.ylabel("Number of Local Followers")
     print(np.corrcoef(list(range(len(social_supports))), local_follower_counts))
     plt.show()
+
+
+def plot_bhattacharyya_and_number_of_followers(space, ds):
+    all_users = space.producers.union(space.consumers.union(space.core_nodes))
+    bhattacharyyas = calculate_bhattacharyya_ranks(space, ds, ds.supply, ds.demand_in_community, ds.demand_out_community)
+    bhattacharyyas = sorted(bhattacharyyas, key=lambda x: bhattacharyyas[x], reverse=False)
+    local_follower_counts = {user.user_id: user.local_follower_count for user in all_users}
+    local_follower_counts = [local_follower_counts[user_id] for user_id in bhattacharyyas]
+    plt.plot(range(len(bhattacharyyas)), local_follower_counts)
+    plt.xlabel("Social Support Rank")
+    plt.ylabel("Number of Local Followers")
+    print(np.corrcoef(list(range(len(bhattacharyyas))), local_follower_counts))
+    plt.show()
+
+
+def plot_tweet_proportion_over_time(ts_builder, user_id):
+    original_tweets_list = ts_builder.partition_tweets_by_tweet_type("original_tweets")
+
+    tweet_counts = [len(tweet_set) for tweet_set in original_tweets_list]
+    tweet_counts_normed = [float(tweet_count) / sum(tweet_counts) 
+                           for tweet_count in tweet_counts]
+
+    user_tweet_counts = []
+    for tweet_set in original_tweets_list:
+        user_tweet_counts.append(len([tweet for tweet in tweet_set if tweet.user_id == user_id]))
+    user_tweet_counts_normed = [float(tweet_count) / sum(user_tweet_counts) 
+                                for tweet_count in user_tweet_counts]
+
+    plt.plot(ts_builder.time_stamps, tweet_counts_normed, 
+             label="original tweets overall", color="black")
+    plt.plot(ts_builder.time_stamps, user_tweet_counts_normed, 
+             label="original tweets " + str(user_id), color="red")
+    plt.legend()
+    plt.show()
+
+
+def plot_tweet_count_over_time(ts_builder, user_id):
+    original_tweets_list = ts_builder.partition_tweets_by_tweet_type("original_tweets")
+
+    user_tweet_counts = []
+    for tweet_set in original_tweets_list:
+        user_tweet_counts.append(len([tweet for tweet in tweet_set if tweet.user_id == user_id]))
+
+
+    plt.plot(ts_builder.time_stamps, user_tweet_counts, 
+             label="original tweets " + str(user_id))
+    # plt.legend()
+    # plt.show()
+
+    return sum(user_tweet_counts)
 
 
 ### Bin Analysis ###################################################################################
@@ -394,12 +509,12 @@ def pad_dictionary(d):
 
 
 ### Social Support and Bhattacharyya Over Time #####################################################
-def calculate_bhattacharyya_ranks(space, ds, supply, demand_in_community) -> Dict[int, int]:
+def calculate_bhattacharyya_ranks(space, ds, supply, demand_in_community, demand_out_community) -> Dict[int, int]:
     """Returns a dictionary mapping each user_id to its Bhattacharyya rank.
     <supply> and <demand_in_community> are dictionaries in the form of the supply and 
     demand_in_community in ContentDemandSupply."""
     all_users = space.producers.union(space.consumers.union(space.core_nodes))
-    dict1 = calculate_aggregate_curve(demand_in_community)
+    dict1 = calculate_aggregate_curve(demand_in_community, demand_out_community)
     user_id_to_bhattacharyya_distance = {}
     for user in all_users:
         if len(supply[user.user_id]) != 0:
@@ -411,14 +526,22 @@ def calculate_bhattacharyya_ranks(space, ds, supply, demand_in_community) -> Dic
                              key=lambda x: (user_id_to_bhattacharyya_distance[x], x), 
                              reverse=False))
     return {id: ranked_ids.index(id) for id in ranked_ids}
+    # this is Tom's ranking function
+    # return rank_dictionary_values(user_id_to_bhattacharyya_distance)
 
 
-def calculate_aggregate_curve(demand_in_community):
+def calculate_aggregate_curve(demand_in_community, demand_out_community):
     """Helper function for calculate_bhattacharyya_ranks."""
     dict1 = pad_dictionary(demand_in_community[UserType.CONSUMER]) 
     dict2 = pad_dictionary(demand_in_community[UserType.CORE_NODE])
+    # TODO: get rid of this
+    # dict3 = pad_dictionary(demand_out_community[UserType.CONSUMER]) 
+    # dict4 = pad_dictionary(demand_out_community[UserType.CORE_NODE])
+    # do not get rid of this
     for content_type in range(20):
         dict1[content_type] = dict1[content_type].union(dict2[content_type])
+        # dict1[content_type] \
+        #     = dict1[content_type].union(dict2[content_type].union(dict3[content_type].union(dict4[content_type])))
     return dict1
 
 
@@ -461,7 +584,7 @@ def calculate_social_support_ranks(space, original_tweets, retweets_of_in_comm, 
     
     # create the dictionary
     ranked_ids = list(sorted(user_id_to_score, 
-                             key=lambda x: (user_id_to_score[x][0], user_id_to_score[x][1]), 
+                             key=lambda x: (user_id_to_score[x][0], user_id_to_score[x][1], x), 
                              reverse=True))
     return {id: ranked_ids.index(id) for id in ranked_ids}
 
@@ -470,7 +593,10 @@ def create_friends_dict(space, user_ids) -> Dict[int, List[int]]:
     """Helper function for calculate_social_support_ranks."""
     friends = {}
     for user_id in user_ids:
-        friends_of_user_id = space.get_user(user_id).local_following
+        # TODO: get rid of this
+        friends_of_user_id = [other_user_id for other_user_id in user_ids if user_id != other_user_id]
+        # do not get rid of this
+        # friends_of_user_id = space.get_user(user_id).local_following
         friends[user_id] = [id for id in friends_of_user_id]
     return friends
 
@@ -491,18 +617,17 @@ def _group_by_retweet_id(tweets) -> Dict[int, List[MinimalTweet]]:
     return dict
 
 
-# def filter_mapping(ds, mapping: str):
-#     """Filter a mapping i.e. supply, demand_in_community, or demand_out_community."""
-#     if mapping not in ["demand_in_community", "demand_out_community",
-#                         "supply"]:
-#         raise KeyError("Invalid Mapping Type.")
-    
-#     new_mapping = {}
-#     for user_type_or_id in vars(ds)[mapping]:
-#         new_type_to_tweets = {}
-#         for content_type in self.ds.content_space:
-#         temp2[content_type.get_representation()] \
-#             = self.create_time_series(user_type_or_id, content_type.get_representation(), mapping)
+### Tom's Ranking Function #########################################################################
+def rank_dictionary_values(dictionary):
+    from scipy.stats import rankdata
+    values = list(dictionary.values())  # Get list of values
+    ranked_values = rankdata(values, method="min")  # Rank the values using rankdata function
+    ranked_dict = {}  # Create new dictionary
+
+    for key, rank in zip(dictionary.keys(), ranked_values):
+        ranked_dict[key] = rank  # Assign rank to key in the new dictionary
+
+    return ranked_dict
 
 
 if __name__ == "__main__":
@@ -533,10 +658,6 @@ if __name__ == "__main__":
             config["database"]["content_demand_supply_db_name"], ds_dao)
     ds = ds_builder.load()
 
-    print("Load: " + str(len(ds.supply)))
-    print("Load: " + str(len(ds.demand_in_community)))
-    print("Load: " + str(len(ds.demand_out_community)))
-
     # temp = {}
     # for content_type in ds.supply["1330571318971027462"]:
     #     temp[content_type] = len(ds.supply["1330571318971027462"][content_type])
@@ -547,8 +668,10 @@ if __name__ == "__main__":
     period = timedelta(days=30)
     ts_builder = TimeSeriesBuilder(ds, space, start, end, period)
 
-    # plot_demand_and_supply(ds, [UserType.CONSUMER, UserType.CORE_NODE], 
-    #                        [UserType.PRODUCER, UserType.CORE_NODE])
+    plot_demand_and_supply(ds, [],
+                           [UserType.PRODUCER, UserType.CORE_NODE], 
+                           [UserType.CONSUMER, UserType.CORE_NODE])
+    print(ds.demand_out_community)
     
     # for i in range(20):
     #     bin_interpretations(market, space, i, 10)
@@ -573,12 +696,34 @@ if __name__ == "__main__":
     # ts_builder.partition_tweets_by_tweet_type("original_tweets")
     # print(sum(len(tweet_set) for tweet_set in ts_builder.partition_tweets_by_tweet_type("original_tweets")))
 
-    # sorted_user_ids = [1330571318971027462, 917892794953404417, 23612012, 3161912605, 227629567, 919900711, 301042394, 228660231, 2233129128, 4369711156, 1884178352, 1651411087, 126345156, 232951413, 277594186, 313299656, 186797066, 92284830, 1729528081, 13247182, 132702118, 77210396, 609121227, 60494861, 1110733580, 3511819222, 46465628, 97426170, 354486695, 161308987, 252909412, 391563229, 277634312, 3392260661, 1081889952412119040, 1356595452, 279565150, 29521967, 94340676, 953260427475079168, 28994084, 1495255914, 1067064666, 4922808130, 75174049, 617004214, 297267701, 1093199136596287489, 83338597, 499173831, 22202577, 31479252, 337149339, 480444935, 406172437, 1702864658, 1167467303002345474, 101850896, 132787956, 434270813, 2609917590, 898166654575751172, 1041446451715473408, 185677963, 769229557576507392, 247232127, 3086225424, 167842102, 60995997, 228806806, 19647809, 198339335, 425376095, 217741900, 1588889406, 71476598]
+    sorted_user_ids = [1330571318971027462, 917892794953404417, 23612012, 3161912605, 227629567, 
+                       919900711, 301042394, 228660231, 2233129128, 4369711156, 
+                       1884178352, 1651411087, 126345156, 232951413, 277594186, 
+                       313299656, 186797066, 92284830, 1729528081, 13247182, 
+                       132702118, 77210396, 609121227, 60494861, 1110733580, 
+                       3511819222, 46465628, 97426170, 354486695, 161308987, 
+                       252909412, 391563229, 277634312, 3392260661, 1081889952412119040, 
+                       1356595452, 279565150, 29521967, 94340676, 953260427475079168, 
+                       28994084, 1495255914, 1067064666, 4922808130, 75174049, 
+                       617004214, 297267701, 1093199136596287489, 83338597, 499173831, 
+                       22202577, 31479252, 337149339, 480444935, 406172437, 
+                       1702864658, 1167467303002345474, 101850896, 132787956, 434270813, 
+                       2609917590, 898166654575751172, 1041446451715473408, 185677963, 769229557576507392, 
+                       247232127, 3086225424, 167842102, 60995997, 228806806, 
+                       19647809, 198339335, 425376095, 217741900, 1588889406, 
+                       71476598]
     # plot_bhattacharyya_distances(ds, sorted_user_ids)
 
-    for user_id in [1330571318971027462]:
-        plot_bhattacharyya_and_social_support_rank(space, ds, ts_builder, user_id)
+    # print(calculate_social_support_ranks(space, space.original_tweets, space.retweets_of_in_comm))
+
+    # user_ids = [19647809, 198339335, 425376095, 217741900, 1588889406, 71476598]
+    # plot_bhattacharyya_and_social_support_agg(
+    #     space, ds, ts_builder, 
+    #     [1330571318971027462, 917892794953404417, 23612012, 3161912605, 227629567]
+    # )
     # plot_social_support_for_top_bhattacharyya(space, ds)
     # plot_bhattacharyya_for_top_social_support(space, ds)
 
     # plot_social_support_and_number_of_followers(space)
+
+    # tweet_count_over_time(ts_builder, 919900711)
