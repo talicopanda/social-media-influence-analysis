@@ -28,16 +28,16 @@ class ContentMarketBuilder(BuilderBase):
     def create(self) -> ContentMarket:
         # Build Tweet Manager
         tweet_manager = TweetManager()
-        # tweet_manager.load_tweets(self.dao.load_original_tweets(), TweetType.ORIGINAL_TWEET)
-        # tweet_manager.load_tweets(self.dao.load_retweets_of_in_community(), TweetType.RETWEET_OF_IN_COMM)
-        # tweet_manager.load_tweets(self.dao.load_retweets_of_out_community(), TweetType.RETWEET_OF_OUT_COMM)
+        tweet_manager.load_tweets(self.dao.load_original_tweets(), TweetType.ORIGINAL_TWEET)
+        tweet_manager.load_tweets(self.dao.load_retweets_of_in_community(), TweetType.RETWEET_OF_IN_COMM)
+        tweet_manager.load_tweets(self.dao.load_retweets_of_out_community(), TweetType.RETWEET_OF_OUT_COMM)
 
         # (4) - filtering
-        tweet_manager.load_tweets(self.filter_original_tweets(self.dao.load_original_tweets(), self.dao.load_retweets_of_in_community()), TweetType.ORIGINAL_TWEET)
-        tweet_manager.load_tweets(self.filter_retweets_of_in_community(tweet_manager.original_tweets, self.dao.load_retweets_of_in_community()),
-                                  TweetType.RETWEET_OF_IN_COMM)
-        tweet_manager.load_tweets(self.filter_retweets_of_in_community(tweet_manager.original_tweets, self.dao.load_retweets_of_out_community()),
-                                  TweetType.RETWEET_OF_OUT_COMM)
+        # tweet_manager.load_tweets(self.filter_original_tweets(self.dao.load_original_tweets(), self.dao.load_retweets_of_in_community()), TweetType.ORIGINAL_TWEET)
+        # tweet_manager.load_tweets(self.filter_retweets_of_in_community(tweet_manager.original_tweets, self.dao.load_retweets_of_in_community()),
+        #                           TweetType.RETWEET_OF_IN_COMM)
+        # tweet_manager.load_tweets(self.filter_retweets_of_in_community(tweet_manager.original_tweets, self.dao.load_retweets_of_out_community()),
+        #                           TweetType.RETWEET_OF_OUT_COMM)
 
         # (4A) - filter and remove 0 rows based on threshold
         # original_tweets, retweets_of_in_comm, retweets_of_out_comm \
