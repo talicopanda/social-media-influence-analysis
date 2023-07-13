@@ -1,6 +1,7 @@
 from Mapping.ContentTypeMapping import ContentTypeMapping
 
 import numpy as np
+from sklearn.cluster import KMeans
 from typing import Dict, Any, List, Tuple
 
 
@@ -20,7 +21,10 @@ class KmersMapping(ContentTypeMapping):
 
         # save useful data for generate_tweet_to_cluster
         data = np.asarray(list(embeddings.values()), dtype=np.float32)
-        clusters, centers, radius = kmer(data, num_clusters)
+        # clusters, centers, radius = kmer(data, num_clusters)
+        # TODO: get rid of this
+        clusters, centers = kmeans(data, num_clusters)
+        # do not get rid of this
 
         ids = list(embeddings.keys())
 
@@ -29,7 +33,9 @@ class KmersMapping(ContentTypeMapping):
         self.ids = ids
         self.clusters = clusters
         self.centers = centers
-        self.radius = radius
+        # TODO: get rid of this (commenting out)
+        # self.radius = radius
+        # do not get rid of this
 
     def generate_tweet_to_type(self):
         """Assign each tweet with cluster generated from Kmers algorithm.
@@ -122,3 +128,11 @@ def kmer(X: np.array, k: int, radius_tol=0.1, max_iters=100) \
         old_assignments = assignments.copy()
 
     return assignments, centers, radius
+
+
+def kmeans(X: np.array, k: int) -> Tuple[np.array, np.array]:
+    kmeans = KMeans(n_clusters=k, n_init="auto", random_state=42)
+    kmeans.fit(X)
+
+    assigments = kmeans.predict(X)
+    return assigments, kmeans.cluster_centers_
