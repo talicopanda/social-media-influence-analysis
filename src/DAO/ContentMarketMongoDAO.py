@@ -48,8 +48,8 @@ class ContentMarketMongoDAO(MongoDAOBase):
                 # "consumption_utility": user["consumption utility"],
                 "local_follower_count": user["local follower"],
                 "local_following_count": user["local following"],
-                # "local_followers": user["local follower list"],
-                # "local_following": user["local following list"],
+                "local_followers": user["local follower list"],
+                "local_following": user["local following list"],
                 "global_follower_count": user["global follower"],
                 "global_following_count": user["global following"],
                 # "is_new_user": user["is new user"]
