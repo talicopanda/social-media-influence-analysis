@@ -13,6 +13,7 @@ from Tweet.ContentMarketTweet import ContentMarketTweet
 from User.ContentMarketUser import ContentMarketUser
 
 from typing import Set
+from copy import deepcopy
 
 
 class ContentSpaceBuilder(BuilderBase):
@@ -110,8 +111,9 @@ class ContentSpaceBuilder(BuilderBase):
 
     def _convert_market_to_space_user(self, users: Set[ContentMarketUser]) \
             -> Set[ContentSpaceUser]:
+        old_users = deepcopy(users)
         new_users = set()
-        for user in users:
+        for user in old_users:
             user_dict = vars(user)
             user_dict["original_tweets"] = set()
             user_dict["retweets_of_in_community"] = set()
