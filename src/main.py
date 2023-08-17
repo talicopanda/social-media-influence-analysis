@@ -81,12 +81,16 @@ if not SPACE_SKIP:
         mapping = mapping_factory.get_cluster({
             "num_clusters": config["num_clusters"],
             "dao": market_dao,
-            "words": ["chess"]
+            "words": ["chess"],
+            "embeddings": market_dao.load_tweet_embeddings(),
+            "num_bins": config["num_bins"],
+            "market": market
         })
         mapping.generate_tweet_to_type()
         pickle.dump(mapping, open("words_any_chess_mapping.pkl", "wb"))
         # print("=================Loading Mapping=================")
-        # mapping = pickle.load(open("words_any_mapping.pkl", "rb"))
+        # mapping = pickle.load(open("words_any_chess_mapping.pkl", "rb"))
+        # mapping.generate_tweet_to_type()
 
     # Build Content Space
     if SPACE_LOAD:
@@ -126,10 +130,12 @@ else:
 ##########################################################
 # Build Time Series
 ##########################################################
-start = datetime(2020, 6, 29)
-end = datetime(2023, 3, 1)
-period = timedelta(days=7)
-ts_builder = TimeSeriesBuilder(ds, start, end, period)
+start = datetime(2020, 6, 1)
+end = datetime(2023, 5, 1)
+period = timedelta(days=30)
+window = timedelta(days=15)
+ts_builder = TimeSeriesBuilder(ds, space, start, end, period, window)
+
 
 ##########################################################
 # Build Causality Analysis
@@ -142,15 +148,33 @@ ts_builder = TimeSeriesBuilder(ds, start, end, period)
 # ca.plot_cause_backward(cluster_list, save=True)
 
 ###########################################################################
-cluster = 1
-plt.figure()
-a = ts_builder.create_time_series(UserType.CONSUMER, cluster, "demand_in_community")
-b = ts_builder.create_time_series(UserType.CORE_NODE, cluster, "demand_in_community")
-plt.plot(ts_builder.time_stamps[:-1], np.add(a, b), label="aggregate demand")
-d = ts_builder.create_time_series(UserType.PRODUCER, cluster, "supply")
-plt.plot(ts_builder.time_stamps[:-1], d, label="producer supply")
-plt.title("chess, period = 7 days")
-plt.legend()
-plt.gcf().autofmt_xdate()
-plt.savefig("../results/aggregate demand core node supply chess 7d")
-plt.show()
+# cluster = 1
+# plt.figure()
+# a = ts_builder.create_time_series(UserType.CONSUMER, cluster, "demand_in_community")
+# b = ts_builder.create_time_series(UserType.CORE_NODE, cluster, "demand_in_community")
+# plt.plot(ts_builder.time_stamps[:-1], np.add(a, b), label="aggregate demand")
+# d = ts_builder.create_time_series(UserType.PRODUCER, cluster, "supply")
+# plt.plot(ts_builder.time_stamps[:-1], d, label="producer supply")
+# plt.title("chess, period = 7 days")
+# plt.legend()
+# plt.gcf().autofmt_xdate()
+# plt.savefig("../results/aggregate demand core node supply chess 7d")
+# plt.show()
+
+from analysis import original_tweets_to_retweets_ratio, plot_social_support_rank_and_value, \
+    plot_social_support_and_number_of_followers, plot_social_support_and_number_of_followings, \
+    plot_rank_binned_followings, plot_bhattacharyya_distances, plot_social_support_rank_and_retweets
+
+original_tweets_to_retweets_ratio(market)
+
+plot_social_support_rank_and_value(space, [False, False, False, True])
+plot_social_support_and_number_of_followers(space)
+plot_social_support_and_number_of_followings(space)
+plot_rank_binned_followings(space, bin_size=20, log=False)
+plot_social_support_rank_and_value(space, [True, True, False, False])
+print(len(space.retweets_of_in_comm))
+print(len(space.retweets_of_out_comm_by_in_comm))
+plot_social_support_rank_and_retweets(space)
+
+# Bhattacharyya
+plot_bhattacharyya_distances(space, ds)
