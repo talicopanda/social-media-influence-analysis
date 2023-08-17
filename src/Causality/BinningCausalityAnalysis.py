@@ -1,6 +1,4 @@
-import numpy as np
-
-from TS.TimeSeriesBuilder import TimeSeriesBuilder
+from TS.TimeSeriesBuilderBase import TimeSeriesBuilderBase
 from User.UserType import UserType
 from Causality.CausalityAnalysisTool import *
 
@@ -10,10 +8,10 @@ from typing import List
 
 class BinningCausalityAnalysis:
     # Attributes
-    ts_builder: TimeSeriesBuilder
+    ts_builder: TimeSeriesBuilderBase
     lags: List[int]
 
-    def __init__(self, ts_builder: TimeSeriesBuilder, lags: List[int]):
+    def __init__(self, ts_builder: TimeSeriesBuilderBase, lags: List[int]):
         self.ts_builder = ts_builder
         self.lags = lags
 
@@ -22,8 +20,10 @@ class BinningCausalityAnalysis:
                            cluster_list: List[int], save: bool) -> None:
         plt.figure()
         for cluster_id in cluster_list:
-            d_series, s_series = self.ts_builder.create_type_series(
-                user_type1, mapping1, user_type2, mapping2, cluster_id)
+            d_series = self.ts_builder.create_time_series(user_type1,
+                                                          cluster_id, mapping1)
+            s_series = self.ts_builder.create_time_series(user_type2,
+                                                          cluster_id, mapping2)
 
             # process series
             # d_series = np.diff(d_series)

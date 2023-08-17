@@ -12,6 +12,8 @@ content_space = set()
 
 
 def _convert_tweet(tweet: ContentSpaceTweet) -> Dict[str, Any]:
+    """Convert ContentType object in <tweet> to its representation.
+    """
     tweet_dict = deepcopy(vars(tweet))
     tweet_dict["content"] = tweet.content.get_representation()
     return tweet_dict
@@ -19,6 +21,8 @@ def _convert_tweet(tweet: ContentSpaceTweet) -> Dict[str, Any]:
 
 def _serialize_space_tweet(tweets: Set[ContentSpaceTweet]) \
         -> List[Dict[str, Any]]:
+    """Return a list of attribute dictionaries of tweets after conversion.
+    """
     return [_convert_tweet(tweet) for tweet in tweets]
 
 
@@ -66,6 +70,9 @@ class ContentSpaceMongoDAO(MongoDAOBase):
         return users
 
     def _load_tweets(self, db_name: str) -> Set[ContentSpaceTweet]:
+        """Load and return a set of ContentSpaceTweet from information in
+        database.
+        """
         tweets = set()
         for tweet in self.content_space_db[db_name].find():
             del tweet["_id"]
@@ -133,6 +140,8 @@ class ContentSpaceMongoDAO(MongoDAOBase):
             raise ValueError
 
     def store_content_space(self, contents: Set[ContentType]) -> None:
+        """Store <contents> by its representation.
+        """
         type_list = [content.get_representation() for content in contents]
         type_dict = [{str(index): type} for index, type in enumerate(type_list)]
         self.content_space_db[self.content_space_collection]\

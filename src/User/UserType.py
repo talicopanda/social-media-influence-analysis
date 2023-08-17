@@ -17,6 +17,8 @@ def value_to_type(value: str) -> UserType:
 
 
 class UserType(Enum):
+    """A class that represents different roles of user.
+    """
     CONSUMER = "consumer"
     PRODUCER = "producer"
     CORE_NODE = "core_node"

@@ -6,6 +6,9 @@ from typing import Dict, Any, List, Tuple
 
 
 class KmersMapping(ContentTypeMapping):
+    """
+    The representation of a ContentType is determined by Kmers algorithm.
+    """
 
     cluster_centers: Dict[str, np.array]  # cluster id to center vector
     radius: float
@@ -37,7 +40,7 @@ class KmersMapping(ContentTypeMapping):
         # self.radius = radius
         # do not get rid of this
 
-    def generate_tweet_to_type(self):
+    def generate_tweet_to_type(self) -> None:
         """Assign each tweet with cluster generated from Kmers algorithm.
         """
         content_type_set = set()

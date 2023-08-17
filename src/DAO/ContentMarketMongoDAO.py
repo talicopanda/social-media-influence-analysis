@@ -8,6 +8,8 @@ from typing import Dict, Any, Set, List
 
 def _serialize_market_tweet(tweets: Set[ContentMarketTweet]) \
         -> List[Dict[str, Any]]:
+    """Return a list of attribute dictionaries of tweets.
+    """
     return [vars(tweet) for tweet in tweets]
 
 
@@ -36,6 +38,8 @@ class ContentMarketMongoDAO(MongoDAOBase):
         return users
 
     def create_users(self) -> Set[ContentMarketUser]:
+        """create a set of ContentMarketUser from information in database.
+        """
         users = set()
         for user in self.community_db[self.community_info_collection].find():
             user_dict = {
@@ -59,6 +63,9 @@ class ContentMarketMongoDAO(MongoDAOBase):
         return users
 
     def _load_tweets(self, db_name: str) -> Set[ContentMarketTweet]:
+        """Load and return a set of ContentMarketTweet from information in
+        database.
+        """
         tweets = set()
         for tweet in self.content_market_db[db_name].find():
             del tweet["_id"]

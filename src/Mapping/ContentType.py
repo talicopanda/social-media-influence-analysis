@@ -2,6 +2,8 @@ from typing import Any
 
 
 class ContentType:
+    """A class that stores the content type information of a tweet.
+    """
     # Attributes
     representation: Any
 

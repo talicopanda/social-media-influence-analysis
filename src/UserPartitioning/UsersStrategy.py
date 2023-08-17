@@ -5,6 +5,7 @@ from User.UserBase import UserBase
 class UsersStrategy(UserPartitioningStrategy):
     """Classifies user as a producer, consumer, or core node
     """
+
     def is_consumer(self, user: UserBase) -> bool:
         """If a user is not a core node, then is a consumer.
         """

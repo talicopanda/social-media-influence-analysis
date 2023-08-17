@@ -53,7 +53,7 @@ class KmersPlotter(MappingPlotter):
     def create_mapping_curves(self, save: bool) -> None:
         """Create both supply and demand bar plots for core node and ordinary user.
         """
-        x_ticks = self.ds.get_content_type_repr()
+        x_ticks = self.ds.get_all_content_type_repr()
         x_ticks.remove(-1)
 
         # Core Nodes

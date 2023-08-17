@@ -19,8 +19,8 @@ class TweetBase:
     quote_id: Optional[str]
     quote_user_id: Optional[str]
 
-    def __init__(self, id: int, user_id: int, created_at: datetime,
-                 text: Union[str, ContentType], lang: str,
+    def __init__(self, id: int, user_id: Optional[int], created_at: datetime,
+                 text: Union[str, ContentType, None], lang: str = None,
                  retweet_id: str = None, retweet_user_id: str = None,
                  quote_id: str = None, quote_user_id: str = None):
         self.id = id

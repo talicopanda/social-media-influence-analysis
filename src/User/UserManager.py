@@ -146,6 +146,9 @@ class UserManager:
     def calculate_user_time_mapping(self, user: ContentSpaceUser,
                                     tweet_types: List[TweetType]) -> \
             Dict[Any, Set[MinimalTweet]]:
+        """Return a dictionary that maps ContentType representation to
+        MinimalTweet objects of the user in <tweet_types>.
+        """
         # initialize dictionary storage
         freq_dict = defaultdict(set)
 

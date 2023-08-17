@@ -5,6 +5,10 @@ from typing import Dict, Any, Optional, List
 
 
 class WordsAnyMapping(ContentTypeMapping):
+    """
+    The representation of the ContentType is 1 if it contains at least one
+    of the word in <words>.
+    """
 
     dao: Optional[ContentMarketMongoDAO]
     words: List[str]

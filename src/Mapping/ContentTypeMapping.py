@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 from Mapping.ContentType import ContentType
 
-from typing import Dict, Any, Set
+from typing import Dict, Any, Set, Optional
 
 
 class ContentTypeMapping(ABC):
+    """
+    A parent class for all ContentType mapping.
+    """
 
     tweet_to_type: Dict[int, ContentType]  # tweet id to ContentType
 
@@ -14,13 +17,13 @@ class ContentTypeMapping(ABC):
         self.tweet_to_type = {}
 
     @abstractmethod
-    def generate_tweet_to_type(self):
+    def generate_tweet_to_type(self) -> None:
         """generate tweet to Content Type representation mapping, and store the
         results in self.tweet_to_type.
         """
         raise NotImplementedError
 
-    def get_content_type(self, tweet_id: int) -> ContentType:
+    def get_content_type(self, tweet_id: int) -> Optional[ContentType]:
         """Return the ContentType object that the Tweet with <tweet_id> mapped
         to in self.tweet_to_type.
         """

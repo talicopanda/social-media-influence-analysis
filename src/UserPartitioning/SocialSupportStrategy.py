@@ -21,6 +21,7 @@ class SocialSupportStrategy(UserPartitioningStrategy):
         return not self.is_core_node(user)
 
     def is_core_node(self, user: UserBase) -> bool:
-        """If the rank of a user is less than 10, then is a core node.
+        """Return True if a user is ranked top in social support so in
+        <core_node_list>.
         """
         return user.user_id in core_node_list

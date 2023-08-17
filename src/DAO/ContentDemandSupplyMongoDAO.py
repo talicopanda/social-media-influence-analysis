@@ -16,6 +16,8 @@ num_to_repr = dict()
 
 
 def _convert_tweet(tweet: ContentSpaceTweet) -> Dict[str, Any]:
+    """Convert ContentType object in <tweet> to its representation.
+    """
     tweet_dict = deepcopy(vars(tweet))
     tweet_dict["content"] = tweet.content.get_representation()
     return tweet_dict
@@ -23,6 +25,8 @@ def _convert_tweet(tweet: ContentSpaceTweet) -> Dict[str, Any]:
 
 def _serialize_space_tweet(tweets: Set[ContentSpaceTweet]) \
         -> List[Dict[str, Any]]:
+    """Return a list of attribute dictionaries of tweets after conversion.
+    """
     return [_convert_tweet(tweet) for tweet in tweets]
 
 
@@ -72,6 +76,8 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
         pass
 
     def load_content_space(self) -> set[ContentType]:
+        """Load and return a set of ContentType from information in database.
+        """
         # load num_to_repr
         if len(num_to_repr) == 0:
             query = {"num_to_repr": {"$exists": True}}
@@ -85,6 +91,8 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
         return content_space
 
     def load_curve(self, name: str) -> Dict[Any, Dict[Any, Set[MinimalTweet]]]:
+        """Load and return supply and demand curves.
+        """
         # get raw dictionary
         query = {name: {"$exists": True}}
         raw_dict = self.content_demand_supply_db[self.content_ds_curves].find_one(query)[name]
@@ -110,10 +118,14 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
         pass
 
     def init_content_space(self, content_space_set: Set[ContentType]) -> None:
+        """initialize the content_space variable in the module.
+        """
         content_space.update(content_space_set)
 
     def store_curve(self, name: str, curve: Dict[Any, Dict[Any,
                     Set[MinimalTweet]]]) -> None:
+        """Store supply and demand curves in the database by <name>.
+        """
         if len(num_to_repr) == 0:
             # create ContentType tracking
             num_to_repr.update(
@@ -126,7 +138,10 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
         self.content_demand_supply_db[self.content_ds_curves] \
             .insert_one({name: curve_dict})
 
-    def _subs_repr_to_num(self, curve: Dict[Any, Dict[Any, Set[MinimalTweet]]]) -> Dict[str, Dict[str, List[Dict[str, Union[int, datetime]]]]]:
+    def _subs_repr_to_num(self, curve: Dict[Any, Dict[Any, Set[MinimalTweet]]])\
+            -> Dict[str, Dict[str, List[Dict[str, Union[int, datetime]]]]]:
+        """Substitute the representation in <curve> to numbers.
+        """
         new_dict = {}
         for key, value in curve.items():
             # key = UserType, value = Dict[Any, Set[MinimalTweet]]
@@ -140,18 +155,25 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
 
     def _sub_repr_to_num(self, dct: Dict[Any, Set[MinimalTweet]]) -> \
             Dict[str, Set[MinimalTweet]]:
+        """Substitute the representation in dct to numbers.
+        """
         new_dict = {}
         for key, value in dct.items():
             new_dict[self._find_key_from_value(key)] = value
         return new_dict
 
-    def _find_key_from_value(self, target_key: Any) -> str:
+    def _find_key_from_value(self, target_value: Any) -> str:
+        """A helper function that finds the corresponding key with value
+        <target_value>.
+        """
         for key, value in num_to_repr.items():
-            if target_key == value:
+            if target_value == value:
                 return key
 
     def _min_tweet_to_dict(self, dct: Dict[str, Set[MinimalTweet]]) -> \
             Dict[str, List[Dict[str, Union[int, datetime]]]]:
+        """Return a dictionary storing necessary information for MinimalTweet.
+        """
         new_dict = {}
         for key, value in dct.items():
             tweet_dict_list = [{"id": tweet.id, "created_at": tweet.created_at}

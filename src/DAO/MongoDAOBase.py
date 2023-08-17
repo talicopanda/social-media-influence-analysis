@@ -148,8 +148,10 @@ class MongoDAOBase(DAOBase, ABC):
         for p in projection:
             embeddings[p["id"]] = p["embedding"]
         return embeddings
-    
+
     def load_hashtags(self) -> Dict[int, List[str]]:
+        """Load and return hashtags, as a map from tweet id to list of str.
+        """
         projection = self.content_market_db[
             self.tweet_embeddings_collection].find({}, {"id": 1, "hashtags": 1,
                                                         "_id": 0})

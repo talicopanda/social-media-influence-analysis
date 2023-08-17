@@ -34,8 +34,8 @@ class CreatorPlotter(MappingPlotter):
 
     def create_demand_curves(self, is_core_node: bool) -> Dict[int, int]:
         """Create demand bar plot for each ContentType, where the users are
-                determined by <is_core_node>.
-                """
+        determined by <is_core_node>.
+        """
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.CONSUMER
         demand = self.ds.demand_in_community[user_type]
@@ -49,8 +49,8 @@ class CreatorPlotter(MappingPlotter):
 
     def create_supply_curves(self, is_core_node: bool) -> Dict[int, int]:
         """Create supply bar plot for each ContentType, where the users are
-                determined by <is_core_node>.
-                """
+        determined by <is_core_node>.
+        """
         # Retrieve Data
         user_type = UserType.CORE_NODE if is_core_node else UserType.PRODUCER
         supply = self.ds.supply[user_type]
@@ -63,17 +63,25 @@ class CreatorPlotter(MappingPlotter):
         return supply
 
     def _sub_id_to_num(self, dct: Dict[int, int]) -> Dict[int, int]:
+        """Return a new dict with keys in dct substitute by numbers.
+        """
         new_dict = {}
         for key, value in dct.items():
             new_dict[self._find_key_from_value(key)] = value
         return new_dict
 
-    def _find_key_from_value(self, target_key: int) -> int:
+    def _find_key_from_value(self, target_value: int) -> int:
+        """A helper function that finds the corresponding key with value
+        <target_value>.
+        """
         for key, value in self.repr_to_id.items():
-            if target_key == value:
+            if target_value == value:
                 return key
 
     def create_mapping_curves(self, save: bool) -> None:
+        """Create both supply and demand bar plots for core node and
+        ordinary user.
+        """
         # Core Nodes
         plt.figure()
         core_node_demand = self.create_demand_curves(True)

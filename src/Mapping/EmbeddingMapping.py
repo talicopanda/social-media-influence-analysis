@@ -5,15 +5,18 @@ import numpy as np
 
 
 class EmbeddingMapping(ContentTypeMapping):
+    """
+    The representation of a ContentType is determined by its embedding.
+    """
 
-    embeddings: Dict[float, np.array]
+    embeddings: Dict[int, np.array]
 
     def __init__(self, args: Dict[str, Any]):
         super().__init__(args)
         # extract arguments
         self.embeddings = args["embeddings"]
 
-    def generate_tweet_to_type(self):
+    def generate_tweet_to_type(self) -> None:
         """Assign each tweet with embedding vector generated from ./tweet2vec.
         """
         content_type_set = set()

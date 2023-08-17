@@ -11,9 +11,13 @@ from typing import Set
 class BuilderBase(ABC):
     @abstractmethod
     def create(self) -> AggregationBase:
+        """Create the AggregationBase.
+        """
         raise NotImplementedError
 
     def store(self, aggregation: AggregationBase) -> None:
+        """Store the AggregationBase.
+        """
         # store users
         self._store_users(
             aggregation.consumers | aggregation.producers | aggregation.core_nodes
@@ -32,13 +36,19 @@ class BuilderBase(ABC):
 
     @abstractmethod
     def _store_users(self, users: Set[UserBase]) -> None:
+        """A helper function to store users.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def _store_tweets(self, tweets: Set[TweetBase],
                       tweet_type: TweetType) -> None:
+        """A helper function to store tweets.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def load(self) -> AggregationBase:
+        """Load the AggregationBase from storage.
+        """
         raise NotImplementedError

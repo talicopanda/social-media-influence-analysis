@@ -8,8 +8,7 @@ from typing import Set, Optional
 
 class AggregationBase:
     """
-    A class that represents the content market and calculates information about
-    users/tweets demands, supplies and causation
+    An abstract class that is used to aggregate user and tweet information.
     """
 
     name: str
@@ -38,31 +37,46 @@ class AggregationBase:
         self.retweets_of_out_comm = tweet_manager.retweets_of_out_comm
         # add retweets of out community by in community
         self.retweets_of_out_comm_by_in_comm = tweet_manager.retweets_of_out_comm_by_in_comm
-    
-    def get_tweet(self, id) -> TweetBase:
-        """Return the tweet with <id>."""
-        for tweet in self.original_tweets:
-            if tweet.id == id:
-                return tweet
+
+    def get_tweet(self, tweet_id: int) -> TweetBase:
+        """Return the tweet with <tweet_id>.
+        """
         for tweet in self.retweets_of_in_comm:
-            if tweet.id == id:
+            if tweet.id == tweet_id:
+                return tweet
+        for tweet in self.original_tweets:
+            if tweet.id == tweet_id:
                 return tweet
         for tweet in self.retweets_of_out_comm:
-            if tweet.id == id:
+            if tweet.id == tweet_id:
                 return tweet
         # add retweets of out community by in community
         for tweet in self.retweets_of_out_comm_by_in_comm:
-            if tweet.id == id:
+            if tweet.id == tweet_id:
                 return tweet
-    
-    def get_user(self, id) -> UserBase:
-        """Return the user with <id>."""
+
+    def get_user(self, user_id: int) -> UserBase:
+        """Return the user with <user_id>.
+        """
         for user in self.consumers:
-            if user.user_id == id:
+            if user.user_id == user_id:
                 return user
         for user in self.producers:
-            if user.user_id == id:
+            if user.user_id == user_id:
                 return user
         for user in self.core_nodes:
-            if user.user_id == id:
+            if user.user_id == user_id:
                 return user
+
+    def get_user_id_by_name(self, name: str) -> int:
+        """Return the user with <name>.
+        """
+        for user in self.consumers:
+            if user.username == name:
+                return user.user_id
+        for user in self.producers:
+            if user.username == name:
+                return user.user_id
+        for user in self.core_nodes:
+            if user.username == name:
+                return user.user_id

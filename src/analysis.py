@@ -4,9 +4,9 @@ from Builder.ContentDemandSupplyBuilder import ContentDemandSupplyBuilder
 from UserPartitioning import UserPartitioningStrategyFactory
 from DAO.DAOFactory import DAOFactory
 from User.UserType import UserType
-from TS.TimeSeriesBuilder import TimeSeriesBuilder
+from TS.SimpleTimeSeriesBuilder import SimpleTimeSeriesBuilder
 from Tweet.MinimalTweet import MinimalTweet
-from TS.TSATool import *
+# from TS.TSATool import *
 from Aggregation.ContentSpace import ContentSpace
 from Aggregation.ContentDemandSupply import ContentDemandSupply
 from Tweet.ContentSpaceTweet import ContentSpaceTweet
@@ -48,6 +48,7 @@ def plot_social_support_rank_and_value(space: ContentSpace, to_plot: List[bool])
     original_tweet_social_support, retweets_of_in_comm_social_support, \
         retweets_of_out_comm_by_in_comm_social_support, social_support \
         = calculate_social_support(space, space.original_tweets, space.retweets_of_in_comm, set(), set())
+    plt.figure()
     if to_plot[0]:
         plt.plot(range(len(sorted_user_ids)), 
                  [original_tweet_social_support[user_id] for user_id in sorted_user_ids], 
@@ -1377,7 +1378,7 @@ if __name__ == "__main__":
     start = datetime(2020, 6, 1)  # datetime(2020, 6, 29)
     end = datetime(2023, 4, 1)  # datetime(2023, 3, 5)  # (2023, 3, 5) is for rachel_chess_content_market
     period = timedelta(days=30)
-    ts_builder = TimeSeriesBuilder(ds, space, start, end, period)
+    ts_builder = SimpleTimeSeriesBuilder(ds, space, start, end, period)
 
     plot_demand_and_supply(ds,
                            [UserType.PRODUCER, UserType.CORE_NODE], 

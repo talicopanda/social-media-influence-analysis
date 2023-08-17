@@ -5,6 +5,10 @@ from typing import Dict, Any, Optional, List, Tuple
 
 
 class WordVectorMapping(ContentTypeMapping):
+    """
+    The representation of a ContentType is a vector of 0 or 1 that indicates
+    whether the content of the tweet contains such words.
+    """
 
     dao: Optional[ContentMarketMongoDAO]
     words: List[str]

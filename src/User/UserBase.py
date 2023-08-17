@@ -31,11 +31,6 @@ class UserBase:
     retweets_of_out_community_by_in_community: Set[TweetBase]
     replies: Set[TweetBase]
 
-
-    """
-    A class that represents a twitter user in a content market
-    """
-
     def __init__(self, **kwargs):
         self.user_id = int(kwargs.get("user_id"))
         self.rank = kwargs.get("rank")
