@@ -114,8 +114,9 @@ class TimeSeriesBuilder:
         """Creates a list of mappings. Each mapping in the list is restricted to the tweets that are
         in that time period."""
         # TODO: there is probably a better way to do this -- refactor.
+        # add retweets of out community by in community
         if mapping not in ["demand_in_community", "demand_out_community",
-                           "supply"]:
+                           "supply", "demand_out_community_by_in_community"]:
             raise KeyError("Invalid Mapping Type.")
         print(f"==============Create {mapping.upper()} Series==============")
 
@@ -152,7 +153,9 @@ class TimeSeriesBuilder:
         <tweet_type> refers to either retweets_of_in_comm, retweets_of_out_comm, or original_tweets.
         """
         # TODO: refactor this to use the TweetType module?
-        if tweet_type not in ["retweets_of_in_comm", "retweets_of_out_comm", "original_tweets"]:
+        # add retweets of out community by in community
+        if tweet_type not in ["retweets_of_in_comm", "retweets_of_out_comm", "original_tweets", 
+                              "retweets_of_out_comm_by_in_comm"]:
             raise KeyError("Invalid Tweet Type.")
 
         len_time = len(self.time_stamps)
@@ -171,7 +174,9 @@ class TimeSeriesBuilder:
         are in that time period, that have <user_type_or_id>, <content_repr>, and are a part of
         <mapping>.
         """
-        if mapping not in ["demand_in_community", "demand_out_community", "supply"]:
+        # add retweets of out community by in community
+        if mapping not in ["demand_in_community", "demand_out_community", "supply", 
+                           "demand_out_community_by_in_community"]:
             raise KeyError("Invalid Mapping Type.")
 
         # Extraction

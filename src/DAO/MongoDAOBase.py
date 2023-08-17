@@ -55,16 +55,22 @@ class MongoDAOBase(DAOBase, ABC):
                  original_tweets_collection, quotes_of_in_community_collection,
                  quotes_of_out_community_collection,
                  retweets_of_in_community_collection,
-                 retweets_of_out_community_collection, content_market_db_name,
+                 # add retweets of out community by in community
+                 retweets_of_out_community_collection, retweets_of_out_community_by_in_community_collection,
+                 content_market_db_name,
                  clean_original_tweets_collection, clean_replies_collection,
                  clean_quotes_of_in_community_collection,
                  clean_quotes_of_out_community_collection,
                  clean_retweets_of_in_community_collection,
                  clean_retweets_of_out_community_collection,
+                 # add retweets of out community by in community
+                 clean_retweets_of_out_community_by_in_community_collection,
                  tweet_embeddings_collection, market_user_info_collection,
                  content_space_db_name, content_space_original_tweets_collection,
                  content_space_retweets_of_in_community_collection,
                  content_space_retweets_of_out_community_collection,
+                 # add retweets of out community by in community
+                 content_space_retweets_of_out_community_by_in_community_collection,
                  content_space_user_info, content_space_collection,
                  content_demand_supply_db_name,
                  content_ds_content_space, content_ds_curves):
@@ -88,6 +94,8 @@ class MongoDAOBase(DAOBase, ABC):
         self.clean_quotes_of_out_community_collection = clean_quotes_of_out_community_collection
         self.clean_retweets_of_in_community_collection = clean_retweets_of_in_community_collection
         self.clean_retweets_of_out_community_collection = clean_retweets_of_out_community_collection
+        # add retweets of out community by in community
+        self.clean_retweets_of_out_community_by_in_community_collection = clean_retweets_of_out_community_by_in_community_collection
         self.tweet_embeddings_collection = tweet_embeddings_collection
         self.market_user_info_collection = market_user_info_collection
 
@@ -96,6 +104,8 @@ class MongoDAOBase(DAOBase, ABC):
         self.content_space_original_tweets_collection = content_space_original_tweets_collection
         self.content_space_retweets_of_in_community_collection = content_space_retweets_of_in_community_collection
         self.content_space_retweets_of_out_community_collection = content_space_retweets_of_out_community_collection
+        # add retweets of out community by in community
+        self.content_space_retweets_of_out_community_by_in_community_collection = content_space_retweets_of_out_community_by_in_community_collection
         self.content_space_user_info = content_space_user_info
         self.content_space_collection = content_space_collection
 

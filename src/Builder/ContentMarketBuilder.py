@@ -31,6 +31,8 @@ class ContentMarketBuilder(BuilderBase):
         tweet_manager.load_tweets(self.dao.load_original_tweets(), TweetType.ORIGINAL_TWEET)
         tweet_manager.load_tweets(self.dao.load_retweets_of_in_community(), TweetType.RETWEET_OF_IN_COMM)
         tweet_manager.load_tweets(self.dao.load_retweets_of_out_community(), TweetType.RETWEET_OF_OUT_COMM)
+        # add retweets of out community by in community
+        tweet_manager.load_tweets(self.dao.load_retweets_of_out_community_by_in_community(), TweetType.RETWEET_OF_OUT_COMM_BY_IN_COMM)
 
         # (4) - filtering
         # tweet_manager.load_tweets(self.filter_original_tweets(self.dao.load_original_tweets(), self.dao.load_retweets_of_in_community()), TweetType.ORIGINAL_TWEET)
@@ -38,29 +40,9 @@ class ContentMarketBuilder(BuilderBase):
         #                           TweetType.RETWEET_OF_IN_COMM)
         # tweet_manager.load_tweets(self.filter_retweets_of_in_community(tweet_manager.original_tweets, self.dao.load_retweets_of_out_community()),
         #                           TweetType.RETWEET_OF_OUT_COMM)
+        # # add retweets of out community by in community
+        # tweet_manager.load_tweets(self.dao.load_retweets_of_out_community_by_in_community(), TweetType.RETWEET_OF_OUT_COMM_BY_IN_COMM)
 
-        # (4A) - filter and remove 0 rows based on threshold
-        # original_tweets, retweets_of_in_comm, retweets_of_out_comm \
-        #     = self.filter_uncommon_word_only_tweets(list(self.dao.load_original_tweets()),
-        #                                             list(self.dao.load_retweets_of_in_community()),
-        #                                             list(self.dao.load_retweets_of_out_community()))
-        # # print(len(original_tweets))
-        # # print(len(retweets_of_in_comm))
-        # # print(len(retweets_of_out_comm))
-        # # print(len(original_tweets) + len(retweets_of_in_comm) + len(retweets_of_out_comm))
-        # original_tweets = self.filter_original_tweets(self.dao.load_original_tweets(), self.dao.load_retweets_of_in_community())
-        # retweets_of_in_comm = self.filter_retweets_of_in_community(tweet_manager.original_tweets, self.dao.load_retweets_of_in_community())
-        # retweets_of_out_comm = self.filter_retweets_of_in_community(tweet_manager.original_tweets, self.dao.load_retweets_of_out_community())
-
-        # original_tweets, retweets_of_in_comm, retweets_of_out_comm \
-        #     = self.filter_uncommon_word_only_tweets(list(original_tweets),
-        #                                             list(retweets_of_in_comm),
-        #                                             list(retweets_of_out_comm))
-        # tweet_manager.load_tweets(original_tweets, TweetType.ORIGINAL_TWEET)
-        # tweet_manager.load_tweets(retweets_of_in_comm,
-        #                           TweetType.RETWEET_OF_IN_COMM)
-        # tweet_manager.load_tweets(retweets_of_out_comm,
-        #                           TweetType.RETWEET_OF_OUT_COMM)
 
         # Build User Manager
         user_manager = UserManager(self.dao.create_users(),
@@ -85,6 +67,8 @@ class ContentMarketBuilder(BuilderBase):
                                   TweetType.RETWEET_OF_IN_COMM)
         tweet_manager.load_tweets(self.dao.load_retweets_of_out_community(),
                                   TweetType.RETWEET_OF_OUT_COMM)
+        tweet_manager.load_tweets(self.dao.load_retweets_of_out_community_by_in_community(),
+                                  TweetType.RETWEET_OF_OUT_COMM_BY_IN_COMM)
 
         # Build User Manager
         user_manager = UserManager(self.dao.load_users(),

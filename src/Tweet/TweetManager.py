@@ -11,6 +11,8 @@ class TweetManager:
     quotes_of_out_comm: Set[TweetBase]
     retweets_of_in_comm: Set[TweetBase]
     retweets_of_out_comm: Set[TweetBase]
+    # add retweets of out community by in community
+    retweets_of_out_comm_by_in_comm: Set[TweetBase]
     replies: Set[TweetBase]
 
     def __init__(self):
@@ -21,6 +23,8 @@ class TweetManager:
         self.quotes_of_out_comm = set()
         self.retweets_of_in_comm = set()
         self.retweets_of_out_comm = set()
+        # add retweets of out community by in community
+        self.retweets_of_out_comm_by_in_comm = set()
         self.replies = set()
         print("===============Successfully Build TweetManager===============")
 
@@ -38,6 +42,9 @@ class TweetManager:
             self.retweets_of_in_comm = tweets
         elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
             self.retweets_of_out_comm = tweets
+        # add retweets of out community by in community
+        elif tweet_type == TweetType.RETWEET_OF_OUT_COMM_BY_IN_COMM:
+            self.retweets_of_out_comm_by_in_comm = tweets
         elif tweet_type == TweetType.REPLY:
             self.replies = tweets
         else:
@@ -46,9 +53,11 @@ class TweetManager:
     def get_tweet(self, tweet_id: int) -> TweetBase:
         """Return Tweet with <tweet_id>.
         """
+        # add retweets of out community by in community
         for tweet_group in [self.original_tweets, self.quotes_of_in_comm,
                             self.quotes_of_out_comm, self.retweets_of_in_comm,
-                            self.retweets_of_out_comm, self.replies]:
+                            self.retweets_of_out_comm, self.retweets_of_out_comm_by_in_comm, 
+                            self.replies]:
             for tweet in tweet_group:
                 if tweet.id == tweet_id:
                     return tweet
@@ -77,6 +86,9 @@ class TweetManager:
             return self.retweets_of_in_comm
         elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
             return self.retweets_of_out_comm
+        # add retweets of out community by in community
+        elif tweet_type == TweetType.RETWEET_OF_OUT_COMM_BY_IN_COMM:
+            return self.retweets_of_out_comm_by_in_comm
         elif tweet_type == TweetType.REPLY:
             return self.replies
         else:

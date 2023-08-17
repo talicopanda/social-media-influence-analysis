@@ -87,6 +87,13 @@ class UserManager:
         #     self.get_user(
         #         int(tweet.retweet_user_id)).retweets_of_out_community.add(tweet)
 
+        # add retweets of out community by in community
+        # For Retweets of Out Community by In Community
+        for tweet in tweet_manager.get_type_tweets(
+                TweetType.RETWEET_OF_OUT_COMM_BY_IN_COMM):
+            self.get_user(
+                int(tweet.user_id)).retweets_of_out_community_by_in_community.add(tweet)
+
         # For Replies
         for tweet in tweet_manager.get_type_tweets(
                 TweetType.REPLY):
@@ -128,6 +135,9 @@ class UserManager:
             return user.retweets_of_in_community
         elif tweet_type == TweetType.RETWEET_OF_OUT_COMM:
             return user.retweets_of_out_community
+        # add retweets of out community by in community
+        elif tweet_type == TweetType.RETWEET_OF_OUT_COMM_BY_IN_COMM:
+            return user.retweets_of_out_community_by_in_community
         elif tweet_type == TweetType.REPLY:
             return user.replies
         else:

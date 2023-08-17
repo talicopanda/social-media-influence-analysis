@@ -64,6 +64,10 @@ class ContentDemandSupplyMongoDAO(MongoDAOBase):
     def load_retweets_of_out_community(self) -> Set[ContentSpaceTweet]:
         pass
 
+    # add retweets of out community by in community
+    def load_retweets_of_out_community_by_in_community(self) -> Set[ContentSpaceTweet]:
+        pass
+
     def load_replies(self) -> Set[ContentSpaceTweet]:
         pass
 

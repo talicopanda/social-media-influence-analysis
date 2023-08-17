@@ -20,6 +20,8 @@ class AggregationBase:
     original_tweets: Set[TweetBase]
     retweets_of_in_comm: Set[TweetBase]
     retweets_of_out_comm: Set[TweetBase]
+    # add retweets of out community by in community
+    retweets_of_out_comm_by_in_comm: Set[TweetBase]
 
     def __init__(self, name: str, user_manager: UserManager,
                  tweet_manager: Optional[TweetManager]):
@@ -34,6 +36,8 @@ class AggregationBase:
         self.original_tweets = tweet_manager.original_tweets
         self.retweets_of_in_comm = tweet_manager.retweets_of_in_comm
         self.retweets_of_out_comm = tweet_manager.retweets_of_out_comm
+        # add retweets of out community by in community
+        self.retweets_of_out_comm_by_in_comm = tweet_manager.retweets_of_out_comm_by_in_comm
     
     def get_tweet(self, id) -> TweetBase:
         """Return the tweet with <id>."""
@@ -44,6 +48,10 @@ class AggregationBase:
             if tweet.id == id:
                 return tweet
         for tweet in self.retweets_of_out_comm:
+            if tweet.id == id:
+                return tweet
+        # add retweets of out community by in community
+        for tweet in self.retweets_of_out_comm_by_in_comm:
             if tweet.id == id:
                 return tweet
     

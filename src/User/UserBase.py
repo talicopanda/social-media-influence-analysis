@@ -27,6 +27,8 @@ class UserBase:
     quotes_of_out_community: Set[TweetBase]
     retweets_of_in_community: Set[TweetBase]
     retweets_of_out_community: Set[TweetBase]
+    # add retweets of out community by in community
+    retweets_of_out_community_by_in_community: Set[TweetBase]
     replies: Set[TweetBase]
 
 
@@ -54,4 +56,7 @@ class UserBase:
         self.quotes_of_out_community = set(kwargs.get("quotes_of_out_community", []))
         self.retweets_of_in_community = set(kwargs.get("retweets_of_in_community", []))
         self.retweets_of_out_community =set(kwargs.get("retweets_of_out_community", []))
+        # add retweets of out community by in community
+        self.retweets_of_out_community_by_in_community \
+            = set(kwargs.get("retweets_of_out_community_by_in_community", []))
         self.replies = set(kwargs.get("replies", []))

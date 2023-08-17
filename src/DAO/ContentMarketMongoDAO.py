@@ -81,6 +81,10 @@ class ContentMarketMongoDAO(MongoDAOBase):
 
     def load_retweets_of_out_community(self) -> Set[ContentMarketTweet]:
         return self._load_tweets(self.clean_retweets_of_out_community_collection)
+    
+    # add retweets of out community by in community
+    def load_retweets_of_out_community_by_in_community(self) -> Set[ContentMarketTweet]:
+        return self._load_tweets(self.clean_retweets_of_out_community_by_in_community_collection)
 
     def load_replies(self) -> Set[ContentMarketTweet]:
         return self._load_tweets(self.clean_replies_collection)
@@ -95,6 +99,9 @@ class ContentMarketMongoDAO(MongoDAOBase):
                 user_dict["retweets_of_in_community"])
             user_dict["retweets_of_out_community"] = _serialize_market_tweet(
                 user_dict["retweets_of_out_community"])
+            # add retweets of out community by in community
+            user_dict["retweets_of_out_community_by_in_community"] = _serialize_market_tweet(
+                user_dict["retweets_of_out_community_by_in_community"])
             user_dict["quotes_of_in_community"] = _serialize_market_tweet(
                 user_dict["quotes_of_in_community"])
             user_dict["quotes_of_out_community"] = _serialize_market_tweet(

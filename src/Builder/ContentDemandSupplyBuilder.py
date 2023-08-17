@@ -44,6 +44,9 @@ class ContentDemandSupplyBuilder(BuilderBase):
                                   TweetType.RETWEET_OF_IN_COMM)
         tweet_manager.load_tweets(self.space.retweets_of_out_comm,
                                   TweetType.RETWEET_OF_OUT_COMM)
+        # add retweets of out community by in community
+        tweet_manager.load_tweets(self.space.retweets_of_out_comm_by_in_comm, 
+                                  TweetType.RETWEET_OF_OUT_COMM_BY_IN_COMM)
 
         # Build User Manager
         user_manager = UserManager({
@@ -57,6 +60,8 @@ class ContentDemandSupplyBuilder(BuilderBase):
                                  user_manager, tweet_manager)
         ds.calculate_demand_in_community()
         ds.calculate_demand_out_community()
+        # add retweets of out community by in community
+        ds.calculate_demand_out_community_by_in_community()
         ds.calculate_supply()
         return ds
 
@@ -65,6 +70,8 @@ class ContentDemandSupplyBuilder(BuilderBase):
         self.dao.init_content_space(ds.content_space)
         self.dao.store_curve("demand_in_community", ds.demand_in_community)
         self.dao.store_curve("demand_out_community", ds.demand_out_community)
+        # add retweets of out community by in community
+        self.dao.store_curve("demand_out_community_by_in_community", ds.demand_out_community_by_in_community)
         self.dao.store_curve("supply", ds.supply)
 
     def _store_users(self, users: Set[ContentSpaceUser]) -> None:
@@ -81,8 +88,12 @@ class ContentDemandSupplyBuilder(BuilderBase):
         # Build Demand and Supply
         demand_in_community = self.dao.load_curve("demand_in_community")
         demand_out_community = self.dao.load_curve("demand_out_community")
+        # add retweets of out community by in community
+        demand_out_community_by_in_community = self.dao.load_curve("demand_out_community_by_in_community")
         supply = self.dao.load_curve("supply")
 
         # Build Content Demand Supply
+        # add retweets of out community by in community
         return ContentDemandSupply(self.name, content_space, 
-                                   demand_in_community, demand_out_community, supply)
+                                   demand_in_community, demand_out_community, 
+                                   demand_out_community_by_in_community, supply)

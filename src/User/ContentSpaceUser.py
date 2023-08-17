@@ -13,4 +13,6 @@ class ContentSpaceUser(UserBase):
     quotes_of_out_community: Set[ContentSpaceTweet]
     retweets_of_in_community: Set[ContentSpaceTweet]
     retweets_of_out_community: Set[ContentSpaceTweet]
+    # add retweets of out community by in community
+    retweets_of_out_community_by_in_community: Set[ContentSpaceTweet]
     replies: Set[ContentSpaceTweet]

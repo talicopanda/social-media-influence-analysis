@@ -13,4 +13,6 @@ class ContentMarketUser(UserBase):
     quotes_of_out_community: Set[ContentMarketTweet]
     retweets_of_in_community: Set[ContentMarketTweet]
     retweets_of_out_community: Set[ContentMarketTweet]
+    # add retweets of out community by in community
+    retweets_of_out_community_by_in_community: Set[ContentMarketTweet]
     replies: Set[ContentMarketTweet]

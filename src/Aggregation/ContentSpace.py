@@ -19,6 +19,8 @@ class ContentSpace(AggregationBase):
     original_tweets: Set[ContentSpaceTweet]
     retweets_of_in_comm: Set[ContentSpaceTweet]
     retweets_of_out_comm: Set[ContentSpaceTweet]
+    # add retweets of out community by in community
+    retweets_of_out_comm_by_in_comm: Set[ContentSpaceTweet]
 
     content_space: Set[ContentType]
     mapping: ContentTypeMapping
@@ -33,6 +35,8 @@ class ContentSpace(AggregationBase):
         content_space.extend([tweet.content for tweet in self.original_tweets])
         content_space.extend([tweet.content for tweet in self.retweets_of_in_comm])
         content_space.extend([tweet.content for tweet in self.retweets_of_out_comm])
+        # add retweets of out community by in community
+        content_space.extend([tweet.content for tweet in self.retweets_of_out_comm_by_in_comm])
         self.content_space = set(content_space)
 
     def get_tweet_content_type_repr(self, tweet_id: int) -> Any:
