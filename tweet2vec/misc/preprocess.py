@@ -31,47 +31,6 @@ def tokenize(s):
     return tokens_re.findall(s)
 
 
-def rachel_preprocess(s, lowercase=True):
-    tokens = tokenize(s)
-    tokens = [token.lower() for token in tokens]
-
-    # remove emojis
-    tokens = [token for token in tokens if not emoji.is_emoji(token)]
-
-    # remove stopwords
-    stop_words = stopwords.words('english')
-    tokens = [token for token in tokens if token not in stop_words]
-
-    html_regex = re.compile('<[^>]+>')
-    tokens = [token for token in tokens if not html_regex.match(token)]
-
-    mention_regex = re.compile('(?:@[\w_]+)')
-    # remove usernames entirely
-    tokens = [
-        '@user' if mention_regex.match(token) else token for token in tokens]
-    s = ' '.join([t for t in tokens if t]).replace('rt @user : ', '')
-    tokens = tokenize(s)
-    tokens = [
-        '' if mention_regex.match(token) else token for token in tokens]
-
-    url_regex = re.compile(
-        'http[s]?://(?:[a-z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+')
-    # remove URLs entirely
-    tokens = ['' if url_regex.match(token) else token for token in tokens]
-
-    hashtag_regex = re.compile("(?:\#+[\w_]+[\w\'_\-]*[\w_]+)")
-    tokens = ['' if hashtag_regex.match(token) else token for token in tokens]
-
-    # remove numbers
-    nums_regex = re.compile('[0-9]+')
-    tokens = ['' if nums_regex.match(token) else token for token in tokens]
-
-    # remove punctuation
-    tokens = ['' if not token.isalnum() else token for token in tokens]
-
-    return ' '.join([t for t in tokens if t])
-
-
 def preprocess(s, lowercase=True):
     tokens = tokenize(s)
     tokens = [token.lower() for token in tokens]
