@@ -38,7 +38,7 @@
   },
   "num_clusters": 20,
   "num_bins": 20,
-  "partitioning_strategy": "social_support",
+  "partitioning_strategy": "users",
   "embedding_type": "tweet2vec",
-  "content_type_method": "word_any"
+  "content_type_method": "binning"
 }

@@ -83,7 +83,7 @@ if not SPACE_SKIP:
         mapping = mapping_factory.get_cluster({
             "num_clusters": config["num_clusters"],
             "embeddings": market_dao.load_tweet_embeddings(),
-            "words": ["chess"],
+            # "words": ["chess"],
             "num_bins": config["num_bins"],
             "market": market
         })
@@ -167,6 +167,7 @@ from analysis import original_tweets_to_retweets_ratio, plot_social_support_rank
     plot_social_support_and_number_of_followers, plot_social_support_and_number_of_followings, \
     plot_rank_binned_followings, plot_bhattacharyya_distances, plot_social_support_rank_and_retweets
 
+print("")
 original_tweets_to_retweets_ratio(market)
 
 plot_social_support_rank_and_value(space, [False, False, False, True])
