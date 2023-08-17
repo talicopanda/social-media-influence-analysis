@@ -4,7 +4,7 @@
     "connection_url": "mongodb://localhost:27017/",
 
     "community_db_name": "rachel_chess_community",
-    "community_info_collection": "community_info",
+    "community_info_collection": "user_info",
     "user_info_collection": "user_info",
     "original_tweets_collection": "original_tweets",
     "quotes_of_in_community_collection": "quotes_of_in_community",

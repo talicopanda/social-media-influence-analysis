@@ -14,6 +14,7 @@ import numpy as np
 from scipy.stats import linregress
 from tqdm import tqdm
 from matplotlib.colors import LogNorm
+from sklearn.feature_extraction.text import CountVectorizer
 
 
 ### Final Report Plots #############################################################################
@@ -260,6 +261,94 @@ def plot_bhattacharyya_distances(space, ds: ContentDemandSupply) -> None:
     # print the Pearson-r and corresponding p-value
     print("Stats...")
     print(linregress(ranks, bhattacharyya_distances))
+
+
+def relative_frequency_months(market: ContentMarket) -> None:
+    """Calculates the relative frequency of each word in the set of tweets.
+    
+    Prints the top 10 words for each month in <market>.
+    """
+    corpus = initialize_month_corpus(market)
+    vectorizer = CountVectorizer(stop_words="english", min_df=100, ngram_range=(1, 2))
+    X = vectorizer.fit_transform(corpus)
+    X = X.todense()
+    X = np.array(X)
+
+    term_freqs = X.sum(axis=0)  # np.count_nonzero(X, axis=0)
+    term_list = vectorizer.get_feature_names_out()
+    print(len(term_list))
+
+    month_counts = []
+    for month in get_all_months(market):
+        month_counts.append(number_of_tweets_in_month(market, month))
+    month_boundaries = [0]
+    sum_so_far = 0
+    for i in range(len(get_all_months(market))):
+        sum_so_far += month_counts[i]
+        month_boundaries.append(sum_so_far)
+
+    term_to_weights = []
+    for i in range(len(get_all_months(market))):
+        good_words = 0
+        term_to_weight = {}
+        term_freqs_in_month = X[month_boundaries[i]:month_boundaries[i + 1]].sum(axis=0)
+        rel_freqs = term_freqs_in_month / term_freqs
+        for j in range(len(term_list)):
+            # check that the term is one that passes the threshold
+            if term_freqs_in_month[j] >= 100:
+                good_words += 1
+                term_to_weight[term_list[j]] = rel_freqs[j]
+            else:
+                term_to_weight[term_list[j]] = 0
+        term_to_weights.append(sorted(term_to_weight,
+                                      key=lambda term: term_to_weight[term],
+                                      reverse=True)[:10])
+        print(get_all_months(market)[i])
+        print(sorted(term_to_weight, key=lambda term: term_to_weight[term], reverse=True)[:10])
+        print(good_words)
+
+
+def number_of_tweets_in_month(market: ContentMarket, month: tuple[int]) -> int:
+    """Returns the number of tweets in <month> that are in <market>.
+    <month> is a tuple of two integers in the format of (year, month) (ex. (2023, 8) would represent
+    August 2023)."""
+    all_tweets \
+        = market.original_tweets \
+            .union(market.retweets_of_in_comm.union(market.retweets_of_out_comm_by_in_comm))
+    count = 0
+    for tweet in all_tweets:
+        if month ==  (tweet.created_at.year, tweet.created_at.month):
+            count += 1
+    return count
+
+
+def initialize_month_corpus(market: ContentMarket) -> List[List[str]]:
+    """Creates and returns the corpus for all the tweets.
+    
+    A corpus is a list. Each element in the list is a list of all the tweets in that month.
+    The corpus is sorted so that the tweets in the earlier months come first."""
+    month_to_text = {}
+    corpus = []
+    all_tweets \
+        = market.original_tweets \
+            .union(market.retweets_of_in_comm.union(market.retweets_of_out_comm_by_in_comm))
+    for tweet in all_tweets:
+        month = (tweet.created_at.year, tweet.created_at.month)
+        if month in month_to_text:
+            month_to_text[month].append(tweet.content)
+        else:
+            month_to_text[month] = [tweet.content]
+    for month in sorted(month_to_text):
+        corpus.extend(month_to_text[month])
+    return corpus
+
+
+def get_all_months(market: ContentMarket) -> List[tuple[int]]:
+    """Get a list of all the different months in which a tweet in <market> was created."""
+    all_tweets \
+        = market.original_tweets \
+            .union(market.retweets_of_in_comm.union(market.retweets_of_out_comm_by_in_comm))
+    return sorted(list({(tweet.created_at.year, tweet.created_at.month) for tweet in all_tweets}))
 
 
 ### Helper Functions for Final Report Plots ########################################################

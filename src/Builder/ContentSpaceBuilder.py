@@ -101,7 +101,7 @@ class ContentSpaceBuilder(BuilderBase):
             -> Set[ContentSpaceTweet]:
         new_tweets = set()
         for tweet in tweets:
-            tweet_dict = vars(tweet)
+            tweet_dict = vars(tweet).copy()
             if self.mapping.get_content_type(tweet.id) is not None:  # (3) - filtering for binning
                 tweet_dict["text"] = self.mapping.get_content_type(tweet.id)
                 tweet_dict.pop("content")
