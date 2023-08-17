@@ -50,9 +50,8 @@ def main(args):
             # config["database"]["clean_quotes_of_in_community_collection"],
             # config["database"]["clean_quotes_of_out_community_collection"],
             config["database"]["clean_retweets_of_in_community_collection"],
-            # config["database"]["clean_retweets_of_out_community_collection"],
+            config["database"]["clean_retweets_of_out_community_collection"],
             config["database"]["clean_retweets_of_out_community_by_in_community_collection"],
-            config["database"]["clean_retweets_of_in_community_by_out_community_collection"]
             ]
 
         for collec in collections:
