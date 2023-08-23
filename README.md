@@ -477,7 +477,7 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
    A possible issue with the previous algorithm is when the data has varying sizes of clusters:
 
    <p align="center">
-       <img src="assets/kmeans_big_small.png"  width=50% height=50%>
+       <img src="https://github.com/talicopanda/social-media-influence-analysis/blob/main/assets/kmeans_big_small.png"  width=50% height=50%>
    </p>
 
    For example, if red is the topic of sports and blue is AI, our modifed k-means would not split the clusters into topics their major topics, but it would likely instead split the sports cluster into soccer, basketball and football. This inconsistency across topic sizes could add bias to the data.
@@ -493,13 +493,13 @@ As explained in [Further Theory](#further-theory), our $\delta$-split of the lat
    The following is a $\delta$-split of a one-dimensional embedding space:
 
    <p align="center">
-       <img src="assets/PCA_histogram.png"  width=50% height=50%>
+       <img src="https://github.com/talicopanda/social-media-influence-analysis/blob/main/assets/PCA_histogram.png"  width=50% height=50%>
    </p>
 
    Or we can visualize the latent space in 2D:
 
    <p align="center">
-       <img src="assets/PCA_scatter.png"  width=50% height=50%>
+       <img src="https://github.com/talicopanda/social-media-influence-analysis/blob/main/assets/PCA_scatter.png"  width=50% height=50%>
    </p>
 
 ## Demand / Supply Functions
